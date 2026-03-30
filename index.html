@@ -680,13 +680,13 @@ async function startConversation(){
     document.getElementById('listen-ind').textContent='';
     document.getElementById('mic-btn').className='mic-btn idle';
 
-    // Start camera (best-effort)
+    // Start camera only (no audio — SpeechRecognition needs the mic)
     try{
-        convState.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:true});
+        convState.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
         document.getElementById('conv-vid').srcObject=convState.stream;
         document.getElementById('conv-camera').style.display='';
     }catch(e){
-        try{convState.stream=await navigator.mediaDevices.getUserMedia({audio:true});document.getElementById('conv-camera').style.display='none'}catch(e2){document.getElementById('conv-camera').style.display='none'}
+        document.getElementById('conv-camera').style.display='none';
     }
 
     // Timer
