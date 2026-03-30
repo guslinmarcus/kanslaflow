@@ -1615,14 +1615,19 @@ async function createFamily(){
 
 function addChild(){
     const nameEl=document.getElementById('new-child-name');
-    const name=nameEl.value.trim();if(!name)return;
+    const name=nameEl.value.trim();if(!name){toast('Ange barnets namn');return}
     const ageGroup=document.getElementById('new-child-age').value;
     const id='child_'+Date.now();const storageKey='moodly_child_'+id;
     const d=ld();
+    // Get selected places from checkboxes
+    const checkboxes=document.querySelectorAll('.child-place-cb');
+    const selectedIds=new Set();
+    checkboxes.forEach(cb=>{if(cb.checked)selectedIds.add(cb.value)});
+    const childPlaces=selectedIds.size>0?d.places.filter(p=>selectedIds.has(p.id)):[];
     d.familyProfiles.push({id,name,ageGroup,storageKey});sv(d);
-    const childData={places:[...d.places],placeCheckins:[],benchmarks:[],checkins:[],micro:[],xp:0,level:1,points:0,streak:0,firstVisit:false,baseline:null,userName:name,aiName:d.aiName||'Luna',personality:'warm',onboarded:new Date().toISOString(),alertsSeen:[],familyId:d.familyId,role:'child',familyProfiles:[],parentKey:PARENT_KEY,unlockedAvatars:['default'],selectedAvatar:'default',dailyRewardClaimed:null};
+    const childData={places:childPlaces.map(p=>({...p})),placeCheckins:[],benchmarks:[],checkins:[],micro:[],xp:0,level:1,points:0,streak:0,firstVisit:false,baseline:null,userName:name,aiName:d.aiName||'Luna',personality:'warm',onboarded:new Date().toISOString(),alertsSeen:[],familyId:d.familyId,role:'child',familyProfiles:[],parentKey:PARENT_KEY,unlockedAvatars:['default'],selectedAvatar:'default',dailyRewardClaimed:null};
     if(sok)localStorage.setItem(storageKey,JSON.stringify(childData));
-    toast(name+' tillagd!');
+    toast(name+' tillagd med '+childPlaces.length+' platser!');
 }
 
 function removeChild(idx){
@@ -1742,11 +1747,25 @@ function renderFamily(){
 
         // Add child form (legacy local mode)
         if(!sbUser){
+            let placePicker='';
+            if(d.places.length){
+                placePicker+=`<div style="margin-top:8px"><div style="font-size:.78rem;font-weight:600;margin-bottom:6px">Vilka platser ska barnet ha?</div>`;
+                d.places.forEach(p=>{
+                    const pt=PT[p.type]||PT.other;
+                    const checked=p.type!=='work'?'checked':''; // Pre-check all except work
+                    placePicker+=`<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.82rem;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)">
+                        <input type="checkbox" class="child-place-cb" value="${p.id}" ${checked} style="width:18px;height:18px;accent-color:var(--p)">
+                        <span>${pt.icon}</span><span>${p.name}</span><span style="font-size:.68rem;color:var(--t2)">${pt.label}</span>
+                    </label>`;
+                });
+                placePicker+=`</div>`;
+            }
             html+=`<div class="cd"><div class="ct">+ Lägg till barn</div>
                 <div class="sett-row"><span>Namn</span><input class="sett-input" id="new-child-name" placeholder=""></div>
                 <div class="sett-row"><span>Åldersgrupp</span><select id="new-child-age">
                     <option value="6-9">6-9 år</option><option value="10-13">10-13 år</option><option value="14-17">14-17 år</option>
                 </select></div>
+                ${placePicker}
                 <button class="btn ba" onclick="addChild();renderFamily()" style="margin-top:8px">+ Lägg till barn</button>
             </div>`;
         }
