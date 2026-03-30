@@ -77,7 +77,7 @@
         @keyframes listen-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.9}}
         @keyframes speak-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 
-        /* CONVERSATION VIEW */
+        /* CONVERSATION VIEW — Chat Interface */
         .conv-view{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column}
         .conv-view.on{display:flex}
         .conv-top{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)}
@@ -218,11 +218,10 @@
         .sett-row:last-child{border-bottom:none}
         .sett-input{width:130px;padding:8px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--rs);color:var(--t);font-size:.84rem;outline:none;text-align:right}
         .sett-input::placeholder{color:var(--t2)}
-        .lang-btns{display:flex;gap:8px}
-        .lang-btns .btn{flex:1;padding:10px}
+        select{padding:8px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--rs);color:var(--t);font-size:.84rem;outline:none}
 
         /* FAMILY */
-        .fam-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;padding:16px 16px 32px;max-width:500px;margin:0 auto}
+        .fam-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;padding:16px 16px 32px;max-width:500px;margin:0 auto;display:none}
         .fam-member{display:flex;align-items:center;gap:12px;padding:14px;background:var(--c1);border-radius:var(--r);margin-bottom:10px;border:1px solid rgba(255,255,255,.04)}
         .fam-avatar{font-size:1.5rem;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(108,92,231,.12);border-radius:50%;flex-shrink:0}
         .fam-info{flex:1;min-width:0}
@@ -231,21 +230,20 @@
         .fam-score{text-align:right}
         .fam-score .v{font-size:1.2rem;font-weight:800}
         .fam-score .trend{font-size:.7rem;font-weight:600}
-        .profile-banner{position:fixed;top:0;left:0;right:0;background:var(--p);color:#fff;text-align:center;padding:8px 16px;font-size:.78rem;font-weight:600;z-index:99;display:flex;align-items:center;justify-content:center;gap:8px}
+        .profile-banner{position:fixed;top:0;left:0;right:0;background:var(--p);color:#fff;text-align:center;padding:8px 16px;font-size:.78rem;font-weight:600;z-index:99;display:none;align-items:center;justify-content:center;gap:8px}
         .profile-banner .back-btn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 12px;border-radius:12px;font-size:.72rem;cursor:pointer}
-        select{padding:8px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--rs);color:var(--t);font-size:.84rem;outline:none}
     </style>
 </head>
 <body>
 
-<!-- PROFILE BANNER (for child profile viewing) -->
-<div class="profile-banner" id="profile-banner" style="display:none">
+<!-- PROFILE BANNER (child profile viewing) -->
+<div class="profile-banner" id="profile-banner">
     <span id="profile-banner-text"></span>
     <button class="back-btn" onclick="switchToParent()">Tillbaka</button>
 </div>
 
 <!-- FAMILY DASHBOARD OVERLAY -->
-<div class="fam-overlay" id="fam-overlay" style="display:none">
+<div class="fam-overlay" id="fam-overlay">
     <div id="fam-overlay-content"></div>
 </div>
 
@@ -253,38 +251,55 @@
 <div class="ob" id="ob">
     <div class="ob-step on" id="ob1">
         <div style="font-size:3.2rem;margin-bottom:14px">🧠</div>
-        <h1 id="ob-title">Moodly</h1>
-        <p id="ob-tagline"></p>
-        <div style="text-align:left;max-width:260px;margin-bottom:24px" id="ob-feats"></div>
-        <button class="btn bp" onclick="obNext(2)" style="max-width:280px" id="ob-start-btn"></button>
-        <p style="font-size:.72rem;color:var(--t2);margin-top:14px" id="ob-social"></p>
+        <h1>Moodly</h1>
+        <p>Din personliga AI-kompis som hjälper dig förstå och förbättra ditt välmående — genom riktiga samtal.</p>
+        <div style="text-align:left;max-width:260px;margin-bottom:24px">
+            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>💬</span> Prata naturligt — AI:n lyssnar och ställer frågor</div>
+            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📈</span> Bevisad förbättring av ditt välmående</div>
+            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔒</span> Privat och GDPR-säkert</div>
+        </div>
+        <button class="btn bp" onclick="obNext(2)" style="max-width:280px">Kom igång — 30 sekunder</button>
+        <p style="font-size:.72rem;color:var(--t2);margin-top:14px">Redan <strong style="color:var(--a)">2 847</strong> personer mår bättre med Moodly</p>
     </div>
 
     <div class="ob-step" id="ob2">
         <div style="font-size:2.5rem;margin-bottom:10px">👋</div>
-        <h1 id="ob2-title"></h1>
-        <p id="ob2-desc"></p>
-        <input type="text" id="user-name-input" placeholder="" maxlength="30">
-        <button class="btn bp" onclick="obNext(3)" id="ob2-btn"></button>
+        <h1>Vad heter du?</h1>
+        <p>Så att din AI kan tilltala dig med namn.</p>
+        <input type="text" id="user-name-input" placeholder="Ditt namn..." maxlength="30">
+        <button class="btn bp" onclick="obNext(3)">Nästa</button>
     </div>
 
     <div class="ob-step" id="ob3">
         <div style="font-size:2.5rem;margin-bottom:10px">✨</div>
-        <h1 id="ob3-title"></h1>
-        <p id="ob3-desc"></p>
-        <input type="text" id="ai-name-input" placeholder="" maxlength="20">
-        <button class="btn bp" onclick="obNext(4)" id="ob3-btn"></button>
+        <h1>Namnge din AI</h1>
+        <p>Din AI lär känna dig, minns era samtal, och hjälper dig utvecklas. Vad vill du kalla den?</p>
+        <input type="text" id="ai-name-input" placeholder="t.ex. Luna, Nova, Eli..." maxlength="20">
+        <button class="btn bp" onclick="obNext(4)">Nästa</button>
     </div>
 
     <div class="ob-step" id="ob4">
-        <h1 id="ob4-title"></h1>
-        <p id="ob4-desc"><span id="ob-name-preview"></span></p>
-        <div class="personality-grid" id="pers-grid"></div>
-        <button class="btn ba" onclick="finishOnboarding()" id="ob4-btn"></button>
+        <h1>Välj personlighet</h1>
+        <p>Hur vill du att <span id="ob-name-preview">din AI</span> ska vara?</p>
+        <div class="personality-grid">
+            <div class="pers-btn sel" data-pers="warm" onclick="selectPers(this)">
+                <strong>🤗 Varm & empatisk</strong>
+                <span>Lyssnar, validerar och stöttar. Som en nära vän.</span>
+            </div>
+            <div class="pers-btn" data-pers="direct" onclick="selectPers(this)">
+                <strong>💪 Direkt & ärlig</strong>
+                <span>Rakt på sak. Utmanar dig att växa.</span>
+            </div>
+            <div class="pers-btn" data-pers="coach" onclick="selectPers(this)">
+                <strong>🎯 Coachande & motiverande</strong>
+                <span>Målfokuserad. Hjälper dig nå din potential.</span>
+            </div>
+        </div>
+        <button class="btn ba" onclick="finishOnboarding()">Starta din resa</button>
     </div>
 </div>
 
-<!-- CONVERSATION VIEW -->
+<!-- CONVERSATION VIEW — Chat Interface -->
 <div class="conv-view" id="conv-view">
     <div class="conv-top">
         <span class="name" id="conv-name"><span class="dot"></span></span>
@@ -295,12 +310,12 @@
     <div class="conv-bottom">
         <div class="listening-indicator" id="listen-ind"></div>
         <div class="conv-input-row">
-            <input type="text" class="conv-text-input" id="conv-text" placeholder="" enterkeyhint="send">
+            <input type="text" class="conv-text-input" id="conv-text" placeholder="Skriv här..." enterkeyhint="send">
             <button class="mic-btn idle" id="mic-btn"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
             <button class="send-btn" id="send-btn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
         <div class="conv-actions">
-            <button class="end-btn" id="end-conv-btn"></button>
+            <button class="end-btn" id="end-conv-btn">Avsluta samtal</button>
         </div>
     </div>
 </div>
@@ -323,16 +338,16 @@
         <div class="streak-row">
             <span class="fire">🔥</span>
             <span class="num" id="s-num">0</span>
-            <span class="lbl" id="streak-lbl"></span>
+            <span class="lbl">dagars streak</span>
         </div>
         <div class="week-dots" id="w-dots"></div>
 
         <div id="home-alerts"></div>
 
         <div class="qt-card">
-            <div class="ct" id="qt-title"></div>
+            <div class="ct">💭 Snabb tanke</div>
             <div class="qt-row">
-                <input type="text" class="qt-input" id="qt-input" placeholder="" enterkeyhint="send">
+                <input type="text" class="qt-input" id="qt-input" placeholder="Hur känner du dig just nu?" enterkeyhint="send">
                 <button class="qt-send" id="qt-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
             </div>
             <div id="qt-feedback" style="display:none"></div>
@@ -353,7 +368,7 @@
 
         <button class="start-conv-btn" id="start-conv-btn">
             <div class="orb-mini"><div class="dot"></div><div class="dot"></div></div>
-            <span id="start-conv-lbl"></span>
+            <span>Starta samtal</span>
         </button>
 
         <div id="home-today" style="margin-top:12px"></div>
@@ -367,42 +382,42 @@
             <div id="r-xp" style="font-size:.78rem;color:var(--g);margin-top:3px"></div>
         </div>
         <div class="ai-ref"><h3 id="r-ref-title"></h3><p id="r-ref-text"></p></div>
-        <div class="cd"><div class="ct" id="r-summary-title"></div><div class="ts-box"><p id="r-summary"></p></div><div class="cats" id="r-cats"></div></div>
+        <div class="cd"><div class="ct">📝 Sammanfattning</div><div class="ts-box"><p id="r-summary"></p></div><div class="cats" id="r-cats"></div></div>
         <div class="cd" id="r-interv"><div class="ct" id="r-interv-t"></div><p id="r-interv-p" style="font-size:.82rem;color:var(--t2);line-height:1.5"></p></div>
-        <div class="cd" id="r-vproof" style="display:none"><div class="ct" id="r-vproof-title"></div><p id="r-vp-text" style="font-size:.82rem;color:var(--t2);line-height:1.5"></p></div>
-        <div class="share-cd"><h3 id="share-title"></h3><div class="share-row"><div class="share-i"><div class="n" id="sh-s">—</div><div class="l">Score</div></div><div class="share-i"><div class="n" id="sh-st">—</div><div class="l">Streak</div></div><div class="share-i"><div class="n" id="sh-l">—</div><div class="l" id="sh-lvl-lbl"></div></div></div><button class="btn bg" onclick="doShare()" id="share-btn"></button></div>
-        <button class="btn bs" onclick="go('home')" style="margin-top:6px" id="r-back-btn"></button>
+        <div class="cd" id="r-vproof" style="display:none"><div class="ct">📈 Din utveckling</div><p id="r-vp-text" style="font-size:.82rem;color:var(--t2);line-height:1.5"></p></div>
+        <div class="share-cd"><h3>Dela din framgång</h3><div class="share-row"><div class="share-i"><div class="n" id="sh-s">—</div><div class="l">Score</div></div><div class="share-i"><div class="n" id="sh-st">—</div><div class="l">Streak</div></div><div class="share-i"><div class="n" id="sh-l">—</div><div class="l">Nivå</div></div></div><button class="btn bg" onclick="doShare()">Dela med vänner</button></div>
+        <button class="btn bs" onclick="go('home')" style="margin-top:6px">Tillbaka</button>
     </div>
 
     <!-- DIARY -->
     <div class="pg" id="pg-diary">
-        <h2 style="font-size:1.15rem;margin-bottom:12px" id="diary-title"></h2>
-        <input class="d-search" id="d-search" placeholder="">
+        <h2 style="font-size:1.15rem;margin-bottom:12px">📖 Din dagbok</h2>
+        <input class="d-search" id="d-search" placeholder="Sök i dina reflektioner...">
         <div id="d-list"></div>
     </div>
 
     <!-- PROGRESS -->
     <div class="pg" id="pg-progress">
-        <h2 style="font-size:1.15rem;margin-bottom:12px" id="progress-title"></h2>
+        <h2 style="font-size:1.15rem;margin-bottom:12px">📈 Din utveckling</h2>
         <div class="cd"><div class="lvl-bar" id="lvl-bar"></div></div>
-        <div class="rank-cd" id="rank-cd"><div style="font-size:.82rem;color:var(--t2);margin-bottom:3px" id="rank-vs"></div><div class="rank-p" id="rk-p">—</div><div class="rank-l" id="rk-l"></div><div class="rank-bw"><div class="rank-bf" style="width:100%"></div><div class="rank-m" id="rk-m" style="left:50%"></div></div></div>
+        <div class="rank-cd" id="rank-cd"><div style="font-size:.82rem;color:var(--t2);margin-bottom:3px">Din förbättring vs. community</div><div class="rank-p" id="rk-p">—</div><div class="rank-l" id="rk-l"></div><div class="rank-bw"><div class="rank-bf" style="width:100%"></div><div class="rank-m" id="rk-m" style="left:50%"></div></div></div>
         <div class="sr" id="st-row"></div>
-        <div class="cd"><div class="ct" id="trend-title"></div><div class="ch-w"><canvas id="t-chart"></canvas></div></div>
-        <div class="cd"><div class="ct" id="pattern-title"></div><div id="pat-list"></div></div>
-        <div class="cd"><button class="btn bs" onclick="exportData()" id="export-btn"></button></div>
+        <div class="cd"><div class="ct">📈 Trend</div><div class="ch-w"><canvas id="t-chart"></canvas></div></div>
+        <div class="cd"><div class="ct">🔍 Mönster</div><div id="pat-list"></div></div>
+        <div class="cd"><button class="btn bs" onclick="exportData()">📋 Exportera data (JSON)</button></div>
     </div>
 
     <!-- SETTINGS -->
     <div class="pg" id="pg-settings">
-        <h2 style="font-size:1.15rem;margin-bottom:12px" id="settings-title"></h2>
+        <h2 style="font-size:1.15rem;margin-bottom:12px">⚙️ Inställningar</h2>
         <div id="settings-content"></div>
     </div>
 
     <nav class="nav">
-        <div class="ni on" data-p="home"><svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg><span class="nav-home-lbl"></span></div>
-        <div class="ni" data-p="diary"><svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-1 5H7V5h10v2z"/></svg><span class="nav-diary-lbl"></span></div>
-        <div class="ni" data-p="progress"><svg viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-3h2v11H7zm4-3h2v14h-2zm4-3h2v17h-2zm4-2h2v19h-2z"/></svg><span class="nav-progress-lbl"></span></div>
-        <div class="ni" data-p="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg><span class="nav-settings-lbl"></span></div>
+        <div class="ni on" data-p="home"><svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg>Hem</div>
+        <div class="ni" data-p="diary"><svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-1 5H7V5h10v2z"/></svg>Dagbok</div>
+        <div class="ni" data-p="progress"><svg viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-3h2v11H7zm4-3h2v14h-2zm4-3h2v17h-2zm4-2h2v19h-2z"/></svg>Framsteg</div>
+        <div class="ni" data-p="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>Inst.</div>
     </nav>
 </div>
 
@@ -410,303 +425,40 @@
 
 <script>
 // ===================================================================
-// Moodly v4.0 — AI Conversation Companion (i18n + Family)
+// Moodly v4 — AI Conversation Companion + Family
 // ===================================================================
 
-// ===== i18n LANG OBJECT =====
-const LANG={
-sv:{
-  app:'Moodly',
-  tagline:'Din personliga AI-kompis som hjalper dig forsta och forbattra ditt valmaende — genom riktiga samtal.',
-  obFeat1:'Prata naturligt — AI:n lyssnar och staller fragor',
-  obFeat2:'Bevisad forbattring av ditt valmaende',
-  obFeat3:'Privat och GDPR-sakert',
-  obStart:'Kom igang — 30 sekunder',
-  obSocial:'Redan <strong style="color:var(--a)">2 847</strong> personer mar battre med Moodly',
-  obNameTitle:'Vad heter du?',
-  obNameDesc:'Sa att din AI kan tilltala dig med namn.',
-  obNamePh:'Ditt namn...',
-  obNext:'Nasta',
-  obAiTitle:'Namnge din AI',
-  obAiDesc:'Din AI lar kanna dig, minns era samtal, och hjalper dig utvecklas. Vad vill du kalla den?',
-  obAiPh:'t.ex. Luna, Nova, Eli...',
-  obPersTitle:'Valj personlighet',
-  obPersDesc:'Hur vill du att {name} ska vara?',
-  persWarmT:'Varm & empatisk',persWarmD:'Lyssnar, validerar och stottar. Som en nara van.',
-  persDirectT:'Direkt & arlig',persDirectD:'Rakt pa sak. Utmanar dig att vaxa.',
-  persCoachT:'Coachande & motiverande',persCoachD:'Malfokuserad. Hjalper dig na din potential.',
-  obFinish:'Starta din resa',
-  navHome:'Hem',navDiary:'Dagbok',navProgress:'Framsteg',navSettings:'Installningar',
-  streakDays:'dagars streak',
-  qtTitle:'Snabb tanke',qtPh:'Hur kanner du dig just nu?',
-  startConv:'Starta samtal',endConv:'Avsluta samtal',
-  convPh:'Skriv har...',listening:'Lyssnar...',listenSend:'Lyssnar... (tryck mikrofon for att skicka)',
-  noVoice:'Roststod saknas — skriv istallet',noListen:'Kunde inte lyssna — skriv istallet',noMic:'Kunde inte starta mikrofon',
-  moodScore:'MoodScore',
-  diaryTitle:'Din dagbok',diarySearch:'Sok i dina reflektioner...',diaryEmpty:'Din dagbok ar tom.\nSkriv en snabb tanke eller starta ett samtal!',
-  progressTitle:'Din utveckling',trend:'Trend',patterns:'Monster',
-  rankVs:'Din forbattring vs. community',
-  avg:'Snitt',best:'Basta',convs:'Samtal',level:'Niva',
-  exportBtn:'Exportera data (JSON)',exported:'Exporterad!',copied:'Kopierat!',
-  shareTitle:'Dela din framgang',shareBtn:'Dela med vanner',
-  summaryTitle:'Sammanfattning',yourDev:'Din utveckling',back:'Tillbaka',
-  greetMorn:'God morgon',greetDay:'Hej',greetEve:'God kvall',greetNight:'God natt',
-  todayDone:'Du har pratat med {name} idag',todayPending:'Dags att checka in med {name}',
-  todayScore:'Dagens MoodScore',seeProgress:'Se din utveckling',
-  homeMsgDone:['Bra jobbat idag! Vi ses imorgon','Du tog dig tid att reflektera — det gor skillnad','Varje samtal bygger din emotionella styrka'],
-  homeMsgPending:['Jag ar redo nar du ar — tryck for att prata','Hur har din dag varit? Jag lyssnar','Ta 2 minuter for dig sjalv — det ar vart det'],
-  needMore:'2+ samtal for graf',patternsNeed:'5+ matningar behovs for monster.',noPatterns:'Inga tydliga monster annu.',
-  patCat:'Nar du namner <strong>{cat}</strong>: {diff} poang {arrow}',
-  patEmo:'Vanligaste kanslan: <strong>{emo}</strong> ({pct}%)',
-  patImproved:'Forbattrad',patDeclined:'Sjunkit',patSince:' poang sedan start',
-  patBestTime:'Du mar bast pa <strong>{time}</strong> ({hi} vs {lo} poang)',morning:'morgonen',evening:'kvallen',
-  rankTop:'Topp {pct}%',rankFast:'Du utvecklas snabbare an {pct}% av alla',rankBetter:'Du forbattras mer an {pct}% av anvandarna',
-  vsLastWeek:'vs forra v.',
-  alertDecline:'Nedatgaende trend',alertDeclineDesc:'Ditt valmaende har sjunkit tre matningar i rad. Vill du starta ett samtal?',
-  alertStress:'Stress-monster upptackt',alertStressDesc:'Du har rapporterat stress 3 ganger i rad. En andningsovning kan hjalpa: 4s in, 7s hall, 8s ut.',
-  alertCatPos:'{cat} gor dig glad',alertCatPosDesc:'Du mar i snitt {diff} poang battre nar du pratar om {cat}. Investera mer tid dar!',
-  alertCatNeg:'{cat} tynger dig',alertCatNegDesc:'Ditt score sjunker i snitt {diff} poang nar {cat} kommer upp. Finns det nagot du kan forandra?',
-  alertImprove:'Tre bra matningar i rad!',alertImproveDesc:'Ditt snitt ligger {diff} poang over din startpunkt. Det du gor fungerar!',
-  alertInactive:'{days} dagar sedan sist',alertInactiveDesc:'En snabb tanke tar bara sekunder. Hur mar du idag?',
-  alertShift:'Kansloforandring',alertShiftDesc:'Din vanligaste kansla andrades fran {from} till {to} den senaste veckan.',
-  emoLabel:{glad:'glad och positiv',lugn:'lugn och balanserad',neutral:'neutral',stressad:'stressad',ledsen:'ledsen och tyngd',orolig:'orolig',arg:'frustrerad',trott:'trott och energilos'},
-  emoShort:{glad:'Glad',lugn:'Lugn',neutral:'Neutral',stressad:'Stressad',ledsen:'Ledsen',orolig:'Orolig',arg:'Arg',trott:'Trott'},
-  emoIcons:{glad:'😊',lugn:'😌',neutral:'😐',stressad:'😰',ledsen:'😢',orolig:'😟',arg:'😤',trott:'😴'},
-  qtComments:{glad:'Fint att hora! Fortsatt gora det som fungerar.',lugn:'Stabilitet ar styrka. Bra lage.',neutral:'Noterat. Ibland ar neutralt helt okej.',stressad:'Stress noterat. Prova en kort andningsovning?',ledsen:'Jag hor dig. Du ar inte ensam om att kanna sa.',orolig:'Oro ar vanligt. Vill du prata mer om det?',arg:'Frustration noterat. Vad kan du paverka?',trott:'Vila ar viktigt. Var snall mot dig sjalv.'},
-  summaryTpl:'Dagens samtal varade {min} minuter. Stamningen var overvagande {mood}.{cats}',
-  summaryNoData:'{name} och anvandaren hade ett kort samtal. Inte tillrackligt med data for en sammanfattning.',
-  summaryCatsPrefix:' Samtalet berorde framst: ',
-  summaryUp:'Valmaendet ar {diff} poang battre an de senaste dagarna.',
-  summaryDown:'Valmaendet sjonk {diff} poang — en nedatgaende trend att uppmarksamma.',
-  refScoreUp:'Din score gick upp {diff} poang sedan igar — det du gor fungerar! ',
-  refScoreDown:'Idag var {diff} poang lagre. Det ar okej — alla dagar ser inte likadana ut. ',
-  refJobStress:'Jobbet verkar tynga dig. Fundera pa vad du kan paverka vs. vad du behover slappa. ',
-  refRelGood:'Relationer ger dig energi — investera i dem! ',
-  refLow:'Det tar mod att erkanna att man har det tufft. Att du reflekterar ar i sig ett steg framat.',
-  refHigh:'Du ar i ett riktigt bra lage. Notera vad som bidrar — det ar din formel.',
-  refMid:'Fortsatt reflektera dagligen. Medvetenhet ar forsta steget till forandring.',
-  vpUp:'Sedan du borjade prata med {name} har ditt genomsnittliga MoodScore okat med {diff} poang. Dina samtal gor skillnad!',
-  vpDown:'Ditt score har sjunkit {diff} poang sedan start. Det kan vara en tuff period — men att du fortsatter reflektera ar det viktigaste.',
-  vpAvgDesc:'Ditt genomsnittliga MoodScore. Fortsatt — monstren blir tydligare med tid.',
-  vpHomeUp:'Ditt valmaende har forbattrats sedan du borjade prata med {name}',
-  vpHomeDn:'En tuff period — men att du fortsatter visa upp ar det som gor skillnad',
-  interv1t:'Andningsovning',interv1p:'4-7-8: Andas in 4s, hall 7s, ut 8s genom munnen. 3 omgangar.',
-  interv2t:'Grounding-teknik',interv2p:'5-4-3-2-1: Se 5 saker, ror 4, hor 3, lukta 2, smaka 1.',
-  interv3t:'Humorboost',interv3p:'Satt pa en favoritlat och ror dig i 2 minuter — det frigor endorfiner.',
-  interv4t:'Bevara kanslan',interv4p:'Skriv 3 saker du ar tacksam for. Det starker positiva neurala kopplingar.',
-  shareText:'Moodly\n\nMoodScore: {score}/100\nStreak: {streak} dagar\nNiva {level}: {levelName}\n\n{url}',
-  askName:'Hej! Innan vi borjar — vad heter du?',
-  microRef:'Jag sag att du skrev "{text}" — vill du prata mer om det?',
-  lastStressed:'Forra gangen pratade vi om att du var stressad — hur ar det nu?',
-  lastSad:'Sist verkade du ha det tufft — hur kanns det idag?',
-  lastJob:'Sist namnde du jobbet — hur har det gatt?',
-  lastRel:'Sist pratade vi om relationer — har nagot forandrats?',
-  // Settings
-  settTitle:'Installningar',settProfile:'Profil',settLang:'Sprak',settFamily:'Familj',settData:'Data',settAbout:'Om Moodly',
-  settUserName:'Ditt namn',settAiName:'AI-namn',settPersonality:'Personlighet',settSave:'Spara',settSaved:'Sparat!',
-  settExport:'Exportera all data (JSON)',settDelete:'Radera all data',settDeleteConfirm:'Ar du saker? All data raderas permanent.',settDeleted:'All data raderad.',
-  settVersion:'Version 4.0',settPrivacy:'All data lagras lokalt pa din enhet. Inget skickas till servrar.',
-  settCreateFamily:'Skapa familj',settFamilyDash:'Familje-dashboard',settAddChild:'Lagg till barn',settChildName:'Barnets namn',
-  settAgeGroup:'Aldersgrupp',settRemove:'Ta bort',settNoFamily:'Ingen familj skapad annu.',
-  settViewChild:'Visa {name}',
-  famDashTitle:'Familje-dashboard',famClose:'Stang',famNoData:'Ingen data annu',famLastCheckin:'Senaste:',
-  famAlertTitle:'Obs!',famAlertDesc:'{name} har {count}+ laga/stressade registreringar.',
-  viewingChild:'Visar: {name}',backToParent:'Tillbaka till foraldraprofil',
-  LVLS:[{l:1,n:'Nyborjare',xp:0,c:'var(--t2)'},{l:2,n:'Reflekterare',xp:50,c:'var(--a)'},{l:3,n:'Medveten',xp:150,c:'var(--pl)'},{l:4,n:'Utforskare',xp:350,c:'var(--ok)'},{l:5,n:'Insiktsfull',xp:600,c:'var(--w)'},{l:6,n:'Emotionell atlet',xp:1000,c:'var(--g)'},{l:7,n:'KansloMastare',xp:1500,c:'#FF6B6B'}],
-  EMO:{glad:{w:['glad','lycklig','nojd','fantastisk','underbar','toppen','skratta','rolig','kul','bra','harlig','gladje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','alskar','karlek','awesome','nice'],v:.85},lugn:{w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekvam','stabil','okej','neutral','fine','helt ok'],v:.65},ledsen:{w:['ledsen','sorglig','nere','grater','ensam','tom','hopplos','deprimerad','melankolisk','saknar','besviken','uppgiven','morkt','tungt','svart'],v:.25},stressad:{w:['stressad','pressad','overvalmad','kaos','panik','deadline','mycket','hinner inte','sliten','utbrand','utmattad','nervos'],v:.3},orolig:{w:['orolig','angest','radd','osaker','angslig','oro','skrammande','otrygg','spand','grubblar'],v:.28},arg:{w:['arg','irriterad','frustrerad','sur','rasande','ilsken','forbannad','less','upprord'],v:.2},trott:{w:['trott','utmattad','slut','dranerad','somnig','orkeslos','seg'],v:.35}},
-  CATS:{jobb:['jobb','jobbet','arbete','kontor','chef','mote','moten','kolleg','projekt','deadline','kund'],relationer:['familj','partner','sambo','kompis','van','vanner','barn','mamma','pappa','relation'],halsa:['trana','gym','springa','yoga','somn','sov','sjuk','ont','energi','mat'],fritid:['hobby','spel','film','serie','bok','musik','natur','promenad','resa']},
-  TOPICS:{jobb:['chefen','chef','kollegor','kollega','motet','mote','deadline','projekt','kunder','kund','kontoret','arbetet','jobbet','lonen','lon','presentationen','leveransen'],relationer:['partner','sambon','sambo','flickvan','pojkvan','mamma','pappa','foraldrarna','barnen','barn','kompisen','kompis','vanner','familjen','systern','brodern','svarmor'],halsa:['traningen','gym','somnen','somn','huvudvark','ont','sjuk','energin','vikten','kosten','maten','ryggen','angesten','paniken'],fritid:['resan','semestern','filmen','serien','boken','musiken','promenaden','matchen','spelet','hobbyn','festen','konserten']},
-  STOPWORDS:new Set(['jag','mig','min','mitt','du','dig','det','den','ar','var','har','hade','inte','och','men','att','som','for','med','kan','ska','vill','lite','mycket','ganska','bara','ocksa','valdigt','nu','idag','igar','imorse','ikvall']),
-  MIRROR:{warm:{pos:['Vad fint att hora!','Det later riktigt bra!','Jag blir glad av det!','Harligt!'],neg:['Jag hor dig.','Tack for att du delar det.','Det later tungt.','Jag forstar att det ar svart.'],neut:['Jag forstar.','Tack for att du berattar.','Okej, jag hor dig.','Jag lyssnar.']},direct:{pos:['Bra.','Nice.','Starkt.','Det funkar.'],neg:['Okej, det suger.','Rak input.','Tough.','Jag hor dig.'],neut:['Okej.','Uppfattat.','Jag forstar.','Got it.']},coach:{pos:['Fantastiskt!','Starkt jobbat!','Exakt sa bygger du framat!','Bra momentum!'],neg:['Det tar mod att erkanna det.','Varje utmaning ar en mojlighet.','Jag hor dig.','Tufft — men du hanterar det.'],neut:['Bra att du reflekterar.','Intressant.','Okej, lat oss utforska det.','Jag lyssnar.']}},
-  FOLLOWUPS:{jobb:[{k:'j1',q:'Vad ar det med {t} som paverkar dig mest?'},{k:'j2',q:'Hur lange har det varit sa pa jobbet?'},{k:'j3',q:'Finns det nagot du kan forandra i situationen?'},{k:'j4',q:'Hur paverkar det dig nar du kommer hem?'},{k:'j5',q:'Vad hade behovt handa for att det skulle bli battre?'},{k:'j6',q:'Hur stottar dina kollegor dig i det?'},{k:'j7',q:'Vad ger dig energi pa jobbet?'},{k:'j8',q:'Har du pratat med nagon om det?'}],relationer:[{k:'r1',q:'Beratta mer om vad som hande med {t}.'},{k:'r2',q:'Hur fick det dig att kanna inombords?'},{k:'r3',q:'Har du kunnat prata med {t} om det?'},{k:'r4',q:'Vad behover du mest fran den relationen just nu?'},{k:'r5',q:'Vad uppskattar du mest hos {t}?'},{k:'r6',q:'Hur hanterar ni konflikter vanligtvis?'},{k:'r7',q:'Vad skulle gora relationen annu battre?'},{k:'r8',q:'Hur mar du i den relationen egentligen?'}],halsa:[{k:'h1',q:'Hur har {t} paverkat ditt maende?'},{k:'h2',q:'Hur lange har du kant sa?'},{k:'h3',q:'Vad brukar hjalpa dig med det?'},{k:'h4',q:'Hur sover du just nu?'},{k:'h5',q:'Gor du nagot aktivt for att ta hand om dig?'},{k:'h6',q:'Vad behover din kropp mest just nu?'},{k:'h7',q:'Hur paverkar det din vardag?'},{k:'h8',q:'Har du pratat med en lakare om det?'}],fritid:[{k:'f1',q:'Beratta mer om {t} — hur var det?'},{k:'f2',q:'Vad var det basta med det?'},{k:'f3',q:'Hur ofta gor du det?'},{k:'f4',q:'Vad ger det dig?'},{k:'f5',q:'Har du hittat andra saker som ger dig samma kansla?'},{k:'f6',q:'Hur prioriterar du tid for det?'}],allmaent:[{k:'a1',q:'Vad tar mest plats i dina tankar just nu?'},{k:'a2',q:'Hur har energin varit idag?'},{k:'a3',q:'Vad hade gjort dagen battre?'},{k:'a4',q:'Vad ser du fram emot?'},{k:'a5',q:'Om du fick onska dig en sak just nu — vad hade det varit?'},{k:'a6',q:'Hur skulle du beskriva din kansla med ett ord?'},{k:'a7',q:'Vad har du gjort idag som betydde nagot for dig?'},{k:'a8',q:'Finns det nagot som oroar dig som du inte pratat om?'},{k:'a9',q:'Vad ar du tacksam for just nu?'},{k:'a10',q:'Hur mar du jamfort med igar?'}],deep:[{k:'d1',q:'Hur paverkar det har dig pa insidan, egentligen?'},{k:'d2',q:'Vad tror du ligger bakom den kanslan?'},{k:'d3',q:'Om du var snall mot dig sjalv just nu — vad hade du sagt?'},{k:'d4',q:'Vad skulle behova forandras for att du ska ma battre?'},{k:'d5',q:'Vad haller dig tillbaka?'},{k:'d6',q:'Om du tanker 3 manader framat — vad vill du ha forandrat?'},{k:'d7',q:'Vad driver dig egentligen? Vad vill du kanna mer av?'},{k:'d8',q:'Vem i ditt liv forstar dig bast?'}]},
-  GREETS:{warm:['Hej {name}! Vad fint att du tar dig tid. Hur har din dag varit?','Hej {name}! Jag ar har for dig. Beratta, hur mar du just nu?','Valkommen tillbaka {name}! Hur kanns det idag?'],direct:['Hej {name}. Rakt pa — hur har dagen varit?','Ge mig en snabb statusuppdatering pa hur du mar.','Okej {name}, ny dag. Hur ligger du till kanslomassigt?'],coach:['Hej {name}! Redo att reflektera och vaxa? Hur har dagen sett ut?','Valkommen {name}! Varje samtal ar ett steg framat. Hur mar du?','Hej {name}! Hur har du presterat idag, kanslomassigt?']},
-  CLOSES:{warm:['Tack for att du pratade med mig {name}. Jag finns har imorgon ocksa. Ta hand om dig.','Det var fint att hora om din dag {name}. Varje dag du reflekterar gor skillnad. Vi ses!','Tack {name}. Du gor framsteg genom att prata om dina kanslor. Sov gott!'],direct:['Bra pratat {name}. En dag i taget. Ses imorgon.','Du vet var jag finns {name}. Keep going.','Stark session. Kom ihag vad du sa idag — det var viktigt.'],coach:['Bra session {name}! Du tar ansvar for ditt valmaende — modigt. Ses imorgon!','Starkt jobbat {name}. Varje reflektion starker din emotionella intelligens!','Du ar starkare an du tror {name}. Bra att du investerar i dig sjalv.']},
-  catGeneral:'allmaent',
-  emoSvMap:{glad:'glad',lugn:'lugn',stressad:'stressad',ledsen:'ledsen',orolig:'orolig',arg:'arg',trott:'trott',neutral:'neutral'}
-},
-en:{
-  app:'Moodly',
-  tagline:'Your personal AI companion that helps you understand and improve your wellbeing — through real conversations.',
-  obFeat1:'Talk naturally — the AI listens and asks questions',
-  obFeat2:'Proven improvement of your wellbeing',
-  obFeat3:'Private and GDPR-safe',
-  obStart:'Get started — 30 seconds',
-  obSocial:'Already <strong style="color:var(--a)">2,847</strong> people feel better with Moodly',
-  obNameTitle:'What is your name?',
-  obNameDesc:'So your AI can address you by name.',
-  obNamePh:'Your name...',
-  obNext:'Next',
-  obAiTitle:'Name your AI',
-  obAiDesc:'Your AI gets to know you, remembers your conversations, and helps you grow. What do you want to call it?',
-  obAiPh:'e.g. Luna, Nova, Eli...',
-  obPersTitle:'Choose personality',
-  obPersDesc:'How do you want {name} to be?',
-  persWarmT:'Warm & empathetic',persWarmD:'Listens, validates and supports. Like a close friend.',
-  persDirectT:'Direct & honest',persDirectD:'Straight to the point. Challenges you to grow.',
-  persCoachT:'Coaching & motivating',persCoachD:'Goal-focused. Helps you reach your potential.',
-  obFinish:'Start your journey',
-  navHome:'Home',navDiary:'Diary',navProgress:'Progress',navSettings:'Settings',
-  streakDays:'day streak',
-  qtTitle:'Quick thought',qtPh:'How are you feeling right now?',
-  startConv:'Start conversation',endConv:'End conversation',
-  convPh:'Type here...',listening:'Listening...',listenSend:'Listening... (tap mic to send)',
-  noVoice:'Voice not supported — type instead',noListen:'Could not listen — type instead',noMic:'Could not start microphone',
-  moodScore:'MoodScore',
-  diaryTitle:'Your diary',diarySearch:'Search your reflections...',diaryEmpty:'Your diary is empty.\nWrite a quick thought or start a conversation!',
-  progressTitle:'Your progress',trend:'Trend',patterns:'Patterns',
-  rankVs:'Your improvement vs. community',
-  avg:'Average',best:'Best',convs:'Conversations',level:'Level',
-  exportBtn:'Export data (JSON)',exported:'Exported!',copied:'Copied!',
-  shareTitle:'Share your success',shareBtn:'Share with friends',
-  summaryTitle:'Summary',yourDev:'Your progress',back:'Back',
-  greetMorn:'Good morning',greetDay:'Hey',greetEve:'Good evening',greetNight:'Good night',
-  todayDone:'You talked with {name} today',todayPending:'Time to check in with {name}',
-  todayScore:"Today's MoodScore",seeProgress:'See your progress',
-  homeMsgDone:['Great job today! See you tomorrow','You took time to reflect — that makes a difference','Every conversation builds your emotional strength'],
-  homeMsgPending:["I'm ready when you are — tap to talk",'How has your day been? I am listening','Take 2 minutes for yourself — it is worth it'],
-  needMore:'2+ conversations for chart',patternsNeed:'5+ entries needed for patterns.',noPatterns:'No clear patterns yet.',
-  patCat:'When you mention <strong>{cat}</strong>: {diff} points {arrow}',
-  patEmo:'Most common emotion: <strong>{emo}</strong> ({pct}%)',
-  patImproved:'Improved',patDeclined:'Declined',patSince:' points since start',
-  patBestTime:'You feel best in the <strong>{time}</strong> ({hi} vs {lo} points)',morning:'morning',evening:'evening',
-  rankTop:'Top {pct}%',rankFast:'You are improving faster than {pct}% of everyone',rankBetter:'You are improving more than {pct}% of users',
-  vsLastWeek:'vs last week',
-  alertDecline:'Downward trend',alertDeclineDesc:'Your wellbeing has dropped three entries in a row. Want to start a conversation?',
-  alertStress:'Stress pattern detected',alertStressDesc:'You have reported stress 3 times in a row. A breathing exercise can help: 4s in, 7s hold, 8s out.',
-  alertCatPos:'{cat} makes you happy',alertCatPosDesc:'You feel on average {diff} points better when you talk about {cat}. Invest more time there!',
-  alertCatNeg:'{cat} weighs you down',alertCatNegDesc:'Your score drops on average {diff} points when {cat} comes up. Is there something you can change?',
-  alertImprove:'Three good entries in a row!',alertImproveDesc:'Your average is {diff} points above your starting point. What you are doing works!',
-  alertInactive:'{days} days since last',alertInactiveDesc:'A quick thought takes only seconds. How are you today?',
-  alertShift:'Emotion shift',alertShiftDesc:'Your most common emotion changed from {from} to {to} in the past week.',
-  emoLabel:{glad:'happy and positive',lugn:'calm and balanced',neutral:'neutral',stressad:'stressed',ledsen:'sad and heavy',orolig:'anxious',arg:'frustrated',trott:'tired and low energy'},
-  emoShort:{glad:'Happy',lugn:'Calm',neutral:'Neutral',stressad:'Stressed',ledsen:'Sad',orolig:'Anxious',arg:'Angry',trott:'Tired'},
-  emoIcons:{glad:'😊',lugn:'😌',neutral:'😐',stressad:'😰',ledsen:'😢',orolig:'😟',arg:'😤',trott:'😴'},
-  qtComments:{glad:'Great to hear! Keep doing what works.',lugn:'Stability is strength. Good place to be.',neutral:'Noted. Sometimes neutral is perfectly fine.',stressad:'Stress noted. Try a short breathing exercise?',ledsen:'I hear you. You are not alone in feeling this way.',orolig:'Worry is common. Want to talk more about it?',arg:'Frustration noted. What can you influence?',trott:'Rest is important. Be kind to yourself.'},
-  summaryTpl:"Today's conversation lasted {min} minutes. The mood was predominantly {mood}.{cats}",
-  summaryNoData:'{name} and the user had a short conversation. Not enough data for a summary.',
-  summaryCatsPrefix:' The conversation mainly touched on: ',
-  summaryUp:'Wellbeing is {diff} points better than recent days.',
-  summaryDown:'Wellbeing dropped {diff} points — a downward trend to watch.',
-  refScoreUp:'Your score went up {diff} points since yesterday — what you are doing works! ',
-  refScoreDown:'Today was {diff} points lower. That is okay — not every day looks the same. ',
-  refJobStress:'Work seems to weigh you down. Think about what you can influence vs. what you need to let go. ',
-  refRelGood:'Relationships give you energy — invest in them! ',
-  refLow:'It takes courage to admit you are having a hard time. Reflecting is in itself a step forward.',
-  refHigh:'You are in a really good place. Note what contributes — that is your formula.',
-  refMid:'Keep reflecting daily. Awareness is the first step to change.',
-  vpUp:'Since you started talking with {name}, your average MoodScore has increased by {diff} points. Your conversations make a difference!',
-  vpDown:'Your score has dropped {diff} points since the start. It may be a tough period — but continuing to reflect is what matters most.',
-  vpAvgDesc:'Your average MoodScore. Keep going — patterns become clearer with time.',
-  vpHomeUp:'Your wellbeing has improved since you started talking with {name}',
-  vpHomeDn:'A tough period — but showing up is what makes the difference',
-  interv1t:'Breathing exercise',interv1p:'4-7-8: Breathe in 4s, hold 7s, out 8s through mouth. 3 rounds.',
-  interv2t:'Grounding technique',interv2p:'5-4-3-2-1: See 5 things, touch 4, hear 3, smell 2, taste 1.',
-  interv3t:'Mood boost',interv3p:'Play a favorite song and move for 2 minutes — it releases endorphins.',
-  interv4t:'Preserve the feeling',interv4p:'Write 3 things you are grateful for. It strengthens positive neural connections.',
-  shareText:'Moodly\n\nMoodScore: {score}/100\nStreak: {streak} days\nLevel {level}: {levelName}\n\n{url}',
-  askName:'Hi! Before we start — what is your name?',
-  microRef:'I saw you wrote "{text}" — want to talk more about it?',
-  lastStressed:'Last time we talked about you being stressed — how is it now?',
-  lastSad:'Last time you seemed to have a tough time — how does it feel today?',
-  lastJob:'Last time you mentioned work — how has it been going?',
-  lastRel:'Last time we talked about relationships — has anything changed?',
-  settTitle:'Settings',settProfile:'Profile',settLang:'Language',settFamily:'Family',settData:'Data',settAbout:'About Moodly',
-  settUserName:'Your name',settAiName:'AI name',settPersonality:'Personality',settSave:'Save',settSaved:'Saved!',
-  settExport:'Export all data (JSON)',settDelete:'Delete all data',settDeleteConfirm:'Are you sure? All data will be permanently deleted.',settDeleted:'All data deleted.',
-  settVersion:'Version 4.0',settPrivacy:'All data is stored locally on your device. Nothing is sent to servers.',
-  settCreateFamily:'Create family',settFamilyDash:'Family dashboard',settAddChild:'Add child',settChildName:'Child name',
-  settAgeGroup:'Age group',settRemove:'Remove',settNoFamily:'No family created yet.',
-  settViewChild:'View {name}',
-  famDashTitle:'Family dashboard',famClose:'Close',famNoData:'No data yet',famLastCheckin:'Last:',
-  famAlertTitle:'Note!',famAlertDesc:'{name} has {count}+ low/stressed entries.',
-  viewingChild:'Viewing: {name}',backToParent:'Back to parent profile',
-  LVLS:[{l:1,n:'Beginner',xp:0,c:'var(--t2)'},{l:2,n:'Reflector',xp:50,c:'var(--a)'},{l:3,n:'Aware',xp:150,c:'var(--pl)'},{l:4,n:'Explorer',xp:350,c:'var(--ok)'},{l:5,n:'Insightful',xp:600,c:'var(--w)'},{l:6,n:'Emotional Athlete',xp:1000,c:'var(--g)'},{l:7,n:'Mood Master',xp:1500,c:'#FF6B6B'}],
-  EMO:{happy:{w:['happy','joyful','pleased','fantastic','wonderful','great','laughing','funny','fun','good','lovely','joy','positive','grateful','proud','energetic','alert','motivated','hopeful','relaxed','love','awesome','nice','amazing','excellent'],v:.85,map:'glad'},calm:{w:['calm','relaxed','peaceful','harmonious','balanced','safe','comfortable','stable','okay','neutral','fine','all right','chill'],v:.65,map:'lugn'},sad:{w:['sad','sorrowful','down','crying','lonely','empty','hopeless','depressed','melancholic','miss','disappointed','given up','dark','heavy','difficult','tough'],v:.25,map:'ledsen'},stressed:{w:['stressed','pressured','overwhelmed','chaos','panic','deadline','busy','rushed','worn out','burnout','exhausted','nervous','anxious'],v:.3,map:'stressad'},worried:{w:['worried','anxiety','afraid','uncertain','anxious','worry','scary','insecure','tense','overthinking','ruminating'],v:.28,map:'orolig'},angry:{w:['angry','irritated','frustrated','grumpy','furious','mad','pissed','fed up','upset'],v:.2,map:'arg'},tired:{w:['tired','exhausted','drained','sleepy','lethargic','sluggish','fatigued','worn'],v:.35,map:'trott'}},
-  CATS:{work:['work','job','office','boss','meeting','meetings','colleague','project','deadline','client','career'],relationships:['family','partner','spouse','friend','friends','children','mom','dad','relationship','girlfriend','boyfriend'],health:['exercise','gym','running','yoga','sleep','slept','sick','pain','energy','food','diet'],leisure:['hobby','game','movie','series','book','music','nature','walk','travel','vacation']},
-  TOPICS:{work:['boss','colleague','colleagues','meeting','deadline','project','clients','client','office','job','salary','presentation','delivery'],relationships:['partner','spouse','girlfriend','boyfriend','mom','dad','parents','kids','children','friend','friends','family','sister','brother'],health:['workout','gym','sleep','headache','pain','sick','energy','weight','diet','food','back','anxiety','panic'],leisure:['trip','vacation','movie','series','book','music','walk','game','hobby','party','concert']},
-  STOPWORDS:new Set(['i','me','my','mine','you','your','it','its','is','was','have','had','not','and','but','that','which','for','with','can','will','want','a','an','the','little','much','quite','just','also','very','now','today','yesterday','morning','tonight','really','some','been']),
-  MIRROR:{warm:{pos:['How lovely to hear!','That sounds really great!','That makes me happy!','Wonderful!'],neg:['I hear you.','Thank you for sharing that.','That sounds heavy.','I understand it is hard.'],neut:['I understand.','Thanks for telling me.','Okay, I hear you.','I am listening.']},direct:{pos:['Good.','Nice.','Strong.','That works.'],neg:['Okay, that sucks.','Straight input.','Tough.','I hear you.'],neut:['Okay.','Got it.','I understand.','Noted.']},coach:{pos:['Fantastic!','Great work!','Exactly how you build forward!','Great momentum!'],neg:['It takes courage to admit that.','Every challenge is an opportunity.','I hear you.','Tough — but you are handling it.'],neut:['Good that you are reflecting.','Interesting.','Okay, let us explore that.','I am listening.']}},
-  FOLLOWUPS:{work:[{k:'j1',q:'What about {t} affects you the most?'},{k:'j2',q:'How long has it been like this at work?'},{k:'j3',q:'Is there something you can change about the situation?'},{k:'j4',q:'How does it affect you when you get home?'},{k:'j5',q:'What would need to happen for it to get better?'},{k:'j6',q:'How do your colleagues support you in that?'},{k:'j7',q:'What gives you energy at work?'},{k:'j8',q:'Have you talked to anyone about it?'}],relationships:[{k:'r1',q:'Tell me more about what happened with {t}.'},{k:'r2',q:'How did it make you feel inside?'},{k:'r3',q:'Have you been able to talk to {t} about it?'},{k:'r4',q:'What do you need most from that relationship right now?'},{k:'r5',q:'What do you appreciate most about {t}?'},{k:'r6',q:'How do you usually handle conflicts?'},{k:'r7',q:'What would make the relationship even better?'},{k:'r8',q:'How do you really feel in that relationship?'}],health:[{k:'h1',q:'How has {t} affected your mood?'},{k:'h2',q:'How long have you felt this way?'},{k:'h3',q:'What usually helps you with that?'},{k:'h4',q:'How are you sleeping right now?'},{k:'h5',q:'Are you actively doing something to take care of yourself?'},{k:'h6',q:'What does your body need most right now?'},{k:'h7',q:'How does it affect your daily life?'},{k:'h8',q:'Have you talked to a doctor about it?'}],leisure:[{k:'f1',q:'Tell me more about {t} — how was it?'},{k:'f2',q:'What was the best part?'},{k:'f3',q:'How often do you do that?'},{k:'f4',q:'What does it give you?'},{k:'f5',q:'Have you found other things that give you the same feeling?'},{k:'f6',q:'How do you prioritize time for it?'}],general:[{k:'a1',q:'What is taking up most of your thoughts right now?'},{k:'a2',q:'How has your energy been today?'},{k:'a3',q:'What would have made the day better?'},{k:'a4',q:'What are you looking forward to?'},{k:'a5',q:'If you could wish for one thing right now — what would it be?'},{k:'a6',q:'How would you describe your feeling in one word?'},{k:'a7',q:'What did you do today that meant something to you?'},{k:'a8',q:'Is there something worrying you that you have not talked about?'},{k:'a9',q:'What are you grateful for right now?'},{k:'a10',q:'How are you compared to yesterday?'}],deep:[{k:'d1',q:'How does this really affect you on the inside?'},{k:'d2',q:'What do you think is behind that feeling?'},{k:'d3',q:'If you were kind to yourself right now — what would you say?'},{k:'d4',q:'What would need to change for you to feel better?'},{k:'d5',q:'What is holding you back?'},{k:'d6',q:'If you think 3 months ahead — what do you want to have changed?'},{k:'d7',q:'What really drives you? What do you want to feel more of?'},{k:'d8',q:'Who in your life understands you the best?'}]},
-  GREETS:{warm:['Hi {name}! So nice that you are taking time. How has your day been?','Hi {name}! I am here for you. Tell me, how are you feeling right now?','Welcome back {name}! How does it feel today?'],direct:['Hey {name}. Straight to it — how has the day been?','Give me a quick status update on how you are feeling.','Okay {name}, new day. Where are you at emotionally?'],coach:['Hi {name}! Ready to reflect and grow? How has the day looked?','Welcome {name}! Every conversation is a step forward. How are you?','Hi {name}! How have you performed today, emotionally?']},
-  CLOSES:{warm:['Thanks for talking with me {name}. I am here tomorrow too. Take care.','It was nice to hear about your day {name}. Every day you reflect makes a difference. See you!','Thanks {name}. You are making progress by talking about your feelings. Sleep well!'],direct:['Good talk {name}. One day at a time. See you tomorrow.','You know where I am {name}. Keep going.','Strong session. Remember what you said today — it was important.'],coach:['Great session {name}! You are taking responsibility for your wellbeing — courageous. See you tomorrow!','Great work {name}. Every reflection strengthens your emotional intelligence!','You are stronger than you think {name}. Good that you invest in yourself.']},
-  catGeneral:'general',
-  // Maps English canonical category keys to Swedish for data storage
-  catMap:{work:'jobb',relationships:'relationer',health:'halsa',leisure:'fritid',general:'allmaent'},
-  followupCatMap:{work:'work',relationships:'relationships',health:'health',leisure:'leisure',general:'general'},
-  emoSvMap:{glad:'happy',lugn:'calm',stressad:'stressed',ledsen:'sad',orolig:'anxious',arg:'angry',trott:'tired',neutral:'neutral'}
-}
-};
-
-let AL='sv'; // Active Language
-function t(key,vars){
-  let v=LANG[AL][key];
-  if(v===undefined)v=LANG.sv[key];
-  if(v===undefined)return key;
-  if(typeof v==='string'&&vars){for(const[k,val] of Object.entries(vars))v=v.replace(new RegExp('\\{'+k+'\\}','g'),val)}
-  return v;
-}
-
-// ===== STORAGE =====
 const PARENT_KEY='moodly';
-let APK=PARENT_KEY; // ACTIVE_PROFILE_KEY
-let D={checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],lang:'sv',familyId:'',role:'self',familyProfiles:[],parentKey:''};
+let APK=PARENT_KEY; // Active Profile Key
+let D={checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:''};
 let sok=false;try{localStorage.setItem('_','1');localStorage.removeItem('_');sok=true}catch(e){}
 
-// Migration: copy kf3 data to moodly if kf3 exists and moodly does not
-(function migrate(){
-  if(!sok)return;
-  try{
-    const old=localStorage.getItem('kf3');
-    const nw=localStorage.getItem('moodly');
-    if(old&&!nw){localStorage.setItem('moodly',old)}
-  }catch(e){}
-})();
+// Migrate old kf3 data to moodly
+(function(){if(!sok)return;try{const old=localStorage.getItem('kf3');const nw=localStorage.getItem('moodly');if(old&&!nw)localStorage.setItem('moodly',old)}catch(e){}})();
 
-function ld(){
-  if(!sok)return{...D};
-  try{
-    const r=localStorage.getItem(APK);
-    if(!r)return{...D};
-    const d=JSON.parse(r);
-    if(!d.micro)d.micro=[];
-    if(!d.alertsSeen)d.alertsSeen=[];
-    if(!d.lang)d.lang='sv';
-    if(!d.role)d.role='self';
-    if(!d.familyProfiles)d.familyProfiles=[];
-    if(!d.familyId)d.familyId='';
-    if(!d.parentKey)d.parentKey='';
-    return d;
-  }catch(e){return{...D}}
-}
+function ld(){if(!sok)return{...D};try{const r=localStorage.getItem(APK);if(!r)return{...D};const d=JSON.parse(r);if(!d.micro)d.micro=[];if(!d.alertsSeen)d.alertsSeen=[];if(!d.familyProfiles)d.familyProfiles=[];if(!d.familyId)d.familyId='';if(!d.role)d.role='self';if(!d.parentKey)d.parentKey='';return d}catch(e){return{...D}}}
 function getAllDataPoints(d){const f=(d.checkins||[]).map(c=>({...c,type:'full'}));const m=(d.micro||[]).map(c=>({...c,type:'micro'}));return[...f,...m].sort((a,b)=>new Date(a.ts)-new Date(b.ts))}
 function sv(d){D=d;if(sok)try{localStorage.setItem(APK,JSON.stringify(d))}catch(e){}}
 
 // ===== SENTIMENT =====
+const EMO={glad:{w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','awesome','nice'],v:.85},lugn:{w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok'],v:.65},ledsen:{w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt'],v:.25},stressad:{w:['stressad','pressad','överväldigad','kaos','panik','deadline','mycket','hinner inte','sliten','utbränd','utmattad','nervös'],v:.3},orolig:{w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','grubblar'],v:.28},arg:{w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd'],v:.2},trott:{w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg'],v:.35}};
+const CATS={jobb:['jobb','jobbet','arbete','kontor','chef','möte','möten','kolleg','projekt','deadline','kund'],relationer:['familj','partner','sambo','kompis','vän','vänner','barn','mamma','pappa','relation'],hälsa:['träna','gym','springa','yoga','sömn','sov','sjuk','ont','energi','mat'],fritid:['hobby','spel','film','serie','bok','musik','natur','promenad','resa']};
+
 function analyze(txt){
-    if(!txt||!txt.trim())return{emotion:'neutral',score:50,conf:0,cats:['allmaent']};
-    const l=txt.toLowerCase();
-    const emo=LANG[AL].EMO, cats=LANG[AL].CATS;
-    let sc={},tot=0;
-    for(const[e,d]of Object.entries(emo)){let h=0;for(const w of d.w)if(l.includes(w))h++;sc[e]=h;tot+=h}
+    if(!txt||!txt.trim())return{emotion:'neutral',score:50,conf:0,cats:['allmänt']};
+    const l=txt.toLowerCase();let sc={},tot=0;
+    for(const[e,d]of Object.entries(EMO)){let h=0;for(const w of d.w)if(l.includes(w))h++;sc[e]=h;tot+=h}
     let dom='neutral',mx=0;for(const[e,h]of Object.entries(sc))if(h>mx){mx=h;dom=e}
-    // Map to canonical (Swedish) key
-    const canonical=emo[dom]?.map||dom;
-    const v=tot>0?(emo[dom]?.v??.5):.5;
-    const foundCats=[];
-    for(const[c,ws]of Object.entries(cats)){
-      if(ws.some(w=>l.includes(w))){
-        // Map EN category key to SV canonical
-        const mapped=LANG.en.catMap?.[c]||c;
-        foundCats.push(AL==='en'?mapped:c);
-      }
-    }
-    if(!foundCats.length)foundCats.push('allmaent');
-    return{emotion:canonical,score:Math.round(v*100),conf:Math.min(tot/3,1),cats:foundCats};
+    const v=tot>0?(EMO[dom]?.v??.5):.5;
+    const cats=[];for(const[c,ws]of Object.entries(CATS))if(ws.some(w=>l.includes(w)))cats.push(c);
+    if(!cats.length)cats.push('allmänt');
+    return{emotion:dom,score:Math.round(v*100),conf:Math.min(tot/3,1),cats};
 }
 
 // ===== LEVELS =====
-function getLvl(xp){const lvls=t('LVLS');let r=lvls[0];for(const l of lvls)if(xp>=l.xp)r=l;return r}
-function getNext(xp){const lvls=t('LVLS');for(const l of lvls)if(xp<l.xp)return l;return null}
+const LVLS=[{l:1,n:'Nybörjare',xp:0,c:'var(--t2)'},{l:2,n:'Reflekterare',xp:50,c:'var(--a)'},{l:3,n:'Medveten',xp:150,c:'var(--pl)'},{l:4,n:'Utforskare',xp:350,c:'var(--ok)'},{l:5,n:'Insiktsfull',xp:600,c:'var(--w)'},{l:6,n:'Emotionell atlet',xp:1000,c:'var(--g)'},{l:7,n:'KänsloMästare',xp:1500,c:'#FF6B6B'}];
+function getLvl(xp){let r=LVLS[0];for(const l of LVLS)if(xp>=l.xp)r=l;return r}
+function getNext(xp){for(const l of LVLS)if(xp<l.xp)return l;return null}
 function calcStreak(ci){if(!ci.length)return 0;const ds=new Set(ci.map(c=>new Date(c.ts).toDateString()));let s=0,d=new Date();while(ds.has(d.toDateString())){s++;d.setDate(d.getDate()-1)}return s}
 function todayDone(ci){return ci.some(c=>new Date(c.ts).toDateString()===new Date().toDateString())}
 
@@ -714,77 +466,155 @@ function todayDone(ci){return ci.some(c=>new Date(c.ts).toDateString()===new Dat
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 function tpl(s){const d=ld();return s.replace(/\{name\}/g,d.userName||'du')}
 
+// -- Topic extraction for mirroring --
+const TOPICS={
+    jobb:['chefen','chef','kollegor','kollega','mötet','möte','deadline','projekt','kunder','kund','kontoret','arbetet','jobbet','lönen','lön','presentationen','leveransen'],
+    relationer:['partner','sambon','sambo','flickvän','pojkvän','mamma','pappa','föräldrarna','barnen','barn','kompisen','kompis','vänner','familjen','systern','brodern','svärmor'],
+    hälsa:['träningen','gym','sömnen','sömn','huvudvärk','ont','sjuk','energin','vikten','kosten','maten','ryggen','ångesten','paniken'],
+    fritid:['resan','semestern','filmen','serien','boken','musiken','promenaden','matchen','spelet','hobbyn','festen','konserten']
+};
+const STOPWORDS=new Set(['jag','mig','min','mitt','du','dig','det','den','är','var','har','hade','inte','och','men','att','som','för','med','kan','ska','vill','lite','mycket','ganska','bara','också','väldigt','nu','idag','igår','imorse','ikväll']);
+
 function extractTopics(text){
-    const topics=LANG[AL].TOPICS;
-    const stopwords=LANG[AL].STOPWORDS;
-    const words=text.toLowerCase().replace(/[.,!?;:]/g,' ').split(/\s+/).filter(w=>w.length>2&&!stopwords.has(w));
+    const words=text.toLowerCase().replace(/[.,!?;:]/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOPWORDS.has(w));
     const found=[];
     for(const w of words){
-        for(const[cat,list]of Object.entries(topics)){
-            if(list.some(t2=>w.includes(t2)||t2.includes(w))){
-              // Map EN cat to SV canonical
-              const mapped=AL==='en'?(LANG.en.catMap?.[cat]||cat):cat;
-              found.push({word:w,cat:mapped});
-            }
+        for(const[cat,list]of Object.entries(TOPICS)){
+            if(list.some(t=>w.includes(t)||t.includes(w)))found.push({word:w,cat});
         }
     }
+    // Also extract significant non-topic words (potential subjects user cares about)
     const subjects=words.filter(w=>w.length>3&&!found.some(f=>f.word===w)).slice(0,3);
     return{found,subjects,raw:words};
 }
 
+// -- Mirror phrases (acknowledge what user said) --
+const MIRROR={
+    warm:{pos:['Vad fint att höra!','Det låter riktigt bra!','Jag blir glad av det!','Härligt!'],neg:['Jag hör dig.','Tack för att du delar det.','Det låter tungt.','Jag förstår att det är svårt.'],neut:['Jag förstår.','Tack för att du berättar.','Okej, jag hör dig.','Jag lyssnar.']},
+    direct:{pos:['Bra.','Nice.','Starkt.','Det funkar.'],neg:['Okej, det suger.','Rak input.','Tough.','Jag hör dig.'],neut:['Okej.','Uppfattat.','Jag förstår.','Got it.']},
+    coach:{pos:['Fantastiskt!','Starkt jobbat!','Exakt så bygger du framåt!','Bra momentum!'],neg:['Det tar mod att erkänna det.','Varje utmaning är en möjlighet.','Jag hör dig.','Tufft — men du hanterar det.'],neut:['Bra att du reflekterar.','Intressant.','Okej, låt oss utforska det.','Jag lyssnar.']}
+};
+
+// -- Follow-up questions per category (keyed to prevent repetition) --
+const FOLLOWUPS={
+    jobb:[
+        {k:'j1',q:'Vad är det med {t} som påverkar dig mest?'},
+        {k:'j2',q:'Hur länge har det varit så på jobbet?'},
+        {k:'j3',q:'Finns det något du kan förändra i situationen?'},
+        {k:'j4',q:'Hur påverkar det dig när du kommer hem?'},
+        {k:'j5',q:'Vad hade behövt hända för att det skulle bli bättre?'},
+        {k:'j6',q:'Hur stöttar dina kollegor dig i det?'},
+        {k:'j7',q:'Vad ger dig energi på jobbet?'},
+        {k:'j8',q:'Har du pratat med någon om det?'}
+    ],
+    relationer:[
+        {k:'r1',q:'Berätta mer om vad som hände med {t}.'},
+        {k:'r2',q:'Hur fick det dig att känna inombords?'},
+        {k:'r3',q:'Har du kunnat prata med {t} om det?'},
+        {k:'r4',q:'Vad behöver du mest från den relationen just nu?'},
+        {k:'r5',q:'Vad uppskattar du mest hos {t}?'},
+        {k:'r6',q:'Hur hanterar ni konflikter vanligtvis?'},
+        {k:'r7',q:'Vad skulle göra relationen ännu bättre?'},
+        {k:'r8',q:'Hur mår du i den relationen egentligen?'}
+    ],
+    hälsa:[
+        {k:'h1',q:'Hur har {t} påverkat ditt mående?'},
+        {k:'h2',q:'Hur länge har du känt så?'},
+        {k:'h3',q:'Vad brukar hjälpa dig med det?'},
+        {k:'h4',q:'Hur sover du just nu?'},
+        {k:'h5',q:'Gör du något aktivt för att ta hand om dig?'},
+        {k:'h6',q:'Vad behöver din kropp mest just nu?'},
+        {k:'h7',q:'Hur påverkar det din vardag?'},
+        {k:'h8',q:'Har du pratat med en läkare om det?'}
+    ],
+    fritid:[
+        {k:'f1',q:'Berätta mer om {t} — hur var det?'},
+        {k:'f2',q:'Vad var det bästa med det?'},
+        {k:'f3',q:'Hur ofta gör du det?'},
+        {k:'f4',q:'Vad ger det dig?'},
+        {k:'f5',q:'Har du hittat andra saker som ger dig samma känsla?'},
+        {k:'f6',q:'Hur prioriterar du tid för det?'}
+    ],
+    allmänt:[
+        {k:'a1',q:'Vad tar mest plats i dina tankar just nu?'},
+        {k:'a2',q:'Hur har energin varit idag?'},
+        {k:'a3',q:'Vad hade gjort dagen bättre?'},
+        {k:'a4',q:'Vad ser du fram emot?'},
+        {k:'a5',q:'Om du fick önska dig en sak just nu — vad hade det varit?'},
+        {k:'a6',q:'Hur skulle du beskriva din känsla med ett ord?'},
+        {k:'a7',q:'Vad har du gjort idag som betydde något för dig?'},
+        {k:'a8',q:'Finns det något som oroar dig som du inte pratat om?'},
+        {k:'a9',q:'Vad är du tacksam för just nu?'},
+        {k:'a10',q:'Hur mår du jämfört med igår?'}
+    ],
+    deep:[
+        {k:'d1',q:'Hur påverkar det här dig på insidan, egentligen?'},
+        {k:'d2',q:'Vad tror du ligger bakom den känslan?'},
+        {k:'d3',q:'Om du var snäll mot dig själv just nu — vad hade du sagt?'},
+        {k:'d4',q:'Vad skulle behöva förändras för att du ska må bättre?'},
+        {k:'d5',q:'Vad håller dig tillbaka?'},
+        {k:'d6',q:'Om du tänker 3 månader framåt — vad vill du ha förändrat?'},
+        {k:'d7',q:'Vad driver dig egentligen? Vad vill du känna mer av?'},
+        {k:'d8',q:'Vem i ditt liv förstår dig bäst?'}
+    ]
+};
+
+// -- Greeting templates --
+const GREETS={
+    warm:['Hej {name}! Vad fint att du tar dig tid. Hur har din dag varit?','Hej {name}! Jag är här för dig. Berätta, hur mår du just nu?','Välkommen tillbaka {name}! Hur känns det idag?'],
+    direct:['Hej {name}. Rakt på — hur har dagen varit?','Ge mig en snabb statusuppdatering på hur du mår.','Okej {name}, ny dag. Hur ligger du till känslomässigt?'],
+    coach:['Hej {name}! Redo att reflektera och växa? Hur har dagen sett ut?','Välkommen {name}! Varje samtal är ett steg framåt. Hur mår du?','Hej {name}! Hur har du presterat idag, känslomässigt?']
+};
+const CLOSES={
+    warm:['Tack för att du pratade med mig {name}. Jag finns här imorgon också. Ta hand om dig. ❤️','Det var fint att höra om din dag {name}. Varje dag du reflekterar gör skillnad. Vi ses!','Tack {name}. Du gör framsteg genom att prata om dina känslor. Sov gott!'],
+    direct:['Bra pratat {name}. En dag i taget. Ses imorgon.','Du vet var jag finns {name}. Keep going.','Stark session. Kom ihåg vad du sa idag — det var viktigt.'],
+    coach:['Bra session {name}! Du tar ansvar för ditt välmående — modigt. Ses imorgon!','Starkt jobbat {name}. Varje reflektion stärker din emotionella intelligens!','Du är starkare än du tror {name}. Bra att du investerar i dig själv. 🏆']
+};
+
+let convState={active:false,round:0,maxRounds:12,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),lastTopics:null,shortCount:0};
+
+// -- Build mirroring suffix from extracted topics --
 function buildMirror(topics,sentiment){
     if(!topics.found.length&&!topics.subjects.length)return'';
     const kw=topics.found.length?topics.found[0].word:topics.subjects[0];
-    if(AL==='en'){
-      const adj=sentiment.score>=65?'positive':sentiment.score<=40?'tough':'';
-      return adj?` ${kw} sounds ${adj}.`:` what you said about ${kw}.`;
-    }
     const adj=sentiment.score>=65?'positivt':sentiment.score<=40?'tufft':'';
-    return adj?` ${kw} later ${adj}.`:` det du sager om ${kw}.`;
+    return adj?` ${kw} låter ${adj}.`:` det du säger om ${kw}.`;
 }
 
+// -- Compose a contextual response --
 function composeResponse(text,sentiment,topics){
     const d=ld(),pers=d.personality||'warm';
     const bucket=sentiment.score>=65?'pos':sentiment.score<=40?'neg':'neut';
-    const mirrorSet=LANG[AL].MIRROR;
-    let mirror=pick(mirrorSet[pers][bucket]);
+
+    // 1. Mirror phrase
+    let mirror=pick(MIRROR[pers][bucket]);
     const suffix=buildMirror(topics,sentiment);
     if(suffix)mirror+=suffix.charAt(0)===' '?suffix:' '+suffix;
 
-    // Choose follow-up category
-    const followups=LANG[AL].FOLLOWUPS;
-    const generalKey=AL==='en'?'general':'allmaent';
-    const deepKey='deep';
-    const cat=topics.found.length?topics.found[0].cat:(sentiment.cats?.[0]||'allmaent');
-    // Map canonical SV cat to the FOLLOWUPS key for current language
-    let fuCat=cat;
-    if(AL==='en'){
-      const revMap={jobb:'work',relationer:'relationships',halsa:'health',fritid:'leisure',allmaent:'general'};
-      fuCat=revMap[cat]||cat;
-    }
-    const pool=convState.round>=4?[...(followups[fuCat]||[]),...(followups[deepKey]||[])]:((followups[fuCat]||followups[generalKey]));
+    // 2. Choose follow-up category
+    const cat=topics.found.length?topics.found[0].cat:(sentiment.cats?.[0]||'allmänt');
+    const pool=convState.round>=4?[...FOLLOWUPS[cat]||[],...FOLLOWUPS.deep]:(FOLLOWUPS[cat]||FOLLOWUPS.allmänt);
 
+    // 3. Filter out already-asked questions
     let available=pool.filter(q=>!convState.askedKeys.has(q.k));
-    if(!available.length)available=(followups[generalKey]||[]).filter(q=>!convState.askedKeys.has(q.k));
+    if(!available.length)available=FOLLOWUPS.allmänt.filter(q=>!convState.askedKeys.has(q.k));
     if(!available.length){convState.askedKeys.clear();available=pool;}
 
+    // 4. Pick question and fill {t} placeholder with topic word
     const chosen=pick(available);
     convState.askedKeys.add(chosen.k);
-    const topicWord=topics.found.length?topics.found[0].word:(topics.subjects[0]||(AL==='en'?'it':'det'));
+    const topicWord=topics.found.length?topics.found[0].word:(topics.subjects[0]||'det');
     const question=chosen.q.replace(/\{t\}/g,topicWord);
 
     return mirror+' '+question;
 }
 
+// -- Should the conversation end naturally? --
 function shouldEnd(){
     if(convState.round>=12)return true;
     if(convState.round>=4&&convState.shortCount>=2)return true;
-    const last=convState.transcript.filter(t2=>t2.role==='user').slice(-1)[0]?.text?.toLowerCase()||'';
-    if(AL==='en'){
-      if(convState.round>=3&&/\b(thanks|goodbye|bye|see you|that's all|i have to|stop|done)\b/.test(last))return true;
-    }else{
-      if(convState.round>=3&&/\b(tack|hejda|vi ses|det var allt|jag maste|sluta)\b/.test(last))return true;
-    }
+    const last=convState.transcript.filter(t=>t.role==='user').slice(-1)[0]?.text?.toLowerCase()||'';
+    if(convState.round>=3&&/\b(tack|hejdå|vi ses|det var allt|jag måste|sluta)\b/.test(last))return true;
     return false;
 }
 
@@ -798,6 +628,7 @@ function setHomeAvatar(mood){
 // ===== CHAT UI HELPERS =====
 function addChat(role,text){
     const area=document.getElementById('chat-area');
+    // Remove typing indicator if exists
     const typing=area.querySelector('.typing');if(typing)typing.remove();
     const div=document.createElement('div');
     div.className='chat-msg '+(role==='ai'?'ai':'user');
@@ -820,25 +651,23 @@ function showTyping(){
 
 function removeTyping(){
     const area=document.getElementById('chat-area');
-    const t2=area.querySelector('.typing');if(t2)t2.remove();
+    const t=area.querySelector('.typing');if(t)t.remove();
 }
 
-// ===== TTS =====
+// ===== TTS (best-effort, never blocks) =====
 function trySpeak(text){
     try{
         speechSynthesis.cancel();
         const u=new SpeechSynthesisUtterance(text);
-        u.lang=AL==='en'?'en-US':'sv-SE';u.rate=.95;u.pitch=1.05;
+        u.lang='sv-SE';u.rate=.95;u.pitch=1.05;
         const voices=speechSynthesis.getVoices();
-        const v=voices.find(v2=>v2.lang.startsWith(AL==='en'?'en':'sv'));
-        if(v)u.voice=v;
+        const sv=voices.find(v=>v.lang.startsWith('sv'));
+        if(sv)u.voice=sv;
         speechSynthesis.speak(u);
     }catch(e){}
 }
 
 // ===== MAIN CONVERSATION FLOW =====
-let convState={active:false,round:0,maxRounds:12,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),lastTopics:null,shortCount:0};
-
 async function startConversation(){
     const d=ld();
     convState={active:true,round:0,maxRounds:12,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),lastTopics:null,shortCount:0};
@@ -851,6 +680,7 @@ async function startConversation(){
     document.getElementById('listen-ind').textContent='';
     document.getElementById('mic-btn').className='mic-btn idle';
 
+    // Start camera (best-effort)
     try{
         convState.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:true});
         document.getElementById('conv-vid').srcObject=convState.stream;
@@ -859,33 +689,36 @@ async function startConversation(){
         try{convState.stream=await navigator.mediaDevices.getUserMedia({audio:true});document.getElementById('conv-camera').style.display='none'}catch(e2){document.getElementById('conv-camera').style.display='none'}
     }
 
+    // Timer
     convState.timer=setInterval(()=>{
         convState.elapsed++;
         const m=Math.floor(convState.elapsed/60),s=convState.elapsed%60;
         document.getElementById('conv-timer').textContent=`${m}:${s.toString().padStart(2,'0')}`;
     },1000);
 
+    // If user hasn't set their name yet, ask for it
     if(!d.userName){
         convState.askingName=true;
-        await aiMessage(t('askName'));
+        await aiMessage('Hej! Innan vi börjar — vad heter du?');
         return;
     }
 
+    // Build greeting with memory from recent data
     const pers=d.personality||'warm';
-    const greets=LANG[AL].GREETS;
-    let greeting=tpl(pick(greets[pers]||greets.warm));
+    let greeting=tpl(pick(GREETS[pers]||GREETS.warm));
 
+    // Reference recent checkins or micro-thoughts
     const todayMicros=(d.micro||[]).filter(m=>new Date(m.ts).toDateString()===new Date().toDateString());
     if(todayMicros.length>0){
         const last=todayMicros[todayMicros.length-1];
-        greeting+=' '+t('microRef',{text:last.text.slice(0,35)+(last.text.length>35?'...':'')});
+        greeting+=` Jag såg att du skrev "${last.text.slice(0,35)}${last.text.length>35?'...':''}" — vill du prata mer om det?`;
     }else if(d.checkins.length>0){
         const last=d.checkins[d.checkins.length-1];
         const daysSince=Math.floor((Date.now()-new Date(last.ts).getTime())/864e5);
-        if(daysSince<=2&&last.emotion==='stressad')greeting+=' '+t('lastStressed');
-        else if(daysSince<=2&&last.emotion==='ledsen')greeting+=' '+t('lastSad');
-        else if(daysSince<=2&&last.cats?.includes('jobb'))greeting+=' '+t('lastJob');
-        else if(daysSince<=2&&last.cats?.includes('relationer'))greeting+=' '+t('lastRel');
+        if(daysSince<=2&&last.emotion==='stressad')greeting+=' Förra gången pratade vi om att du var stressad — hur är det nu?';
+        else if(daysSince<=2&&last.emotion==='ledsen')greeting+=' Sist verkade du ha det tufft — hur känns det idag?';
+        else if(daysSince<=2&&last.cats?.includes('jobb'))greeting+=' Sist nämnde du jobbet — hur har det gått?';
+        else if(daysSince<=2&&last.cats?.includes('relationer'))greeting+=' Sist pratade vi om relationer — har något förändrats?';
     }
 
     await aiMessage(greeting);
@@ -893,10 +726,12 @@ async function startConversation(){
 
 async function aiMessage(text){
     showTyping();
+    // Simulate thinking time
     await new Promise(r=>setTimeout(r,800+Math.random()*600));
     removeTyping();
     addChat('ai',text);
     trySpeak(text);
+    // Enable user input
     document.getElementById('conv-text').focus();
 }
 
@@ -911,14 +746,14 @@ function userSend(text){
 async function processUserResponse(text){
     if(!convState.active)return;
 
+    // Handle name collection
     if(convState.askingName){
         const name=text.replace(/[^a-zA-ZåäöÅÄÖéÉ\s-]/g,'').trim().split(/\s+/)[0];
         if(name){
             const d=ld();d.userName=name;sv(d);
             convState.askingName=false;
             const pers=d.personality||'warm';
-            const greets=LANG[AL].GREETS;
-            let greeting=tpl(pick(greets[pers]||greets.warm));
+            let greeting=tpl(pick(GREETS[pers]||GREETS.warm));
             await aiMessage(greeting);
             return;
         }
@@ -930,23 +765,25 @@ async function processUserResponse(text){
     convState.emotions.push(sentiment.emotion);
     convState.lastTopics=topics;
 
+    // Track short answers for natural ending
     if(text.trim().length<15)convState.shortCount++;
     else convState.shortCount=0;
 
+    // Check if conversation should end naturally
     if(shouldEnd()){
         const d=ld(),pers=d.personality||'warm';
-        const closes=LANG[AL].CLOSES;
-        const close=tpl(pick(closes[pers]||closes.warm));
+        const close=tpl(pick(CLOSES[pers]||CLOSES.warm));
         await aiMessage(close);
         setTimeout(()=>endConversation(),2000);
         return;
     }
 
+    // Compose contextual response
     const response=composeResponse(text,sentiment,topics);
     await aiMessage(response);
 }
 
-// ===== SPEECH-TO-TEXT =====
+// ===== SPEECH-TO-TEXT (microphone button) =====
 function toggleListening(){
     if(convState.listening)stopListening();
     else startListening();
@@ -954,15 +791,15 @@ function toggleListening(){
 
 function startListening(){
     const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){document.getElementById('listen-ind').textContent=t('noVoice');return}
+    if(!SR){document.getElementById('listen-ind').textContent='Röststöd saknas — skriv istället';return}
 
     convState.listening=true;
     document.getElementById('mic-btn').className='mic-btn rec';
-    document.getElementById('listen-ind').textContent=t('listening');
+    document.getElementById('listen-ind').textContent='Lyssnar...';
 
     const rec=new SR();
     convState.recognition=rec;
-    rec.lang=AL==='en'?'en-US':'sv-SE';rec.continuous=true;rec.interimResults=true;
+    rec.lang='sv-SE';rec.continuous=true;rec.interimResults=true;
     let finalText='',silenceTimer=null;
 
     rec.onresult=(e)=>{
@@ -972,7 +809,7 @@ function startListening(){
             else interim=e.results[i][0].transcript;
         }
         document.getElementById('conv-text').value=finalText+interim;
-        document.getElementById('listen-ind').textContent=t('listenSend');
+        document.getElementById('listen-ind').textContent='Lyssnar... (tryck mikrofon för att skicka)';
         clearTimeout(silenceTimer);
         silenceTimer=setTimeout(()=>{
             if(finalText.trim().length>5){stopListening();userSend(finalText.trim())}
@@ -981,16 +818,18 @@ function startListening(){
 
     rec.onend=()=>{
         if(convState.listening){
+            // Auto-send if we have text
             if(finalText.trim()){stopListening();userSend(finalText.trim())}
             else{try{rec.start()}catch(e){stopListening()}}
         }
     };
     rec.onerror=(e)=>{
         if(e.error==='no-speech'){try{rec.start()}catch(ex){stopListening()}}
-        else{stopListening();document.getElementById('listen-ind').textContent=t('noListen')}
+        else{stopListening();document.getElementById('listen-ind').textContent='Kunde inte lyssna — skriv istället'}
     };
-    try{rec.start()}catch(e){stopListening();document.getElementById('listen-ind').textContent=t('noMic')}
+    try{rec.start()}catch(e){stopListening();document.getElementById('listen-ind').textContent='Kunde inte starta mikrofon'}
 
+    // Safety timeout
     setTimeout(()=>{if(convState.listening){if(finalText.trim()){stopListening();userSend(finalText.trim())}else stopListening()}},25000);
 }
 
@@ -1005,7 +844,7 @@ function stopListening(){
 function endConversation(){
     convState.active=false;
     stopListening();
-    if(convState.stream){convState.stream.getTracks().forEach(t2=>t2.stop());convState.stream=null}
+    if(convState.stream){convState.stream.getTracks().forEach(t=>t.stop());convState.stream=null}
     clearInterval(convState.timer);
     try{speechSynthesis.cancel()}catch(e){}
     document.getElementById('conv-view').classList.remove('on');
@@ -1014,10 +853,12 @@ function endConversation(){
     const fullText=convState.fullText.trim();
     const result=analyze(fullText);
 
+    // Score: blend text analysis + simulated face/voice
     const face=40+Math.random()*35,voice=35+Math.random()*40,text=result.score;
     const w=fullText.length>20?{f:.3,v:.25,t:.45}:{f:.35,v:.35,t:.3};
     const score=Math.max(5,Math.min(99,Math.round(face*w.f+voice*w.v+text*w.t)));
 
+    // Generate AI diary summary
     const summary=generateSummary(convState.transcript,result,d);
 
     const entry={
@@ -1041,32 +882,34 @@ function endConversation(){
 }
 
 function generateSummary(transcript,result,data){
-    const userParts=transcript.filter(t2=>t2.role==='user').map(t2=>t2.text).join(' ');
+    const userParts=transcript.filter(t=>t.role==='user').map(t=>t.text).join(' ');
     const name=data.aiName||'AI';
-    if(!userParts.trim())return t('summaryNoData',{name});
+    if(!userParts.trim())return `${name} och användaren hade ett kort samtal. Inte tillräckligt med data för en sammanfattning.`;
 
-    const mood=t('emoLabel')[result.emotion]||(AL==='en'?'reflective':'reflekterande');
-    const cats=result.cats.filter(c=>c!=='allmaent');
-    const catText=cats.length>0?t('summaryCatsPrefix')+cats.join(', ')+'.':'';
+    const emoLabel={glad:'glad och positiv',lugn:'lugn och balanserad',neutral:'neutral',stressad:'stressad',ledsen:'ledsen och tyngd',orolig:'orolig',arg:'frustrerad',trott:'trött och energilös'};
+    const mood=emoLabel[result.emotion]||'reflekterande';
+    const cats=result.cats.filter(c=>c!=='allmänt');
+    const catText=cats.length>0?` Samtalet berörde främst: ${cats.join(', ')}.`:'';
 
-    let summary=t('summaryTpl',{min:Math.floor(convState.elapsed/60).toString(),mood,cats:catText});
+    let summary=`Dagens samtal varade ${Math.floor(convState.elapsed/60)} minuter. Stämningen var övervägande ${mood}.${catText}`;
 
+    // Add insight based on history
     if(data.checkins.length>=3){
         const recent=data.checkins.slice(-3).map(c=>c.score);
         const avg=recent.reduce((a,b)=>a+b)/recent.length;
         const diff=result.score-Math.round(avg);
-        if(diff>10)summary+=' '+t('summaryUp',{diff:diff.toString()});
-        else if(diff<-10)summary+=' '+t('summaryDown',{diff:Math.abs(diff).toString()});
+        if(diff>10)summary+=` Välmåendet är ${diff} poäng bättre än de senaste dagarna.`;
+        else if(diff<-10)summary+=` Välmåendet sjönk ${Math.abs(diff)} poäng — en nedåtgående trend att uppmärksamma.`;
     }
     return summary;
 }
 
 // ===== INTERVENTIONS =====
 function getInterv(s){
-    if(s<35)return{t:'🧘 '+t('interv1t'),p:t('interv1p')};
-    if(s<55)return{t:'🌿 '+t('interv2t'),p:t('interv2p')};
-    if(s<75)return{t:'🎵 '+t('interv3t'),p:t('interv3p')};
-    return{t:'🌟 '+t('interv4t'),p:t('interv4p')};
+    if(s<35)return{t:'🧘 Andningsövning',p:'4-7-8: Andas in 4s, håll 7s, ut 8s genom munnen. 3 omgångar.'};
+    if(s<55)return{t:'🌿 Grounding-teknik',p:'5-4-3-2-1: Se 5 saker, rör 4, hör 3, lukta 2, smaka 1.'};
+    if(s<75)return{t:'🎵 Humörboost',p:'Sätt på en favoritlåt och rör dig i 2 minuter — det frigör endorfiner.'};
+    return{t:'🌟 Bevara känslan',p:'Skriv 3 saker du är tacksam för. Det stärker positiva neurala kopplingar.'};
 }
 
 // ===== SHOW RESULT =====
@@ -1079,28 +922,28 @@ function showResult(entry,data,lvlUp){
     let c=0;const el=document.getElementById('s-val');
     const an=setInterval(()=>{c=Math.min(c+Math.ceil(s/20),s);el.textContent=c;if(c>=s)clearInterval(an)},30);
 
-    const icons=t('emoIcons'),shorts=t('emoShort');
-    document.getElementById('r-emo').textContent=(icons[entry.emotion]||'😐')+' '+(shorts[entry.emotion]||'Neutral');
+    const emo={glad:'😊 Glad',lugn:'😌 Lugn',neutral:'😐 Neutral',stressad:'😰 Stressad',ledsen:'😢 Ledsen',orolig:'😟 Orolig',arg:'😤 Arg',trott:'😴 Trött'};
+    document.getElementById('r-emo').textContent=emo[entry.emotion]||'😐 Neutral';
     document.getElementById('r-xp').textContent=`+${entry.xp||15} XP`+(entry.streakBonus?` +${entry.streakBonus} streak bonus!`:'');
 
+    // AI reflection
     const aiName=data.aiName||'AI';
-    document.getElementById('r-ref-title').textContent=`🧠 ${aiName}s ${AL==='en'?'reflection':'reflektion'}`;
+    document.getElementById('r-ref-title').textContent=`🧠 ${aiName}s reflektion`;
     let refText='';
     if(data.checkins.length>1){
         const prev=data.checkins[data.checkins.length-2];
         const diff=s-prev.score;
-        if(diff>10)refText+=t('refScoreUp',{diff:diff.toString()});
-        else if(diff<-10)refText+=t('refScoreDown',{diff:Math.abs(diff).toString()});
+        if(diff>10)refText+=`Din score gick upp ${diff} poäng sedan igår — det du gör fungerar! `;
+        else if(diff<-10)refText+=`Idag var ${Math.abs(diff)} poäng lägre. Det är okej — alla dagar ser inte likadana ut. `;
     }
-    if(entry.cats.includes('jobb')&&s<50)refText+=t('refJobStress');
-    if(entry.cats.includes('relationer')&&s>60)refText+=t('refRelGood');
-    if(s<35)refText+=t('refLow');
-    else if(s>75)refText+=t('refHigh');
-    else refText+=t('refMid');
+    if(entry.cats.includes('jobb')&&s<50)refText+='Jobbet verkar tynga dig. Fundera på vad du kan påverka vs. vad du behöver släppa. ';
+    if(entry.cats.includes('relationer')&&s>60)refText+='Relationer ger dig energi — investera i dem! ';
+    if(s<35)refText+='Det tar mod att erkänna att man har det tufft. Att du reflekterar är i sig ett steg framåt.';
+    else if(s>75)refText+='Du är i ett riktigt bra läge. Notera vad som bidrar — det är din formel.';
+    else refText+='Fortsätt reflektera dagligen. Medvetenhet är första steget till förändring.';
     document.getElementById('r-ref-text').textContent=refText;
 
-    document.getElementById('r-summary-title').textContent='📝 '+t('summaryTitle');
-    document.getElementById('r-summary').textContent=entry.summary||'(—)';
+    document.getElementById('r-summary').textContent=entry.summary||'(Ingen sammanfattning)';
     document.getElementById('r-cats').innerHTML=(entry.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('');
 
     const iv=getInterv(s);
@@ -1109,7 +952,6 @@ function showResult(entry,data,lvlUp){
 
     // Value proof
     const vp=document.getElementById('r-vproof');
-    document.getElementById('r-vproof-title').textContent='📈 '+t('yourDev');
     if(data.checkins.length>=3&&data.baseline){
         const recent=data.checkins.slice(-3).map(c=>c.score);
         const avg=Math.round(recent.reduce((a,b)=>a+b)/recent.length);
@@ -1117,8 +959,8 @@ function showResult(entry,data,lvlUp){
         if(improvement!==0){
             vp.style.display='';
             document.getElementById('r-vp-text').textContent=improvement>0
-                ?t('vpUp',{name:aiName,diff:improvement.toString()})
-                :t('vpDown',{diff:Math.abs(improvement).toString()});
+                ?`Sedan du började prata med ${aiName} har ditt genomsnittliga MoodScore ökat med ${improvement} poäng. Dina samtal gör skillnad!`
+                :`Ditt score har sjunkit ${Math.abs(improvement)} poäng sedan start. Det kan vara en tuff period — men att du fortsätter reflektera är det viktigaste.`;
         }else vp.style.display='none';
     }else vp.style.display='none';
 
@@ -1126,12 +968,8 @@ function showResult(entry,data,lvlUp){
     document.getElementById('sh-s').textContent=s;
     document.getElementById('sh-st').textContent=strk;
     document.getElementById('sh-l').textContent=lv.l;
-    document.getElementById('share-title').textContent=t('shareTitle');
-    document.getElementById('share-btn').textContent=t('shareBtn');
-    document.getElementById('sh-lvl-lbl').textContent=t('level');
-    document.getElementById('r-back-btn').textContent=t('back');
 
-    if(lvlUp)setTimeout(()=>toast(`🎉 ${t('level')} ${lvlUp.l}: ${lvlUp.n}!`),1200);
+    if(lvlUp)setTimeout(()=>toast(`🎉 Nivå ${lvlUp.l}: ${lvlUp.n}!`),1200);
 }
 
 // ===== VALUE PROOF (home) =====
@@ -1143,17 +981,17 @@ function renderValueProof(d){
     const avg=Math.round(recent.reduce((a,b)=>a+b)/recent.length);
     const diff=d.baseline?avg-d.baseline:0;
     if(diff>0){
-        document.getElementById('vp-big').textContent=`+${diff} ${AL==='en'?'points':'poang'}`;
+        document.getElementById('vp-big').textContent=`+${diff} poäng`;
         document.getElementById('vp-big').style.color='var(--ok)';
-        document.getElementById('vp-desc').textContent=t('vpHomeUp',{name:d.aiName});
+        document.getElementById('vp-desc').textContent=`Ditt välmående har förbättrats sedan du började prata med ${d.aiName}`;
     }else if(diff<0){
-        document.getElementById('vp-big').textContent=`${diff} ${AL==='en'?'points':'poang'}`;
+        document.getElementById('vp-big').textContent=`${diff} poäng`;
         document.getElementById('vp-big').style.color='var(--w)';
-        document.getElementById('vp-desc').textContent=t('vpHomeDn');
+        document.getElementById('vp-desc').textContent='En tuff period — men att du fortsätter visa upp är det som gör skillnad';
     }else{
         document.getElementById('vp-big').textContent=`${avg}/100`;
         document.getElementById('vp-big').style.color='var(--pl)';
-        document.getElementById('vp-desc').textContent=t('vpAvgDesc');
+        document.getElementById('vp-desc').textContent='Ditt genomsnittliga MoodScore. Fortsätt — mönstren blir tydligare med tid.';
     }
 }
 
@@ -1161,21 +999,22 @@ function renderValueProof(d){
 function renderHome(){
     const d=ld();
     const hr=new Date().getHours();
-    const greet=hr<10?t('greetMorn'):hr<17?t('greetDay'):hr<21?t('greetEve'):t('greetNight');
+    const greet=hr<10?'God morgon':hr<17?'Hej':hr<21?'God kväll':'God natt';
     document.getElementById('home-greeting').textContent=greet+'!';
     const td=todayDone(d.checkins);
-    document.getElementById('home-sub').textContent=td?t('todayDone',{name:d.aiName}):t('todayPending',{name:d.aiName});
+    document.getElementById('home-sub').textContent=td?'Du har pratat med '+d.aiName+' idag ✓':'Dags att checka in med '+d.aiName;
 
     const strk=calcStreak(d.checkins);
     document.getElementById('s-num').textContent=strk;
-    document.getElementById('streak-lbl').textContent=t('streakDays');
-    const days=AL==='en'?['M','T','W','T','F','S','S']:['M','T','O','T','F','L','S'];
-    const dow=(new Date().getDay()+6)%7;
+    const days=['M','T','O','T','F','L','S'];const dow=(new Date().getDay()+6)%7;
     document.getElementById('w-dots').innerHTML=days.map((n,i)=>`<div class="wd ${i<dow?'done':i===dow?(td?'done':'now'):'fut'}">${n}</div>`).join('');
 
     renderValueProof(d);
 
-    const msgs=td?t('homeMsgDone'):t('homeMsgPending');
+    // AI message on home
+    const msgs=td
+        ?['Bra jobbat idag! Vi ses imorgon 💛','Du tog dig tid att reflektera — det gör skillnad','Varje samtal bygger din emotionella styrka']
+        :['Jag är redo när du är — tryck för att prata','Hur har din dag varit? Jag lyssnar','Ta 2 minuter för dig själv — det är värt det'];
     document.getElementById('home-ai-msg').textContent=pick(msgs);
 
     setHomeAvatar(td?'happy':'neutral');
@@ -1184,36 +1023,35 @@ function renderHome(){
         const last=d.checkins[d.checkins.length-1];
         const col=last.score>=65?'var(--ok)':last.score>=40?'var(--w)':'var(--bad)';
         document.getElementById('home-today').innerHTML=`<div class="cd" style="text-align:center;cursor:pointer" onclick="go('progress')">
-            <div style="font-size:.78rem;color:var(--t2)">${t('todayScore')}</div>
+            <div style="font-size:.78rem;color:var(--t2)">Dagens MoodScore</div>
             <div style="font-size:1.8rem;font-weight:800;color:${col}">${last.score}</div>
-            <div style="font-size:.72rem;color:var(--t2);margin-top:3px">${t('seeProgress')} →</div></div>`;
+            <div style="font-size:.72rem;color:var(--t2);margin-top:3px">Se din utveckling →</div></div>`;
     }else document.getElementById('home-today').innerHTML='';
 
+    // Render alerts
     renderAlerts();
 }
 
 // ===== RENDER DIARY =====
 function renderDiary(){
     const d=ld(),list=document.getElementById('d-list');
-    const icons=t('emoIcons');
-    document.getElementById('diary-title').textContent='📖 '+t('diaryTitle');
-    document.getElementById('d-search').placeholder=t('diarySearch');
+    const emo={glad:'😊',lugn:'😌',neutral:'😐',stressad:'😰',ledsen:'😢',orolig:'😟',arg:'😤',trott:'😴'};
 
+    // Merge full checkins + micro-checkins
     const all=[];
     d.checkins.forEach((e,i)=>all.push({...e,type:'full',idx:i}));
     (d.micro||[]).forEach(e=>all.push({...e,type:'micro'}));
     all.sort((a,b)=>new Date(b.ts)-new Date(a.ts));
 
-    if(!all.length){list.innerHTML=`<div style="text-align:center;padding:36px 16px;color:var(--t2)"><div style="font-size:2.2rem;margin-bottom:6px">📖</div><p>${t('diaryEmpty')}</p></div>`;return}
-    const locale=AL==='en'?'en-US':'sv-SE';
+    if(!all.length){list.innerHTML='<div style="text-align:center;padding:36px 16px;color:var(--t2)"><div style="font-size:2.2rem;margin-bottom:6px">📖</div><p>Din dagbok är tom.<br>Skriv en snabb tanke eller starta ett samtal!</p></div>';return}
     list.innerHTML=all.map(e=>{
-        const dt=new Date(e.ts);const ds=dt.toLocaleDateString(locale,{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        const dt=new Date(e.ts);const ds=dt.toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
         const col=e.score>=65?'var(--ok)':e.score>=40?'var(--w)':'var(--bad)';
         if(e.type==='micro'){
-            return`<div class="de"><div class="de-h"><span class="de-d">💭 ${icons[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${e.text}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
+            return`<div class="de"><div class="de-h"><span class="de-d">💭 ${emo[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${e.text}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
         }
-        const txt=e.summary||e.transcript?.slice(0,100)||(AL==='en'?'No content':'Inget innehall');
-        return`<div class="de" onclick="showEntry(${e.idx})"><div class="de-h"><span class="de-d">${icons[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${txt}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
+        const txt=e.summary||e.transcript?.slice(0,100)||'Inget innehåll';
+        return`<div class="de" onclick="showEntry(${e.idx})"><div class="de-h"><span class="de-d">${emo[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${txt}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
     }).join('');
 }
 document.getElementById('d-search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.de').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(q)?'':'none'})});
@@ -1222,21 +1060,16 @@ function showEntry(i){const d=ld(),e=d.checkins[i];if(e)showResult(e,d,null)}
 // ===== RENDER PROGRESS =====
 function renderProgress(){
     const d=ld(),ci=d.checkins,strk=calcStreak(ci),lv=getLvl(d.xp||0),nx=getNext(d.xp||0);
-    document.getElementById('progress-title').textContent='📈 '+t('progressTitle');
-    document.getElementById('trend-title').textContent='📈 '+t('trend');
-    document.getElementById('pattern-title').textContent='🔍 '+t('patterns');
-    document.getElementById('rank-vs').textContent=t('rankVs');
-    document.getElementById('export-btn').textContent='📋 '+t('exportBtn');
-
     const prog=nx?((d.xp-lv.xp)/(nx.xp-lv.xp)*100):100;
-    document.getElementById('lvl-bar').innerHTML=`<div class="lvl-b" style="background:${lv.c};color:#000">Lv${lv.l}</div><div class="lvl-i"><div class="n">${lv.n}</div><div class="x">${d.xp||0} XP${nx?` — ${nx.xp-(d.xp||0)} ${AL==='en'?'to':'till'} ${nx.n}`:' — Max!'}</div><div class="xp-bar"><div class="xp-f" style="width:${prog}%"></div></div></div>`;
+    document.getElementById('lvl-bar').innerHTML=`<div class="lvl-b" style="background:${lv.c};color:#000">Lv${lv.l}</div><div class="lvl-i"><div class="n">${lv.n}</div><div class="x">${d.xp||0} XP${nx?` — ${nx.xp-(d.xp||0)} till ${nx.n}`:' — Max!'}</div><div class="xp-bar"><div class="xp-f" style="width:${prog}%"></div></div></div>`;
 
+    // Rank
     if(ci.length>=3&&d.baseline){
         const rec=ci.slice(-5).reduce((a,c)=>a+c.score,0)/Math.min(ci.length,5);
         const imp=rec-d.baseline;
         const pct=Math.max(5,Math.min(99,Math.round(50+imp*1.5+strk*2)));
-        document.getElementById('rk-p').textContent=t('rankTop',{pct:(100-pct).toString()});
-        document.getElementById('rk-l').textContent=pct>80?t('rankFast',{pct:pct.toString()}):t('rankBetter',{pct:pct.toString()});
+        document.getElementById('rk-p').textContent=`Topp ${100-pct}%`;
+        document.getElementById('rk-l').textContent=pct>80?`Du utvecklas snabbare än ${pct}% av alla`:`Du förbättras mer än ${pct}% av användarna`;
         document.getElementById('rk-m').style.left=pct+'%';
     }
 
@@ -1246,31 +1079,33 @@ function renderProgress(){
     let wc='';
     const tw=ci.filter(c=>(Date.now()-new Date(c.ts).getTime())<7*864e5);
     const lw=ci.filter(c=>{const a=Date.now()-new Date(c.ts).getTime();return a>=7*864e5&&a<14*864e5});
-    if(tw.length&&lw.length){const d2=Math.round(tw.reduce((a,c)=>a+c.score,0)/tw.length-lw.reduce((a,c)=>a+c.score,0)/lw.length);wc=d2>0?`<div class="c up">+${d2} ${t('vsLastWeek')}</div>`:d2<0?`<div class="c dn">${d2} ${t('vsLastWeek')}</div>`:''}
-    document.getElementById('st-row').innerHTML=`<div class="sb"><div class="v">${avg||'—'}</div><div class="l">${t('avg')}</div>${wc}</div><div class="sb"><div class="v" style="color:var(--g)">${strk}</div><div class="l">Streak</div></div><div class="sb"><div class="v" style="color:var(--ok)">${best||'—'}</div><div class="l">${t('best')}</div></div><div class="sb"><div class="v">${tot}</div><div class="l">${t('convs')}</div></div>`;
+    if(tw.length&&lw.length){const d2=Math.round(tw.reduce((a,c)=>a+c.score,0)/tw.length-lw.reduce((a,c)=>a+c.score,0)/lw.length);wc=d2>0?`<div class="c up">+${d2} vs förra v.</div>`:d2<0?`<div class="c dn">${d2} vs förra v.</div>`:''}
+    document.getElementById('st-row').innerHTML=`<div class="sb"><div class="v">${avg||'—'}</div><div class="l">Snitt</div>${wc}</div><div class="sb"><div class="v" style="color:var(--g)">${strk}</div><div class="l">Streak</div></div><div class="sb"><div class="v" style="color:var(--ok)">${best||'—'}</div><div class="l">Bästa</div></div><div class="sb"><div class="v">${tot}</div><div class="l">Samtal</div></div>`;
 
     drawChart(ci);
 
+    // Patterns (using all data points: checkins + micro)
     const pl=document.getElementById('pat-list');
     const allPts=getAllDataPoints(d);
-    if(allPts.length<5){pl.innerHTML=`<p style="font-size:.8rem;color:var(--t2)">${t('patternsNeed')}</p>`;return}
+    if(allPts.length<5){pl.innerHTML='<p style="font-size:.8rem;color:var(--t2)">5+ mätningar behövs för mönster.</p>';return}
     const pats=[];
-    for(const cat of['jobb','relationer','halsa','fritid']){
-        const w2=allPts.filter(c=>c.cats?.includes(cat)),wo=allPts.filter(c=>!c.cats?.includes(cat));
-        if(w2.length>=2&&wo.length>=2){const df=Math.round(w2.reduce((a,c)=>a+c.score,0)/w2.length-wo.reduce((a,c)=>a+c.score,0)/wo.length);if(Math.abs(df)>5)pats.push(t('patCat',{cat,diff:(df>0?'+':'')+df,arrow:df>0?'↑':'↓'}))}
+    for(const cat of['jobb','relationer','hälsa','fritid']){
+        const w=allPts.filter(c=>c.cats?.includes(cat)),wo=allPts.filter(c=>!c.cats?.includes(cat));
+        if(w.length>=2&&wo.length>=2){const df=Math.round(w.reduce((a,c)=>a+c.score,0)/w.length-wo.reduce((a,c)=>a+c.score,0)/wo.length);if(Math.abs(df)>5)pats.push(`När du nämner <strong>${cat}</strong>: ${df>0?'+':''}${df} poäng ${df>0?'↑':'↓'}`)}
     }
     const ec={};allPts.forEach(c=>{ec[c.emotion]=(ec[c.emotion]||0)+1});
     const top=Object.entries(ec).sort((a,b)=>b[1]-a[1])[0];
-    if(top)pats.push(t('patEmo',{emo:top[0],pct:Math.round(top[1]/allPts.length*100).toString()}));
-    if(d.baseline&&allPts.length>=3){const r=allPts.slice(-3).reduce((a,c)=>a+c.score,0)/3;const df=Math.round(r-d.baseline);if(df)pats.push(`${df>0?t('patImproved'):t('patDeclined')} <strong>${Math.abs(df)}</strong>${t('patSince')}`)}
+    if(top)pats.push(`Vanligaste känslan: <strong>${top[0]}</strong> (${Math.round(top[1]/allPts.length*100)}%)`);
+    if(d.baseline&&allPts.length>=3){const r=allPts.slice(-3).reduce((a,c)=>a+c.score,0)/3;const df=Math.round(r-d.baseline);if(df)pats.push(`${df>0?'Förbättrad':'Sjunkit'} <strong>${Math.abs(df)} poäng</strong> sedan start`)}
+    // Time-of-day pattern
     const morning=allPts.filter(e=>new Date(e.ts).getHours()<12);
     const evening=allPts.filter(e=>new Date(e.ts).getHours()>=17);
     if(morning.length>=2&&evening.length>=2){
         const mAvg=Math.round(morning.reduce((a,c)=>a+c.score,0)/morning.length);
         const eAvg=Math.round(evening.reduce((a,c)=>a+c.score,0)/evening.length);
-        if(Math.abs(mAvg-eAvg)>8)pats.push(t('patBestTime',{time:mAvg>eAvg?t('morning'):t('evening'),hi:Math.max(mAvg,eAvg).toString(),lo:Math.min(mAvg,eAvg).toString()}));
+        if(Math.abs(mAvg-eAvg)>8)pats.push(`Du mår bäst på <strong>${mAvg>eAvg?'morgonen':'kvällen'}</strong> (${Math.max(mAvg,eAvg)} vs ${Math.min(mAvg,eAvg)} poäng)`);
     }
-    pl.innerHTML=pats.length?pats.map(p=>`<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;color:var(--t2);line-height:1.45">${p}</div>`).join(''):`<p style="font-size:.8rem;color:var(--t2)">${t('noPatterns')}</p>`;
+    pl.innerHTML=pats.length?pats.map(p=>`<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;color:var(--t2);line-height:1.45">${p}</div>`).join(''):'<p style="font-size:.8rem;color:var(--t2)">Inga tydliga mönster ännu.</p>';
 }
 
 // ===== CHART =====
@@ -1280,7 +1115,7 @@ function drawChart(ci){
     cv.width=cv.offsetWidth*dpr;cv.height=cv.offsetHeight*dpr;ctx.scale(dpr,dpr);
     const w=cv.offsetWidth,h=cv.offsetHeight,p={t:12,r:6,b:18,l:26};
     ctx.clearRect(0,0,w,h);
-    const ent=ci.slice(-14);if(ent.length<2){ctx.fillStyle='#A7A9BE';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText(t('needMore'),w/2,h/2);return}
+    const ent=ci.slice(-14);if(ent.length<2){ctx.fillStyle='#A7A9BE';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('2+ samtal för graf',w/2,h/2);return}
     const sc=ent.map(e=>e.score),cW=w-p.l-p.r,cH=h-p.t-p.b;
     ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
     for(let i=0;i<=100;i+=25){const y=p.t+cH-(i/100)*cH;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillStyle='#A7A9BE';ctx.font='8px sans-serif';ctx.textAlign='right';ctx.fillText(i,p.l-3,y+3)}
@@ -1302,35 +1137,10 @@ function go(p){
 }
 
 // ===== ONBOARDING =====
-function populateOnboarding(){
-    document.getElementById('ob-title').textContent=t('app');
-    document.getElementById('ob-tagline').textContent=t('tagline');
-    document.getElementById('ob-feats').innerHTML=`
-        <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>💬</span> ${t('obFeat1')}</div>
-        <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📈</span> ${t('obFeat2')}</div>
-        <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔒</span> ${t('obFeat3')}</div>`;
-    document.getElementById('ob-start-btn').textContent=t('obStart');
-    document.getElementById('ob-social').innerHTML=t('obSocial');
-    document.getElementById('ob2-title').textContent=t('obNameTitle');
-    document.getElementById('ob2-desc').textContent=t('obNameDesc');
-    document.getElementById('user-name-input').placeholder=t('obNamePh');
-    document.getElementById('ob2-btn').textContent=t('obNext');
-    document.getElementById('ob3-title').textContent=t('obAiTitle');
-    document.getElementById('ob3-desc').textContent=t('obAiDesc');
-    document.getElementById('ai-name-input').placeholder=t('obAiPh');
-    document.getElementById('ob3-btn').textContent=t('obNext');
-    document.getElementById('ob4-title').textContent=t('obPersTitle');
-    document.getElementById('ob4-btn').textContent=t('obFinish');
-    document.getElementById('pers-grid').innerHTML=`
-        <div class="pers-btn sel" data-pers="warm" onclick="selectPers(this)"><strong>🤗 ${t('persWarmT')}</strong><span>${t('persWarmD')}</span></div>
-        <div class="pers-btn" data-pers="direct" onclick="selectPers(this)"><strong>💪 ${t('persDirectT')}</strong><span>${t('persDirectD')}</span></div>
-        <div class="pers-btn" data-pers="coach" onclick="selectPers(this)"><strong>🎯 ${t('persCoachT')}</strong><span>${t('persCoachD')}</span></div>`;
-}
-
 function obNext(step){
     if(step===4){
         const name=document.getElementById('ai-name-input').value.trim()||'Luna';
-        document.getElementById('ob4-desc').innerHTML=t('obPersDesc',{name});
+        document.getElementById('ob-name-preview').textContent=name;
     }
     document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('on'));
     document.getElementById('ob'+step).classList.add('on');
@@ -1340,7 +1150,7 @@ function finishOnboarding(){
     const userName=document.getElementById('user-name-input').value.trim();
     const name=document.getElementById('ai-name-input').value.trim()||'Luna';
     const pers=document.querySelector('.pers-btn.sel')?.dataset.pers||'warm';
-    const d=ld();d.firstVisit=false;d.userName=userName;d.aiName=name;d.personality=pers;d.onboarded=new Date().toISOString();d.lang=AL;sv(d);
+    const d=ld();d.firstVisit=false;d.userName=userName;d.aiName=name;d.personality=pers;d.onboarded=new Date().toISOString();sv(d);
     document.getElementById('ob').classList.add('h');
     document.getElementById('app').style.display='';
     renderHome();
@@ -1349,12 +1159,12 @@ function finishOnboarding(){
 // ===== SHARE =====
 function doShare(){
     const d=ld(),strk=calcStreak(d.checkins),lv=getLvl(d.xp||0),last=d.checkins[d.checkins.length-1];
-    const txt=t('shareText',{score:last?.score||'—',streak:strk.toString(),level:lv.l.toString(),levelName:lv.n,url:location.href});
+    const txt=`🧠 Moodly\n\nMoodScore: ${last?.score||'—'}/100\nStreak: ${strk} dagar 🔥\nNivå ${lv.l}: ${lv.n}\n\n${location.href}`;
     if(navigator.share)navigator.share({title:'Moodly',text:txt}).catch(()=>{});
-    else navigator.clipboard?.writeText(txt).then(()=>toast(t('copied'))).catch(()=>{});
+    else navigator.clipboard?.writeText(txt).then(()=>toast('Kopierat!')).catch(()=>{});
 }
-function exportData(){const d=ld();const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='moodly-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast(t('exported'))}
-function toast(m){const t2=document.getElementById('toast');t2.textContent=m;t2.classList.add('show');setTimeout(()=>t2.classList.remove('show'),3000)}
+function exportData(){const d=ld();const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='kanslaflow-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exporterad!')}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
 // ===== QUICK THOUGHT =====
 function submitQuickThought(){
@@ -1364,10 +1174,12 @@ function submitQuickThought(){
     const result=analyze(text);
     const d=ld();
 
+    // Save micro-checkin
     const entry={ts:new Date().toISOString(),text,score:result.score,emotion:result.emotion,cats:result.cats};
     d.micro.push(entry);
     if(d.micro.length>200)d.micro=d.micro.slice(-200);
 
+    // XP
     const xp=3+(text.length>30?2:0);
     const oldLvl=getLvl(d.xp||0);
     d.xp=(d.xp||0)+xp;
@@ -1375,18 +1187,25 @@ function submitQuickThought(){
     if(d.baseline===null)d.baseline=result.score;
     sv(d);
 
-    const icons=t('emoIcons'),shorts=t('emoShort'),comments=t('qtComments');
+    // Show feedback
+    const emoMap={glad:'😊 Glad',lugn:'😌 Lugn',neutral:'😐 Neutral',stressad:'😰 Stressad',ledsen:'😢 Ledsen',orolig:'😟 Orolig',arg:'😤 Arg',trott:'😴 Trött'};
     const col=result.score>=65?'var(--ok)':result.score>=40?'var(--w)':'var(--bad)';
+    const comments={glad:'Fint att höra! Fortsätt göra det som fungerar.',lugn:'Stabilitet är styrka. Bra läge.',neutral:'Noterat. Ibland är neutralt helt okej.',stressad:'Stress noterat. Prova en kort andningsövning?',ledsen:'Jag hör dig. Du är inte ensam om att känna så.',orolig:'Oro är vanligt. Vill du prata mer om det?',arg:'Frustration noterat. Vad kan du påverka?',trott:'Vila är viktigt. Var snäll mot dig själv.'};
     const fb=document.getElementById('qt-feedback');
     fb.style.display='';
-    fb.innerHTML=`<div class="qt-emo">${icons[result.emotion]||'😐'} ${shorts[result.emotion]||'Neutral'} <span style="font-size:.72rem;color:var(--t2)">+${xp} XP</span></div>
-        <div class="qt-comment">${comments[result.emotion]||(AL==='en'?'Noted!':'Noterat!')}</div>
+    fb.innerHTML=`<div class="qt-emo">${emoMap[result.emotion]||'😐 Neutral'} <span style="font-size:.72rem;color:var(--t2)">+${xp} XP</span></div>
+        <div class="qt-comment">${comments[result.emotion]||'Noterat!'}</div>
         <div class="qt-bar"><div class="qt-fill" style="width:${result.score}%;background:${col}"></div></div>`;
 
     inp.value='';
+
+    // Auto-hide feedback
     setTimeout(()=>{fb.style.display='none'},5000);
+
+    // Refresh alerts
     renderAlerts();
-    if(newLvl.l>oldLvl.l)toast(`🎉 ${t('level')} ${newLvl.l}: ${newLvl.n}!`);
+
+    if(newLvl.l>oldLvl.l)toast(`🎉 Nivå ${newLvl.l}: ${newLvl.n}!`);
 }
 
 // ===== PATTERN ALERTS =====
@@ -1395,48 +1214,54 @@ function detectAlerts(d){
     const all=getAllDataPoints(d);
     const today=new Date().toDateString();
 
+    // 1. Consecutive decline (3+ entries each lower)
     if(all.length>=3){
         const last3=all.slice(-3);
         if(last3[2].score<last3[1].score-4&&last3[1].score<last3[0].score-4){
-            alerts.push({id:'decline-'+today,sev:'bad',ico:'📉',title:t('alertDecline'),desc:t('alertDeclineDesc')});
+            alerts.push({id:'decline-'+today,sev:'bad',ico:'📉',title:'Nedåtgående trend',desc:'Ditt välmående har sjunkit tre mätningar i rad. Vill du starta ett samtal?'});
         }
     }
 
+    // 2. Stress streak
     if(all.length>=3){
         const lastEmotions=all.slice(-3).map(e=>e.emotion);
         if(lastEmotions.every(e=>e==='stressad')){
-            alerts.push({id:'stress-'+today,sev:'warn',ico:'⚠️',title:t('alertStress'),desc:t('alertStressDesc')});
+            alerts.push({id:'stress-'+today,sev:'warn',ico:'⚠️',title:'Stress-mönster upptäckt',desc:'Du har rapporterat stress 3 gånger i rad. En andningsövning kan hjälpa: 4s in, 7s håll, 8s ut.'});
         }
     }
 
+    // 3. Category insight (needs 5+ entries)
     if(all.length>=5){
-        for(const cat of['jobb','relationer','halsa','fritid']){
+        for(const cat of['jobb','relationer','hälsa','fritid']){
             const withCat=all.filter(e=>e.cats?.includes(cat));
             const without=all.filter(e=>!e.cats?.includes(cat));
             if(withCat.length>=2&&without.length>=2){
                 const avgWith=Math.round(withCat.reduce((a,c)=>a+c.score,0)/withCat.length);
                 const avgWithout=Math.round(without.reduce((a,c)=>a+c.score,0)/without.length);
                 const diff=avgWith-avgWithout;
-                if(diff>12)alerts.push({id:'cat-pos-'+cat,sev:'insight',ico:'💡',title:t('alertCatPos',{cat:cat.charAt(0).toUpperCase()+cat.slice(1)}),desc:t('alertCatPosDesc',{diff:diff.toString(),cat})});
-                else if(diff<-12)alerts.push({id:'cat-neg-'+cat,sev:'warn',ico:'💡',title:t('alertCatNeg',{cat:cat.charAt(0).toUpperCase()+cat.slice(1)}),desc:t('alertCatNegDesc',{diff:Math.abs(diff).toString(),cat})});
+                if(diff>12)alerts.push({id:'cat-pos-'+cat,sev:'insight',ico:'💡',title:`${cat.charAt(0).toUpperCase()+cat.slice(1)} gör dig glad`,desc:`Du mår i snitt ${diff} poäng bättre när du pratar om ${cat}. Investera mer tid där!`});
+                else if(diff<-12)alerts.push({id:'cat-neg-'+cat,sev:'warn',ico:'💡',title:`${cat.charAt(0).toUpperCase()+cat.slice(1)} tynger dig`,desc:`Ditt score sjunker i snitt ${Math.abs(diff)} poäng när ${cat} kommer upp. Finns det något du kan förändra?`});
             }
         }
     }
 
+    // 4. Improvement celebration
     if(all.length>=3&&d.baseline){
         const last3=all.slice(-3);
         if(last3.every(e=>e.score>=65)){
             const avg=Math.round(last3.reduce((a,c)=>a+c.score,0)/3);
-            if(avg-d.baseline>=10)alerts.push({id:'improve-'+today,sev:'good',ico:'🎉',title:t('alertImprove'),desc:t('alertImproveDesc',{diff:(avg-d.baseline).toString()})});
+            if(avg-d.baseline>=10)alerts.push({id:'improve-'+today,sev:'good',ico:'🎉',title:'Tre bra mätningar i rad!',desc:`Ditt snitt ligger ${avg-d.baseline} poäng över din startpunkt. Det du gör fungerar!`});
         }
     }
 
+    // 5. Inactivity nudge
     if(all.length>0){
         const lastTs=new Date(all[all.length-1].ts);
         const daysSince=Math.floor((Date.now()-lastTs.getTime())/864e5);
-        if(daysSince>=2)alerts.push({id:'inactive-'+Math.floor(Date.now()/864e5),sev:'warn',ico:'👋',title:t('alertInactive',{days:daysSince.toString()}),desc:t('alertInactiveDesc')});
+        if(daysSince>=2)alerts.push({id:'inactive-'+Math.floor(Date.now()/864e5),sev:'warn',ico:'👋',title:`${daysSince} dagar sedan sist`,desc:'En snabb tanke tar bara sekunder. Hur mår du idag?'});
     }
 
+    // 6. Emotion shift (compare last 7 days vs previous 7 days)
     if(all.length>=6){
         const now=Date.now();
         const week1=all.filter(e=>{const a=now-new Date(e.ts).getTime();return a<7*864e5});
@@ -1445,8 +1270,8 @@ function detectAlerts(d){
             const dom=arr=>{const c={};arr.forEach(e=>c[e.emotion]=(c[e.emotion]||0)+1);return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]};
             const d1=dom(week1),d2=dom(week2);
             if(d1&&d2&&d1!==d2){
-                const emap=t('emoSvMap');
-                alerts.push({id:'shift-'+d1+d2,sev:['stressad','ledsen','orolig','arg'].includes(d1)?'warn':'insight',ico:'🔄',title:t('alertShift'),desc:t('alertShiftDesc',{from:emap[d2]||d2,to:emap[d1]||d1})});
+                const emoSv={glad:'glad',lugn:'lugn',stressad:'stressad',ledsen:'ledsen',orolig:'orolig',arg:'arg',trott:'trött',neutral:'neutral'};
+                alerts.push({id:'shift-'+d1+d2,sev:['stressad','ledsen','orolig','arg'].includes(d1)?'warn':'insight',ico:'🔄',title:'Känsloförändring',desc:`Din vanligaste känsla ändrades från ${emoSv[d2]||d2} till ${emoSv[d1]||d1} den senaste veckan.`});
             }
         }
     }
@@ -1459,6 +1284,7 @@ function renderAlerts(){
     const el=document.getElementById('home-alerts');
     if(!el)return;
     const alerts=detectAlerts(d).filter(a=>!d.alertsSeen.includes(a.id));
+    // Priority: bad > warn > insight > good
     const prio={bad:0,warn:1,insight:2,good:3};
     alerts.sort((a,b)=>(prio[a.sev]||9)-(prio[b.sev]||9));
     const show=alerts.slice(0,3);
@@ -1476,46 +1302,56 @@ function dismissAlert(id){
 // ===== SETTINGS =====
 function renderSettings(){
     const d=ld();
-    document.getElementById('settings-title').textContent='⚙️ '+t('settTitle');
-    const hasFamily=d.familyProfiles&&d.familyProfiles.length>0;
     let html='';
 
-    // Profile section
-    html+=`<div class="cd"><div class="ct">👤 ${t('settProfile')}</div>
-        <div class="sett-row"><span>${t('settUserName')}</span><input class="sett-input" id="sett-username" value="${d.userName||''}"></div>
-        <div class="sett-row"><span>${t('settAiName')}</span><input class="sett-input" id="sett-ainame" value="${d.aiName||'Luna'}"></div>
-        <div class="sett-row"><span>${t('settPersonality')}</span><select id="sett-pers">
-            <option value="warm"${d.personality==='warm'?' selected':''}>🤗 ${t('persWarmT')}</option>
-            <option value="direct"${d.personality==='direct'?' selected':''}>💪 ${t('persDirectT')}</option>
-            <option value="coach"${d.personality==='coach'?' selected':''}>🎯 ${t('persCoachT')}</option>
+    // Profile
+    html+=`<div class="cd"><div class="ct">👤 Profil</div>
+        <div class="sett-row"><span>Ditt namn</span><input class="sett-input" id="sett-username" value="${d.userName||''}"></div>
+        <div class="sett-row"><span>AI-namn</span><input class="sett-input" id="sett-ainame" value="${d.aiName||'Luna'}"></div>
+        <div class="sett-row"><span>Personlighet</span><select id="sett-pers">
+            <option value="warm"${d.personality==='warm'?' selected':''}>🤗 Varm & empatisk</option>
+            <option value="direct"${d.personality==='direct'?' selected':''}>💪 Direkt & ärlig</option>
+            <option value="coach"${d.personality==='coach'?' selected':''}>🎯 Coachande</option>
         </select></div>
-        <button class="btn bp" onclick="saveProfile()" style="margin-top:10px">${t('settSave')}</button></div>`;
+        <button class="btn bp" onclick="saveProfile()" style="margin-top:10px">Spara</button></div>`;
 
-    // Language section
-    html+=`<div class="cd"><div class="ct">🌍 ${t('settLang')}</div>
-        <div class="lang-btns">
-            <button class="btn ${AL==='sv'?'bp':'bs'}" onclick="switchLang('sv')">Svenska</button>
-            <button class="btn ${AL==='en'?'bp':'bs'}" onclick="switchLang('en')">English</button>
-        </div></div>`;
-
-    // Family section
-    html+=`<div class="cd"><div class="ct">👨‍👩‍👧‍👦 ${t('settFamily')}</div>`;
+    // Family
+    html+=`<div class="cd"><div class="ct">👨‍👩‍👧‍👦 Familj</div>`;
     if(APK!==PARENT_KEY){
-        html+=`<p style="font-size:.82rem;color:var(--t2);margin-bottom:10px">${t('backToParent')}</p>`;
+        html+=`<p style="font-size:.82rem;color:var(--t2)">Du tittar på en barnprofil. Gå tillbaka till föräldern för att hantera familjen.</p>`;
+    }else if(!d.familyId){
+        html+=`<p style="font-size:.82rem;color:var(--t2);margin-bottom:10px">Ingen familj skapad ännu. Skapa en familj för att följa dina barns mående.</p>
+            <button class="btn ba" onclick="createFamily()">Skapa familj</button>`;
     }else{
-        html+=renderFamilySettings(d);
+        html+=`<button class="btn bp" onclick="showFamilyDashboard()" style="margin-bottom:12px">📊 Familje-dashboard</button>`;
+        if(d.familyProfiles&&d.familyProfiles.length>0){
+            d.familyProfiles.forEach(function(fp,i){
+                html+=`<div class="fam-member">
+                    <div class="fam-avatar">👧</div>
+                    <div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup}</div></div>
+                    <button class="btn bs" style="width:auto;padding:6px 12px;font-size:.72rem" onclick="switchToProfile('${fp.storageKey}','${fp.name}')">Visa</button>
+                    <button class="alert-dismiss" onclick="removeChild(${i})" title="Ta bort">×</button>
+                </div>`;
+            });
+        }
+        html+=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)">
+            <div class="sett-row"><span>Barnets namn</span><input class="sett-input" id="new-child-name" placeholder=""></div>
+            <div class="sett-row"><span>Åldersgrupp</span><select id="new-child-age">
+                <option value="6-9">6-9 år</option><option value="10-13">10-13 år</option><option value="14-17">14-17 år</option>
+            </select></div>
+            <button class="btn ba" onclick="addChild()" style="margin-top:8px">➕ Lägg till barn</button></div>`;
     }
     html+=`</div>`;
 
-    // Data section
-    html+=`<div class="cd"><div class="ct">💾 ${t('settData')}</div>
-        <button class="btn bs" onclick="exportData()" style="margin-bottom:8px">📋 ${t('settExport')}</button>
-        <button class="btn bs" onclick="confirmDelete()" style="background:rgba(225,112,85,.1);color:var(--bad)">🗑️ ${t('settDelete')}</button></div>`;
+    // Data
+    html+=`<div class="cd"><div class="ct">💾 Data</div>
+        <button class="btn bs" onclick="exportData()" style="margin-bottom:8px">📋 Exportera data (JSON)</button>
+        <button class="btn bs" onclick="confirmDeleteAll()" style="background:rgba(225,112,85,.1);color:var(--bad)">🗑️ Radera all data</button></div>`;
 
-    // About section
-    html+=`<div class="cd"><div class="ct">ℹ️ ${t('settAbout')}</div>
-        <div class="sett-row"><span>${t('settVersion')}</span></div>
-        <p style="font-size:.76rem;color:var(--t2);line-height:1.5;padding:6px 0">${t('settPrivacy')}</p></div>`;
+    // About
+    html+=`<div class="cd"><div class="ct">ℹ️ Om Moodly</div>
+        <div class="sett-row"><span>Version 4.0</span></div>
+        <p style="font-size:.76rem;color:var(--t2);line-height:1.5;padding:6px 0">All data lagras lokalt på din enhet. Inget skickas till servrar.</p></div>`;
 
     document.getElementById('settings-content').innerHTML=html;
 }
@@ -1526,68 +1362,24 @@ function saveProfile(){
     d.aiName=document.getElementById('sett-ainame').value.trim()||'Luna';
     d.personality=document.getElementById('sett-pers').value;
     sv(d);
-    toast(t('settSaved'));
+    toast('Sparat!');
 }
 
-function switchLang(lang){
-    AL=lang;
-    const d=ld();d.lang=lang;sv(d);
-    document.documentElement.lang=lang;
-    applyLabels();
-    renderSettings();
-}
-
-function confirmDelete(){
-    if(!confirm(t('settDeleteConfirm')))return;
+function confirmDeleteAll(){
+    if(!confirm('Är du säker? All data raderas permanent.'))return;
     if(sok){
-        localStorage.removeItem(APK);
-        // Remove child profiles if parent
         const d=ld();
-        if(d.familyProfiles){
-            d.familyProfiles.forEach(fp=>{localStorage.removeItem(fp.storageKey)});
-        }
+        if(d.familyProfiles)d.familyProfiles.forEach(function(fp){localStorage.removeItem(fp.storageKey)});
+        localStorage.removeItem(APK);
     }
-    D={checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],lang:AL,familyId:'',role:'self',familyProfiles:[],parentKey:''};
+    D={checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:''};
     if(sok)localStorage.setItem(APK,JSON.stringify(D));
-    toast(t('settDeleted'));
+    toast('All data raderad.');
     renderSettings();
     renderHome();
 }
 
 // ===== FAMILY =====
-function renderFamilySettings(d){
-    let html='';
-    if(!d.familyId){
-        html+=`<p style="font-size:.82rem;color:var(--t2);margin-bottom:10px">${t('settNoFamily')}</p>
-            <button class="btn ba" onclick="createFamily()">${t('settCreateFamily')}</button>`;
-    }else{
-        // Show family dashboard button
-        html+=`<button class="btn bp" onclick="showFamilyDashboard()" style="margin-bottom:12px">📊 ${t('settFamilyDash')}</button>`;
-        // Show children
-        if(d.familyProfiles&&d.familyProfiles.length>0){
-            d.familyProfiles.forEach((fp,i)=>{
-                html+=`<div class="fam-member">
-                    <div class="fam-avatar">👧</div>
-                    <div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup}</div></div>
-                    <button class="btn bs" style="width:auto;padding:6px 12px;font-size:.72rem" onclick="switchToProfile('${fp.storageKey}','${fp.name}')">${t('settViewChild',{name:fp.name})}</button>
-                    <button class="alert-dismiss" onclick="removeChild(${i})" title="${t('settRemove')}">×</button>
-                </div>`;
-            });
-        }
-        // Add child form
-        html+=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)">
-            <div class="sett-row"><span>${t('settChildName')}</span><input class="sett-input" id="new-child-name" placeholder=""></div>
-            <div class="sett-row"><span>${t('settAgeGroup')}</span><select id="new-child-age">
-                <option value="6-9">6-9</option>
-                <option value="10-13">10-13</option>
-                <option value="14-17">14-17</option>
-            </select></div>
-            <button class="btn ba" onclick="addChild()" style="margin-top:8px">➕ ${t('settAddChild')}</button>
-        </div>`;
-    }
-    return html;
-}
-
 function createFamily(){
     const d=ld();
     d.familyId='fam_'+Date.now();
@@ -1595,34 +1387,34 @@ function createFamily(){
     d.familyProfiles=[];
     sv(d);
     renderSettings();
-    toast(AL==='en'?'Family created!':'Familj skapad!');
+    toast('Familj skapad!');
 }
 
 function addChild(){
-    const nameEl=document.getElementById('new-child-name');
-    const ageEl=document.getElementById('new-child-age');
-    const name=nameEl.value.trim();
+    var nameEl=document.getElementById('new-child-name');
+    var ageEl=document.getElementById('new-child-age');
+    var name=nameEl.value.trim();
     if(!name)return;
-    const ageGroup=ageEl.value;
-    const id='child_'+Date.now();
-    const storageKey='moodly_child_'+id;
+    var ageGroup=ageEl.value;
+    var id='child_'+Date.now();
+    var storageKey='moodly_child_'+id;
 
-    const d=ld();
-    d.familyProfiles.push({id,name,ageGroup,storageKey});
+    var d=ld();
+    d.familyProfiles.push({id:id,name:name,ageGroup:ageGroup,storageKey:storageKey});
     sv(d);
 
-    // Create child profile in localStorage
-    const childData={checkins:[],micro:[],xp:0,level:1,firstVisit:false,baseline:null,userName:name,aiName:d.aiName||'Luna',personality:'warm',onboarded:new Date().toISOString(),alertsSeen:[],lang:AL,familyId:d.familyId,role:'child',familyProfiles:[],parentKey:PARENT_KEY};
+    // Create child profile
+    var childData={checkins:[],micro:[],xp:0,level:1,firstVisit:false,baseline:null,userName:name,aiName:d.aiName||'Luna',personality:'warm',onboarded:new Date().toISOString(),alertsSeen:[],familyId:d.familyId,role:'child',familyProfiles:[],parentKey:PARENT_KEY};
     if(sok)localStorage.setItem(storageKey,JSON.stringify(childData));
 
     renderSettings();
-    toast(AL==='en'?name+' added!':name+' tillagd!');
+    toast(name+' tillagd!');
 }
 
 function removeChild(idx){
-    const d=ld();
+    var d=ld();
     if(!d.familyProfiles||!d.familyProfiles[idx])return;
-    const fp=d.familyProfiles[idx];
+    var fp=d.familyProfiles[idx];
     if(sok)localStorage.removeItem(fp.storageKey);
     d.familyProfiles.splice(idx,1);
     sv(d);
@@ -1631,119 +1423,89 @@ function removeChild(idx){
 
 function switchToProfile(storageKey,name){
     APK=storageKey;
-    const banner=document.getElementById('profile-banner');
+    var banner=document.getElementById('profile-banner');
     banner.style.display='flex';
-    document.getElementById('profile-banner-text').textContent=t('viewingChild',{name});
-    // Adjust padding for banner
-    document.querySelectorAll('.pg').forEach(pg=>pg.style.paddingTop='48px');
+    document.getElementById('profile-banner-text').textContent='Visar: '+name;
+    document.querySelectorAll('.pg').forEach(function(pg){pg.style.paddingTop='48px'});
     go('home');
 }
 
 function switchToParent(){
     APK=PARENT_KEY;
     document.getElementById('profile-banner').style.display='none';
-    document.querySelectorAll('.pg').forEach(pg=>pg.style.paddingTop='16px');
+    document.querySelectorAll('.pg').forEach(function(pg){pg.style.paddingTop='16px'});
     go('home');
 }
 
 function getChildSafeData(storageKey){
     if(!sok)return null;
     try{
-        const raw=localStorage.getItem(storageKey);
+        var raw=localStorage.getItem(storageKey);
         if(!raw)return null;
-        const d=JSON.parse(raw);
-        // Return aggregated data only — no transcript/text
-        const allPts=getAllDataPoints(d);
-        const scores=allPts.map(p=>p.score);
-        const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b)/scores.length):0;
-        const emotions=allPts.map(p=>p.emotion);
-        const domEmo=emotions.length?Object.entries(emotions.reduce((a,e)=>{a[e]=(a[e]||0)+1;return a},{})).sort((a,b)=>b[1]-a[1])[0]?.[0]:'neutral':'neutral';
-        const lastTs=allPts.length?allPts[allPts.length-1].ts:null;
-        const recentScores=allPts.slice(-3).map(p=>p.score);
-        let trend='—';
-        if(recentScores.length>=2){
-            const diff=recentScores[recentScores.length-1]-recentScores[0];
-            trend=diff>5?'↑':diff<-5?'↓':'→';
-        }
-        return{avg,domEmo,lastTs,trend,count:allPts.length,recentScores};
+        var d=JSON.parse(raw);
+        var allPts=getAllDataPoints(d);
+        var scores=allPts.map(function(p){return p.score});
+        var avg=scores.length?Math.round(scores.reduce(function(a,b){return a+b},0)/scores.length):0;
+        var emotions=allPts.map(function(p){return p.emotion});
+        var emoCounts={};emotions.forEach(function(e){emoCounts[e]=(emoCounts[e]||0)+1});
+        var domEmo='neutral';var maxC=0;for(var k in emoCounts){if(emoCounts[k]>maxC){maxC=emoCounts[k];domEmo=k}}
+        var lastTs=allPts.length?allPts[allPts.length-1].ts:null;
+        var recentScores=allPts.slice(-3).map(function(p){return p.score});
+        var trend='—';
+        if(recentScores.length>=2){var diff=recentScores[recentScores.length-1]-recentScores[0];trend=diff>5?'↑':diff<-5?'↓':'→'}
+        return{avg:avg,domEmo:domEmo,lastTs:lastTs,trend:trend,count:allPts.length};
     }catch(e){return null}
 }
 
 function detectFamilyAlerts(d){
-    const alerts=[];
+    var alerts=[];
     if(!d.familyProfiles)return alerts;
-    d.familyProfiles.forEach(fp=>{
+    d.familyProfiles.forEach(function(fp){
         if(!sok)return;
         try{
-            const raw=localStorage.getItem(fp.storageKey);
-            if(!raw)return;
-            const cd=JSON.parse(raw);
-            const allPts=getAllDataPoints(cd);
-            const recent=allPts.slice(-5);
-            const lowCount=recent.filter(p=>p.score<40||p.emotion==='stressad').length;
-            if(lowCount>=3){
-                alerts.push({name:fp.name,count:lowCount});
-            }
+            var raw=localStorage.getItem(fp.storageKey);if(!raw)return;
+            var cd=JSON.parse(raw);
+            var allPts=getAllDataPoints(cd);
+            var recent=allPts.slice(-5);
+            var lowCount=recent.filter(function(p){return p.score<40||p.emotion==='stressad'}).length;
+            if(lowCount>=3)alerts.push({name:fp.name,count:lowCount});
         }catch(e){}
     });
     return alerts;
 }
 
 function showFamilyDashboard(){
-    const d=ld();
-    const overlay=document.getElementById('fam-overlay');
+    var d=ld();
+    var overlay=document.getElementById('fam-overlay');
     overlay.style.display='block';
-    const icons=t('emoIcons');
-    let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h2 style="font-size:1.15rem">📊 ${t('famDashTitle')}</h2>
-        <button class="btn bs" style="width:auto;padding:8px 16px" onclick="closeFamilyDashboard()">${t('famClose')}</button></div>`;
+    var emoIcons={glad:'😊',lugn:'😌',neutral:'😐',stressad:'😰',ledsen:'😢',orolig:'😟',arg:'😤',trott:'😴'};
+    var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:1.15rem">📊 Familje-dashboard</h2><button class="btn bs" style="width:auto;padding:8px 16px" onclick="closeFamilyDashboard()">Stäng</button></div>';
 
-    // Family alerts
-    const famAlerts=detectFamilyAlerts(d);
-    famAlerts.forEach(a=>{
-        html+=`<div class="alert-card warn" style="margin-bottom:12px"><div class="alert-icon">⚠️</div><div class="alert-body"><div class="alert-title">${t('famAlertTitle')}</div><div class="alert-desc">${t('famAlertDesc',{name:a.name,count:a.count.toString()})}</div></div></div>`;
+    var famAlerts=detectFamilyAlerts(d);
+    famAlerts.forEach(function(a){
+        html+='<div class="alert-card warn" style="margin-bottom:12px"><div class="alert-icon">⚠️</div><div class="alert-body"><div class="alert-title">Obs!</div><div class="alert-desc">'+a.name+' har '+a.count+'+ låga/stressade registreringar.</div></div></div>';
     });
 
     if(!d.familyProfiles||d.familyProfiles.length===0){
-        html+=`<p style="color:var(--t2);text-align:center;padding:20px">${t('settNoFamily')}</p>`;
+        html+='<p style="color:var(--t2);text-align:center;padding:20px">Inga barn tillagda ännu.</p>';
     }else{
-        d.familyProfiles.forEach(fp=>{
-            const safe=getChildSafeData(fp.storageKey);
+        d.familyProfiles.forEach(function(fp){
+            var safe=getChildSafeData(fp.storageKey);
             if(!safe){
-                html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup} — ${t('famNoData')}</div></div></div>`;
+                html+='<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">'+fp.name+'</div><div class="fam-stat">'+fp.ageGroup+' — Ingen data ännu</div></div></div>';
                 return;
             }
-            const col=safe.avg>=65?'var(--ok)':safe.avg>=40?'var(--w)':'var(--bad)';
-            const trendCol=safe.trend==='↑'?'color:var(--ok)':safe.trend==='↓'?'color:var(--bad)':'color:var(--t2)';
-            const lastTime=safe.lastTs?new Date(safe.lastTs).toLocaleDateString(AL==='en'?'en-US':'sv-SE',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-            html+=`<div class="fam-member">
-                <div class="fam-avatar">👧</div>
-                <div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup} — ${icons[safe.domEmo]||'😐'} ${safe.domEmo} — ${t('famLastCheckin')} ${lastTime}</div></div>
-                <div class="fam-score"><div class="v" style="color:${col}">${safe.avg||'—'}</div><div class="trend" style="${trendCol}">${safe.trend}</div></div>
-            </div>`;
+            var col=safe.avg>=65?'var(--ok)':safe.avg>=40?'var(--w)':'var(--bad)';
+            var trendCol=safe.trend==='↑'?'color:var(--ok)':safe.trend==='↓'?'color:var(--bad)':'color:var(--t2)';
+            var lastTime=safe.lastTs?new Date(safe.lastTs).toLocaleDateString('sv-SE',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+            html+='<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">'+fp.name+'</div><div class="fam-stat">'+fp.ageGroup+' — '+(emoIcons[safe.domEmo]||'😐')+' '+safe.domEmo+' — Senaste: '+lastTime+'</div></div><div class="fam-score"><div class="v" style="color:'+col+'">'+(safe.avg||'—')+'</div><div class="trend" style="'+trendCol+'">'+safe.trend+'</div></div></div>';
         });
     }
-
     document.getElementById('fam-overlay-content').innerHTML=html;
 }
 
 function closeFamilyDashboard(){
     document.getElementById('fam-overlay').style.display='none';
-}
-
-// ===== APPLY LABELS (updates all static labels) =====
-function applyLabels(){
-    document.querySelector('.nav-home-lbl').textContent=t('navHome');
-    document.querySelector('.nav-diary-lbl').textContent=t('navDiary');
-    document.querySelector('.nav-progress-lbl').textContent=t('navProgress');
-    document.querySelector('.nav-settings-lbl').textContent=t('navSettings');
-    document.getElementById('qt-title').textContent='💭 '+t('qtTitle');
-    document.getElementById('qt-input').placeholder=t('qtPh');
-    document.getElementById('start-conv-lbl').textContent=t('startConv');
-    document.getElementById('end-conv-btn').textContent=t('endConv');
-    document.getElementById('conv-text').placeholder=t('convPh');
-    document.getElementById('streak-lbl').textContent=t('streakDays');
-    populateOnboarding();
 }
 
 // ===== QUICK THOUGHT EVENTS =====
@@ -1757,7 +1519,7 @@ document.getElementById('mic-btn').addEventListener('click',toggleListening);
 document.getElementById('send-btn').addEventListener('click',()=>{const v=document.getElementById('conv-text').value;if(v.trim())userSend(v)});
 document.getElementById('conv-text').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=e.target.value;if(v.trim())userSend(v)}});
 
-// ===== KEYBOARD SCROLL FIX =====
+// ===== KEYBOARD SCROLL FIX (mobile) =====
 document.getElementById('conv-text').addEventListener('focus',()=>{
     setTimeout(()=>{const a=document.getElementById('chat-area');if(a)a.scrollTop=a.scrollHeight},350);
 });
@@ -1768,12 +1530,10 @@ if(window.visualViewport){
 }
 
 // ===== INIT =====
-speechSynthesis.getVoices();
-speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
+// Load voices early (safely)
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
 
 const d0=ld();
-AL=d0.lang||'sv';
-applyLabels();
 if(!d0.firstVisit){document.getElementById('ob').classList.add('h');document.getElementById('app').style.display='';renderHome()}
 
 window.addEventListener('resize',()=>{try{const d=ld();if(d.checkins.length>=2)drawChart(d.checkins)}catch(e){}});
