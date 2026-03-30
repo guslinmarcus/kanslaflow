@@ -226,6 +226,8 @@
         .ac-item .ac-name{font-size:.84rem;font-weight:600;color:var(--t)}
         .ac-item .ac-addr{font-size:.7rem;color:var(--t2);margin-top:2px;line-height:1.3}
         .ac-tag{font-size:.65rem;color:var(--p);background:rgba(139,92,246,.1);padding:1px 6px;border-radius:8px;margin-left:6px;font-weight:500;vertical-align:middle}
+        .ac-manual{border-top:1px solid var(--c2);background:var(--c1)}
+        .ac-manual .ac-name{color:var(--p)}
         .ac-loading{padding:12px;text-align:center;font-size:.78rem;color:var(--t2)}
         .place-address{font-size:.68rem;color:var(--t2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .ac-wrap{position:relative}
@@ -448,53 +450,64 @@ async function searchNominatim(query,dropdown,input,addrId){
         let results=await res.json();
 
         // Boost POIs (schools, workplaces, clubs) above generic roads/areas
-        const poiTypes=new Set(['school','university','college','kindergarten','office','company','industrial','commercial','club','sports_centre','sports_hall','stadium','community_centre','social_facility','library','hospital','clinic','church','place_of_worship']);
+        const poiTypes=new Set(['school','university','college','kindergarten','office','company','industrial','commercial','club','sports_centre','sports_hall','stadium','community_centre','social_facility','library','hospital','clinic','church','place_of_worship','golf_course','pitch','swimming_pool','fitness_centre']);
         results.sort((a,b)=>{
-            const aIsPoi=poiTypes.has(a.type)||poiTypes.has(a.class==='amenity'&&a.type);
-            const bIsPoi=poiTypes.has(b.type)||poiTypes.has(b.class==='amenity'&&b.type);
+            const aIsPoi=poiTypes.has(a.type)||a.class==='amenity'||a.class==='leisure';
+            const bIsPoi=poiTypes.has(b.type)||b.class==='amenity'||b.class==='leisure';
             if(aIsPoi&&!bIsPoi)return -1;
             if(!aIsPoi&&bIsPoi)return 1;
             return parseFloat(b.importance||0)-parseFloat(a.importance||0);
         });
         results=results.slice(0,5);
 
-        if(!results.length){
-            dropdown.innerHTML='<div class="ac-loading">Inga resultat</div>';
-            return;
-        }
+        const typeLabels={school:'Skola',university:'Universitet',college:'Högskola',kindergarten:'Förskola',office:'Kontor',company:'Företag',industrial:'Industri',commercial:'Verksamhet',club:'Förening',sports_centre:'Idrottsanläggning',sports_hall:'Sporthall',stadium:'Arena',community_centre:'Föreningslokal',social_facility:'Social verksamhet',library:'Bibliotek',hospital:'Sjukhus',clinic:'Vårdcentral',church:'Kyrka',place_of_worship:'Kyrka/Moské',golf_course:'Golfbana',pitch:'Idrottsplats',swimming_pool:'Simhall',fitness_centre:'Gym',parking:'Parkering',residential:'Bostadsområde',suburb:'Stadsdel',village:'By',town:'Stad',city:'Stad',hamlet:'Samhälle'};
 
-        const typeLabels={school:'Skola',university:'Universitet',college:'Högskola',kindergarten:'Förskola',office:'Kontor',company:'Företag',industrial:'Industri',commercial:'Verksamhet',club:'Förening',sports_centre:'Idrottsanläggning',sports_hall:'Sporthall',stadium:'Arena',community_centre:'Föreningslokal',social_facility:'Social verksamhet',library:'Bibliotek',hospital:'Sjukhus',clinic:'Vårdcentral',church:'Kyrka',place_of_worship:'Kyrka/Moské',residential:'Bostadsområde',suburb:'Stadsdel',village:'By',town:'Stad',city:'Stad',hamlet:'Samhälle'};
-
-        dropdown.innerHTML=results.map((r,i)=>{
+        let html=results.map((r,i)=>{
             const name=r.display_name.split(',')[0];
             const a=r.address||{};
             const town=a.city||a.town||a.village||(a.municipality||'').replace(' kommun','')||'';
             const area=a.suburb||a.neighbourhood||'';
             const addr=[area,town].filter(Boolean).join(', ')||r.display_name.split(',').slice(1,3).join(',').trim();
-            const tag=typeLabels[r.type]||(r.class==='amenity'?'Plats':'');
+            const tag=typeLabels[r.type]||(r.class==='amenity'?'Plats':r.class==='leisure'?'Fritid':'');
             return`<div class="ac-item" data-idx="${i}"><div class="ac-name">${name}${tag?` <span class="ac-tag">${tag}</span>`:''}</div><div class="ac-addr">${addr}</div></div>`;
         }).join('');
+
+        // Always show manual option
+        html+=`<div class="ac-item ac-manual"><div class="ac-name">✏️ Använd "${query}"</div><div class="ac-addr">Lägg till utan kartdata</div></div>`;
+        dropdown.innerHTML=html;
 
         dropdown.querySelectorAll('.ac-item').forEach((el,i)=>{
             el.addEventListener('mousedown',(e)=>{
                 e.preventDefault();
-                const r=results[i];
-                const name=r.display_name.split(',')[0];
-                selectedPlace={
-                    osmId:r.osm_type+'_'+r.osm_id,
-                    name:name,
-                    address:r.display_name,
-                    lat:parseFloat(r.lat),
-                    lng:parseFloat(r.lon)
-                };
-                input.value=name;
+                if(i<results.length){
+                    const r=results[i];
+                    const name=r.display_name.split(',')[0];
+                    selectedPlace={
+                        osmId:r.osm_type+'_'+r.osm_id,
+                        name:name,
+                        address:r.display_name,
+                        lat:parseFloat(r.lat),
+                        lng:parseFloat(r.lon)
+                    };
+                    input.value=name;
+                    const addrEl=document.getElementById(addrId);
+                    if(addrEl)addrEl.textContent=r.display_name.split(',').slice(0,3).join(',');
+                }else{
+                    // Manual entry — no OSM data
+                    selectedPlace=null;
+                    input.value=query;
+                }
                 dropdown.classList.remove('on');
-                const addrEl=document.getElementById(addrId);
-                if(addrEl)addrEl.textContent=r.display_name.split(',').slice(0,3).join(',');
             });
         });
     }catch(e){
-        dropdown.innerHTML='<div class="ac-loading">Sökfel — skriv platsnamn manuellt</div>';
+        dropdown.innerHTML=`<div class="ac-item ac-manual"><div class="ac-name">✏️ Använd "${query}"</div><div class="ac-addr">Sökning misslyckades — lägg till manuellt</div></div>`;
+        dropdown.querySelector('.ac-item').addEventListener('mousedown',(e)=>{
+            e.preventDefault();
+            selectedPlace=null;
+            input.value=query;
+            dropdown.classList.remove('on');
+        });
     }
 }
 
