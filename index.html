@@ -216,6 +216,18 @@
         .modal-box h2{font-size:1.1rem;margin-bottom:14px;text-align:center}
         .modal-box input{width:100%;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:.95rem;outline:none;margin-bottom:12px}
         .modal-box input::placeholder{color:var(--t2)}
+
+        /* Google Places Autocomplete dark theme */
+        .pac-container{background:#1A1928!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:10px!important;margin-top:4px!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif!important;box-shadow:0 8px 24px rgba(0,0,0,.5)!important}
+        .pac-item{padding:10px 14px!important;color:#FFFFFE!important;border-top:1px solid rgba(255,255,255,.06)!important;cursor:pointer!important;font-size:.84rem!important;line-height:1.4!important}
+        .pac-item:hover,.pac-item-selected{background:#232240!important}
+        .pac-item-query{color:#FFFFFE!important;font-weight:600!important;font-size:.84rem!important}
+        .pac-matched{font-weight:700!important;color:#A29BFE!important}
+        .pac-icon{display:none!important}
+        .pac-item span{color:#A7A9BE!important;font-size:.76rem!important}
+        .pac-item-query span{color:#FFFFFE!important;font-size:.84rem!important}
+        .pac-logo::after{display:none!important}
+        .place-address{font-size:.68rem;color:var(--t2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     </style>
 </head>
 <body>
@@ -386,8 +398,53 @@
 
 const PARENT_KEY='moodly';
 let APK=PARENT_KEY;
-let D={places:[],placeCheckins:[],checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:''};
+let D={places:[],placeCheckins:[],checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:'',googleApiKey:''};
 let sok=false;try{localStorage.setItem('_','1');localStorage.removeItem('_');sok=true}catch(e){}
+
+// ===== GOOGLE MAPS / PLACES AUTOCOMPLETE =====
+let gmapsLoaded=false;
+let gmapsLoading=false;
+let selectedGooglePlace=null;
+
+function loadGoogleMaps(apiKey){
+    if(gmapsLoaded||gmapsLoading||!apiKey)return Promise.resolve();
+    gmapsLoading=true;
+    return new Promise((resolve)=>{
+        window._gmapsReady=()=>{gmapsLoaded=true;gmapsLoading=false;resolve()};
+        const s=document.createElement('script');
+        s.src=`https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places&callback=_gmapsReady`;
+        s.async=true;
+        s.onerror=()=>{gmapsLoading=false;resolve()};
+        document.head.appendChild(s);
+    });
+}
+
+function initAutocomplete(inputId){
+    if(!gmapsLoaded||!window.google?.maps?.places)return null;
+    const input=document.getElementById(inputId);
+    if(!input)return null;
+    const ac=new google.maps.places.Autocomplete(input,{
+        componentRestrictions:{country:'se'},
+        fields:['place_id','name','formatted_address','geometry']
+    });
+    ac.addListener('place_changed',()=>{
+        const place=ac.getPlace();
+        if(place&&place.place_id){
+            selectedGooglePlace={
+                googlePlaceId:place.place_id,
+                name:place.name||input.value,
+                address:place.formatted_address||'',
+                lat:place.geometry?.location?.lat()||null,
+                lng:place.geometry?.location?.lng()||null
+            };
+            // Show address feedback
+            let addrEl=input.parentElement.querySelector('.place-address');
+            if(!addrEl){addrEl=document.createElement('div');addrEl.className='place-address';input.parentElement.appendChild(addrEl)}
+            addrEl.textContent=place.formatted_address||'';
+        }
+    });
+    return ac;
+}
 
 // Migrate old data
 (function(){if(!sok)return;try{const old=localStorage.getItem('kf3');const nw=localStorage.getItem('moodly');if(old&&!nw)localStorage.setItem('moodly',old)}catch(e){}})();
@@ -455,9 +512,18 @@ function calcPlaceStreak(d){
 }
 
 // ===== ADD/REMOVE PLACE =====
-function addPlace(name,type){
+function addPlace(name,type,googleData){
     const d=ld();
-    d.places.push({id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name,type});
+    const place={
+        id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+        name:googleData?.name||name,
+        type,
+        googlePlaceId:googleData?.googlePlaceId||'',
+        address:googleData?.address||'',
+        lat:googleData?.lat||null,
+        lng:googleData?.lng||null
+    };
+    d.places.push(place);
     sv(d);
 }
 function removePlace(id){
@@ -521,7 +587,7 @@ function renderHome(){
         html+=`<div class="place-card">
             <div class="place-header">
                 <div class="place-icon" style="background:${pt.bg}">${pt.icon}</div>
-                <div><div class="place-name">${place.name}</div><div class="place-type-label">${pt.label}</div></div>
+                <div><div class="place-name">${place.name}</div><div class="place-type-label">${pt.label}${place.address?' — '+place.address.split(',').slice(0,2).join(','):''}</div></div>
             </div>
             <div class="emoji-row">`;
         MOODS.forEach(m=>{
@@ -738,9 +804,14 @@ function selectPlaceType(type,containerId){
 
 function openAddPlace(){
     selectedPlaceType='school';
+    selectedGooglePlace=null;
     document.getElementById('new-place-name').value='';
+    const addrEl=document.querySelector('#add-place-modal .place-address');
+    if(addrEl)addrEl.textContent='';
     renderPlaceTypeGrid('new-place-types');
     document.getElementById('add-place-modal').classList.add('on');
+    // Init autocomplete if Google Maps is loaded
+    setTimeout(()=>initAutocomplete('new-place-name'),100);
 }
 
 function closeModal(){
@@ -750,10 +821,12 @@ function closeModal(){
 function saveNewPlace(){
     const name=document.getElementById('new-place-name').value.trim();
     if(!name){toast('Ange ett namn');return}
-    addPlace(name,selectedPlaceType);
+    const gd=selectedGooglePlace?{...selectedGooglePlace}:null;
+    addPlace(name,selectedPlaceType,gd);
+    selectedGooglePlace=null;
     closeModal();
     renderHome();
-    toast(`${name} tillagd!`);
+    toast(`${(gd?.name||name)} tillagd!`);
 }
 
 // ===== ONBOARDING =====
@@ -763,8 +836,10 @@ function obNext(step){
     document.getElementById('ob'+step).classList.add('on');
     if(step===3){
         selectedPlaceType='school';
+        selectedGooglePlace=null;
         renderPlaceTypeGrid('ob-place-types');
         renderObPlaces();
+        setTimeout(()=>initAutocomplete('ob-place-name'),100);
     }
 }
 
@@ -780,9 +855,15 @@ function renderObPlaces(){
 function obAddPlace(){
     const name=document.getElementById('ob-place-name').value.trim();
     if(!name){toast('Ange ett namn');return}
-    obPlaces.push({name,type:selectedPlaceType});
+    const gd=selectedGooglePlace?{...selectedGooglePlace}:null;
+    obPlaces.push({name:gd?.name||name,type:selectedPlaceType,googlePlaceId:gd?.googlePlaceId||'',address:gd?.address||'',lat:gd?.lat||null,lng:gd?.lng||null});
+    selectedGooglePlace=null;
     document.getElementById('ob-place-name').value='';
+    const addrEl=document.querySelector('#ob3 .place-address');
+    if(addrEl)addrEl.textContent='';
     renderObPlaces();
+    // Re-init autocomplete for next place
+    setTimeout(()=>initAutocomplete('ob-place-name'),100);
 }
 
 function obRemovePlace(i){obPlaces.splice(i,1);renderObPlaces()}
@@ -793,7 +874,7 @@ function finishOnboarding(){
     d.firstVisit=false;
     d.userName=userName;
     d.onboarded=new Date().toISOString();
-    obPlaces.forEach(p=>d.places.push({id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name:p.name,type:p.type}));
+    obPlaces.forEach(p=>d.places.push({id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name:p.name,type:p.type,googlePlaceId:p.googlePlaceId||'',address:p.address||'',lat:p.lat||null,lng:p.lng||null}));
     sv(d);
     document.getElementById('ob').classList.add('h');
     document.getElementById('app').style.display='';
@@ -839,10 +920,15 @@ function renderSettings(){
     if(d.places.length){
         d.places.forEach(p=>{
             const pt=PT[p.type]||PT.other;
-            html+=`<div class="sett-place"><span style="font-size:1.1rem">${pt.icon}</span><div class="info"><div class="nm">${p.name}</div><div class="tp">${pt.label}</div></div><button class="alert-dismiss" onclick="if(confirm('Ta bort ${p.name}?')){removePlace('${p.id}');renderSettings()}" title="Ta bort">×</button></div>`;
+            const addr=p.address?`<div style="font-size:.62rem;color:var(--t2);opacity:.7;margin-top:1px">${p.address}</div>`:'';
+            const linked=p.googlePlaceId?'<span style="font-size:.55rem;color:var(--ok);margin-left:4px">linked</span>':'';
+            html+=`<div class="sett-place"><span style="font-size:1.1rem">${pt.icon}</span><div class="info"><div class="nm">${p.name}${linked}</div><div class="tp">${pt.label}</div>${addr}</div><button class="alert-dismiss" onclick="if(confirm('Ta bort ${p.name}?')){removePlace('${p.id}');renderSettings()}" title="Ta bort">×</button></div>`;
         });
     }
-    html+=`<button class="btn ba" onclick="openAddPlace()" style="margin-top:10px">+ Lägg till plats</button></div>`;
+    html+=`<button class="btn ba" onclick="openAddPlace()" style="margin-top:10px">+ Lägg till plats</button>
+        <div class="sett-row" style="margin-top:12px;flex-wrap:wrap;gap:6px"><span style="font-size:.78rem">Google Maps API-nyckel</span><input class="sett-input" id="sett-apikey" value="${d.googleApiKey||''}" placeholder="Valfri — för platssök" style="width:100%;text-align:left;font-size:.76rem;margin-top:4px"></div>
+        <p style="font-size:.66rem;color:var(--t2);margin-top:4px;line-height:1.4">Gratis nyckel från <strong>Google Cloud Console</strong> → Places API. Ger autocomplete-sök så att platser kopplas ihop mellan användare.</p>
+    </div>`;
 
     // Profile
     html+=`<div class="cd"><div class="ct">👤 Profil</div>
@@ -893,6 +979,15 @@ function saveProfile(){
     d.userName=document.getElementById('sett-username').value.trim();
     d.aiName=document.getElementById('sett-ainame').value.trim()||'Luna';
     d.personality=document.getElementById('sett-pers').value;
+    const keyEl=document.getElementById('sett-apikey');
+    if(keyEl){
+        const newKey=keyEl.value.trim();
+        if(newKey&&newKey!==d.googleApiKey){
+            d.googleApiKey=newKey;
+            loadGoogleMaps(newKey);
+        }
+        d.googleApiKey=newKey;
+    }
     sv(d);toast('Sparat!');
 }
 
@@ -1224,6 +1319,8 @@ document.getElementById('conv-text').addEventListener('focus',()=>{setTimeout(()
 // ===== INIT =====
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
 const d0=ld();
+// Load Google Maps if API key exists
+if(d0.googleApiKey)loadGoogleMaps(d0.googleApiKey);
 if(!d0.firstVisit){document.getElementById('ob').classList.add('h');document.getElementById('app').style.display='';renderHome()}
 </script>
 </body>
