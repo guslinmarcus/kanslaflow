@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>KänslaFlow — Mät & Må Bättre</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --primary-light: #A29BFE;
+            --primary-dark: #5A4BD1;
+            --accent: #00CEC9;
+            --accent-light: #81ECEC;
+            --bg: #0F0E17;
+            --bg-card: #1A1928;
+            --bg-card-hover: #232240;
+            --text: #FFFFFE;
+            --text-muted: #A7A9BE;
+            --success: #00B894;
+            --warning: #FDCB6E;
+            --danger: #E17055;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            padding: 20px 24px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            padding: 12px 16px;
+            background: var(--bg);
+            position: sticky;
+            top: 76px;
+            z-index: 99;
+        }
+        .nav-btn {
+            flex: 1;
+            max-width: 160px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-btn.active {
+            background: var(--primary);
+            color: var(--text);
+        }
+
+        /* ===== PAGES ===== */
+        .page { display: none; padding: 20px 16px; max-width: 600px; margin: 0 auto; }
+        .page.active { display: block; }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card h2 .icon { font-size: 1.3rem; }
+
+        /* ===== CHECK-IN ===== */
+        .checkin-step {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .checkin-step.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+        .progress-dot {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+            transition: background 0.3s;
+        }
+        .progress-dot.done { background: var(--accent); }
+        .progress-dot.current { background: var(--primary-light); }
+
+        /* ===== VIDEO / CAMERA ===== */
+        .camera-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 16px;
+        }
+        .camera-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+        .camera-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 220px;
+            border: 2px dashed var(--primary-light);
+            border-radius: 50%;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .camera-timer {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.7);
+            color: var(--text);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* ===== VOICE ===== */
+        .voice-visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: 80px;
+            margin: 16px 0;
+        }
+        .voice-bar {
+            width: 4px;
+            background: var(--primary-light);
+            border-radius: 2px;
+            transition: height 0.1s;
+            height: 8px;
+        }
+        .voice-bar.active {
+            animation: pulse 0.4s infinite alternate;
+        }
+        @keyframes pulse {
+            from { height: 8px; }
+            to { height: var(--bar-height, 40px); }
+        }
+
+        /* ===== TEXT INPUT ===== */
+        .text-area {
+            width: 100%;
+            min-height: 120px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            padding: 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .text-area:focus {
+            border-color: var(--primary-light);
+        }
+        .text-area::placeholder { color: var(--text-muted); }
+        .char-count {
+            text-align: right;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--text);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,92,231,0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: var(--text);
+        }
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), #00B894);
+            color: var(--bg);
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            width: auto;
+        }
+
+        /* ===== RESULT ===== */
+        .result-score {
+            text-align: center;
+            padding: 32px 0;
+        }
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            padding: 4px;
+            background: conic-gradient(var(--score-color, var(--primary)) var(--score-pct, 0%), transparent 0%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+        .score-number {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .score-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .result-emotion {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+        .result-breakdown {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin: 16px 0;
+        }
+        .breakdown-item {
+            text-align: center;
+        }
+        .breakdown-item .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+        .breakdown-item .value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* ===== INTERVENTION ===== */
+        .intervention {
+            background: linear-gradient(135deg, rgba(0,206,201,0.15), rgba(108,92,231,0.15));
+            border: 1px solid rgba(0,206,201,0.3);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 16px 0;
+        }
+        .intervention h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--accent-light);
+        }
+        .intervention p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        /* ===== DASHBOARD ===== */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .stat-change {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .stat-change.up { color: var(--success); }
+        .stat-change.down { color: var(--danger); }
+
+        /* ===== CHART ===== */
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            margin: 16px 0;
+        }
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== HISTORY LIST ===== */
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 8px;
+        }
+        .history-emoji { font-size: 1.5rem; }
+        .history-info { flex: 1; }
+        .history-info .date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .history-info .emotion {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .history-score {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* ===== INSIGHTS PAGE ===== */
+        .insight-card {
+            background: rgba(255,255,255,0.04);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary);
+        }
+        .insight-card h4 {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        .insight-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+        .empty-state h3 { color: var(--text); margin-bottom: 8px; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 32px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ===== BREATHING EXERCISE ===== */
+        .breathing-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .breathing-circle.inhale { animation: breatheIn 4s ease; }
+        .breathing-circle.hold { animation: none; }
+        .breathing-circle.exhale { animation: breatheOut 8s ease; }
+
+        @keyframes breatheIn {
+            from { transform: scale(0.6); opacity: 0.5; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes breatheOut {
+            from { transform: scale(1); opacity: 1; }
+            to { transform: scale(0.6); opacity: 0.5; }
+        }
+
+        /* ===== ONBOARDING ===== */
+        .onboarding {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            text-align: center;
+        }
+        .onboarding.hidden { display: none; }
+        .onboarding .logo { font-size: 4rem; margin-bottom: 24px; }
+        .onboarding h1 { font-size: 2rem; margin-bottom: 12px; }
+        .onboarding p { color: var(--text-muted); max-width: 320px; line-height: 1.6; margin-bottom: 32px; }
+        .features-list {
+            text-align: left;
+            max-width: 300px;
+            margin-bottom: 32px;
+        }
+        .features-list li {
+            list-style: none;
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .features-list li::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (min-width: 768px) {
+            .stat-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            z-index: 150;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-dark); border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+<!-- ===== ONBOARDING ===== -->
+<div class="onboarding" id="onboarding">
+    <div class="logo">🧠</div>
+    <h1>KänslaFlow</h1>
+    <p>Mät dina känslor med AI. Få insikter. Må bättre — varje dag.</p>
+    <ul class="features-list">
+        <li>Ansiktsanalys via kameran</li>
+        <li>Röstanalys via mikrofonen</li>
+        <li>Textanalys av dina tankar</li>
+        <li>Personliga interventioner</li>
+        <li>Dashboard med trender</li>
+        <li>All data sparas lokalt (GDPR)</li>
+    </ul>
+    <button class="btn btn-primary" id="btn-start-app" style="max-width: 300px;">
+        Kom igång
+    </button>
+    <p style="font-size: 0.75rem; margin-top: 16px; opacity: 0.5;">Prototyp v0.1 — MVP Demo</p>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app" style="display:none;">
+
+    <header class="header">
+        <h1>KänslaFlow</h1>
+        <p>Mät & Må Bättre</p>
+    </header>
+
+    <nav class="nav">
+        <button class="nav-btn active" data-page="checkin">Check-in</button>
+        <button class="nav-btn" data-page="dashboard">Dashboard</button>
+        <button class="nav-btn" data-page="insights">Insikter</button>
+    </nav>
+
+    <!-- ===== CHECK-IN PAGE ===== -->
+    <div class="page active" id="page-checkin">
+
+        <!-- STEP 1: FACE -->
+        <div class="checkin-step active" id="step-face">
+            <div class="card">
+                <div class="progress-bar">
+                    <div class="progress-dot current"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                </div>
+                <h2><span class="icon">📸</span> Steg 1: Ansiktsanalys</h2>
+                <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">
+                    Ta en selfie. AI:n analyserar dina ansiktsuttryck.
+                </p>
+
+                <div class="camera-container" id="camera-container">
+                    <video id="camera-feed" autoplay playsinline muted></video>
+                    <div class="camera-overlay"></div>
+                    <div class="camera-timer" id="camera-timer">5s</div>
+                </div>
+                <button class="btn btn-primary" id="btn-start-camera">
+                    Spela in video
+                </button>
+
+                <button class="btn btn-secondary" style="margin-top: 8px;" onclick="skipFace()">
+                    Hoppa över
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 2: VOICE -->
+        <div class="checkin-step" id="step-voice">
+            <div class="card">
+                <div class="progress-bar">
+                    <div class="progress-dot done"></div>
+                    <div class="progress-dot current"></div>
+                    <div class="progress-dot"></div>
+                </div>
+                <h2><span class="icon">🎤</span> Steg 2: Röstanalys</h2>
+                <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">
+                    Spela in ett kort röstmeddelande om hur du mår. AI:n analyserar ton och energi.
+                </p>
+                <div class="voice-visualizer" id="voice-visualizer">
+                    <!-- Bars generated by JS -->
+                </div>
+                <p id="voice-status" style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
+                    Tryck för att börja spela in
+                </p>
+
+                <button class="btn btn-primary" id="btn-start-voice">
+                    Spela in röstmeddelande
+                </button>
+
+                <button class="btn btn-secondary" style="margin-top: 8px;" onclick="skipVoice()">
+                    Hoppa över
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 3: TEXT -->
+        <div class="checkin-step" id="step-text">
+            <div class="card">
+                <div class="progress-bar">
+                    <div class="progress-dot done"></div>
+                    <div class="progress-dot done"></div>
+                    <div class="progress-dot current"></div>
+                </div>
+                <h2><span class="icon">✍️</span> Steg 3: Fri text</h2>
+                <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">
+                    Skriv kort hur du känner dig just nu. Några ord eller meningar räcker.
+                </p>
+                <textarea class="text-area" id="text-input" placeholder="Jag känner mig..." maxlength="500"></textarea>
+                <div class="char-count"><span id="char-count">0</span>/500</div>
+                <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('glad')">Glad</button>
+                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('stressad')">Stressad</button>
+                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('trött')">Trött</button>
+                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('lugn')">Lugn</button>
+                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('orolig')">Orolig</button>
+                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('energisk')">Energisk</button>
+                </div>
+                <button class="btn btn-accent" style="margin-top: 16px;" onclick="analyzeAll()">
+                    Analysera mina känslor
+                </button>
+            </div>
+        </div>
+
+        <!-- RESULT -->
+        <div class="checkin-step" id="step-result">
+            <div class="card">
+                <div class="result-score">
+                    <div class="score-circle" id="score-circle">
+                        <span class="score-number" id="score-number">—</span>
+                        <span class="score-label">KänslaScore</span>
+                    </div>
+                    <div class="result-emotion" id="result-emotion"></div>
+                    <div class="result-breakdown" id="result-breakdown"></div>
+                </div>
+            </div>
+
+            <div class="intervention" id="intervention-box">
+                <h3 id="intervention-title"></h3>
+                <p id="intervention-text"></p>
+                <button class="btn btn-sm btn-accent" style="margin-top: 12px;" id="btn-do-intervention">
+                    Starta övning
+                </button>
+            </div>
+
+            <button class="btn btn-primary" onclick="resetCheckin()" style="margin-top: 8px;">
+                Ny check-in
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <div class="page" id="page-dashboard">
+        <div class="card">
+            <h2><span class="icon">📊</span> Din översikt</h2>
+            <div class="stat-grid" id="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-avg">—</div>
+                    <div class="stat-label">Genomsnitt</div>
+                    <div class="stat-change" id="stat-avg-change"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-streak">0</div>
+                    <div class="stat-label">Dagars streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-best">—</div>
+                    <div class="stat-label">Bästa score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">Check-ins</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">📈</span> Trend (senaste 14 dagarna)</h2>
+            <div class="chart-container">
+                <canvas class="chart-canvas" id="trend-chart"></canvas>
+            </div>
+            <div class="chart-labels" id="chart-labels"></div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">🕐</span> Historik</h2>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <!-- ===== INSIGHTS PAGE ===== -->
+    <div class="page" id="page-insights">
+        <div class="card">
+            <h2><span class="icon">💡</span> AI-insikter</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
+                Baserat på dina check-ins identifierar AI:n mönster och ger personliga rekommendationer.
+            </p>
+            <div id="insights-list"></div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">🎯</span> Emotionell fördelning</h2>
+            <div id="emotion-distribution"></div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">📋</span> Exportera data</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
+                Ladda ner all din data som JSON. Du äger din data.
+            </p>
+            <button class="btn btn-secondary" onclick="exportData()">
+                Ladda ner data (JSON)
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== BREATHING MODAL ===== -->
+<div class="modal-overlay" id="breathing-modal">
+    <div class="modal">
+        <h2 style="margin-bottom: 8px;">4-7-8 Andning</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Följ cirkeln. Slappna av.</p>
+        <div class="breathing-circle" id="breathing-circle">Redo</div>
+        <p id="breathing-instruction" style="font-size: 1rem; font-weight: 600; margin: 12px 0;">
+            Tryck för att börja
+        </p>
+        <p id="breathing-counter" style="color: var(--text-muted); font-size: 0.85rem;"></p>
+        <button class="btn btn-primary" id="btn-start-breathing" style="margin-top: 16px;">
+            Starta
+        </button>
+        <button class="btn btn-secondary" style="margin-top: 8px;" onclick="closeBreathing()">
+            Stäng
+        </button>
+    </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================================
+// KänslaFlow MVP — Core Logic
+// =====================================================================
+
+// ===== DATA STORE (localStorage with fallback) =====
+const STORAGE_KEY = 'kanslaflow_data';
+let memoryStore = { checkins: [], firstVisit: true }; // fallback if localStorage blocked
+
+function storageAvailable() {
+    try {
+        const t = '__test__';
+        localStorage.setItem(t, '1');
+        localStorage.removeItem(t);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+const useLocalStorage = storageAvailable();
+
+function getData() {
+    if (!useLocalStorage) return memoryStore;
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : { checkins: [], firstVisit: true };
+    } catch (e) {
+        return memoryStore;
+    }
+}
+
+function saveData(data) {
+    if (!useLocalStorage) { memoryStore = data; return; }
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+        memoryStore = data;
+    }
+}
+
+function addCheckin(entry) {
+    const data = getData();
+    data.checkins.push({ ...entry, timestamp: new Date().toISOString() });
+    saveData(data);
+}
+
+// ===== SWEDISH SENTIMENT ANALYSIS =====
+const EMOTION_WORDS = {
+    glad:      { words: ['glad', 'lycklig', 'nöjd', 'fantastisk', 'underbar', 'toppen', 'skratta', 'le', 'rolig', 'kul', 'bra', 'härlig', 'glädje', 'fin', 'positiv', 'tacksam', 'stolt', 'energisk', 'pigg', 'motiverad', 'hoppfull', 'fri', 'avslappnad'], valence: 0.85 },
+    lugn:      { words: ['lugn', 'avslappnad', 'fridful', 'harmonisk', 'balanserad', 'still', 'trygg', 'bekväm', 'stabil', 'okej', 'neutral'], valence: 0.65 },
+    ledsen:    { words: ['ledsen', 'sorglig', 'nere', 'gråter', 'ensam', 'tom', 'hopplös', 'deprimerad', 'melankolisk', 'saknar', 'förlorad', 'besviken', 'uppgiven'], valence: 0.25 },
+    stressad:  { words: ['stressad', 'pressad', 'överväldigad', 'kaos', 'panik', 'deadline', 'mycket', 'hinner inte', 'sliten', 'utbränd', 'utmattad', 'nervös'], valence: 0.3 },
+    orolig:    { words: ['orolig', 'ångest', 'rädd', 'osäker', 'ängslig', 'oro', 'skrämmande', 'otrygg', 'spänd', 'klump'], valence: 0.28 },
+    arg:       { words: ['arg', 'irriterad', 'frustrerad', 'sur', 'rasande', 'ilsken', 'förbannad', 'less', 'trött på', 'upprörd'], valence: 0.2 },
+    trott:     { words: ['trött', 'utmattad', 'slut', 'dränerad', 'sömnig', 'orkeslös', 'seg', 'dålig sömn', 'sliten'], valence: 0.35 },
+};
+
+function analyzeText(text) {
+    if (!text || !text.trim()) return { emotion: 'neutral', score: 50, confidence: 0 };
+
+    const lower = text.toLowerCase();
+    const scores = {};
+    let totalHits = 0;
+
+    for (const [emotion, data] of Object.entries(EMOTION_WORDS)) {
+        let hits = 0;
+        for (const word of data.words) {
+            if (lower.includes(word)) hits++;
+        }
+        scores[emotion] = hits;
+        totalHits += hits;
+    }
+
+    if (totalHits === 0) return { emotion: 'neutral', score: 50, confidence: 0.2 };
+
+    // Find dominant emotion
+    let dominant = 'neutral';
+    let maxHits = 0;
+    for (const [emotion, hits] of Object.entries(scores)) {
+        if (hits > maxHits) {
+            maxHits = hits;
+            dominant = emotion;
+        }
+    }
+
+    const valence = EMOTION_WORDS[dominant]?.valence ?? 0.5;
+    const confidence = Math.min(maxHits / 3, 1);
+    const score = Math.round(valence * 100);
+
+    return { emotion: dominant, score, confidence };
+}
+
+// ===== SIMULATED FACE ANALYSIS =====
+// In production: use TensorFlow.js face-api or cloud API
+function analyzeFace(hasImage) {
+    if (!hasImage) return { emotion: 'neutral', score: 50, confidence: 0 };
+
+    // Simulate with weighted random (in prod: real ML model)
+    const emotions = ['glad', 'lugn', 'neutral', 'stressad', 'ledsen'];
+    const weights = [0.3, 0.25, 0.2, 0.15, 0.1]; // bias towards positive for demo
+    let r = Math.random();
+    let emotion = 'neutral';
+    for (let i = 0; i < emotions.length; i++) {
+        r -= weights[i];
+        if (r <= 0) { emotion = emotions[i]; break; }
+    }
+    const valence = EMOTION_WORDS[emotion]?.valence ?? 0.5;
+    return { emotion, score: Math.round(valence * 100), confidence: 0.7 };
+}
+
+// ===== SIMULATED VOICE ANALYSIS =====
+function analyzeVoice(hasAudio, energy) {
+    if (!hasAudio) return { emotion: 'neutral', score: 50, confidence: 0 };
+
+    // Energy level affects score
+    const score = Math.round(40 + energy * 40 + Math.random() * 20);
+    let emotion = 'neutral';
+    if (score > 70) emotion = 'glad';
+    else if (score > 55) emotion = 'lugn';
+    else if (score > 40) emotion = 'stressad';
+    else emotion = 'trott';
+
+    return { emotion, score: Math.min(100, score), confidence: 0.6 };
+}
+
+// ===== FUSION: COMBINE ALL MODALITIES =====
+function fuseResults(face, voice, text) {
+    // Adaptive weights: modalities with data get more weight
+    let w = { face: 0, voice: 0, text: 0 };
+    if (face.confidence > 0) w.face = 0.4;
+    if (voice.confidence > 0) w.voice = 0.25;
+    if (text.confidence > 0) w.text = 0.35;
+
+    const totalW = w.face + w.voice + w.text;
+    if (totalW === 0) return { score: 50, emotion: 'neutral', face, voice, text };
+
+    // Normalize weights
+    w.face /= totalW;
+    w.voice /= totalW;
+    w.text /= totalW;
+
+    const score = Math.round(
+        face.score * w.face +
+        voice.score * w.voice +
+        text.score * w.text
+    );
+
+    // Pick dominant emotion from highest-confidence modality
+    const modalities = [
+        { ...face, weight: w.face },
+        { ...voice, weight: w.voice },
+        { ...text, weight: w.text }
+    ].sort((a, b) => b.confidence - a.confidence);
+
+    const emotion = modalities[0].emotion;
+
+    return { score: Math.max(0, Math.min(100, score)), emotion, face, voice, text };
+}
+
+// ===== INTERVENTION LOGIC =====
+function getIntervention(score, emotion) {
+    if (score < 30) {
+        return {
+            title: 'Du behöver en paus just nu',
+            text: '4-7-8 andning: Andas in genom näsan i 4 sekunder, håll andan i 7 sekunder, andas ut genom munnen i 8 sekunder. Upprepa 3 gånger. Detta aktiverar ditt parasympatiska nervsystem och sänker kortisol.',
+            type: 'breathing',
+            icon: '🧘'
+        };
+    } else if (score < 50) {
+        return {
+            title: 'Tid för en micro-boost',
+            text: 'Prova "5-4-3-2-1"-tekniken: Identifiera 5 saker du ser, 4 du kan röra, 3 du hör, 2 du luktar, 1 du smakar. Det förankrar dig i nuet och minskar stress och oro.',
+            type: 'grounding',
+            icon: '🌿'
+        };
+    } else if (score < 70) {
+        return {
+            title: 'Bra läge — optimera vidare',
+            text: 'Lyssna på din favoritlåt i 2 minuter. Musik med 60-80 BPM synkroniserar med din hjärtrytm och forskning visar att det höjer humöret med ~25% inom minuter.',
+            type: 'music',
+            icon: '🎵'
+        };
+    } else {
+        return {
+            title: 'Fantastiskt — bevara känslan',
+            text: 'Skriv ner 3 saker du är tacksam för just nu. Gratitude journaling förstärker positiva neurala kopplingar. Din trend pekar uppåt — fortsätt med det du gör!',
+            type: 'gratitude',
+            icon: '🌟'
+        };
+    }
+}
+
+// ===== STATE =====
+let currentStep = 0;
+let checkinData = { hasFace: false, hasVoice: false, voiceEnergy: 0.5 };
+let cameraStream = null;
+let audioContext = null;
+let mediaRecorder = null;
+
+// ===== APP INIT =====
+function showApp() {
+    document.getElementById('onboarding').classList.add('hidden');
+    document.getElementById('app').style.display = 'block';
+    try { updateDashboard(); } catch(e) {}
+    try { updateInsights(); } catch(e) {}
+}
+
+function startApp() {
+    try {
+        const data = getData();
+        data.firstVisit = false;
+        saveData(data);
+    } catch (e) {
+        // Continue even if storage fails
+    }
+    showApp();
+}
+
+// Check if returning user
+try {
+    const data = getData();
+    if (!data.firstVisit) {
+        showApp();
+    }
+} catch (e) {
+    // First visit or storage blocked — show onboarding (default)
+}
+
+// ===== NAVIGATION =====
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('page-' + btn.dataset.page).classList.add('active');
+        if (btn.dataset.page === 'dashboard') updateDashboard();
+        if (btn.dataset.page === 'insights') updateInsights();
+    });
+});
+
+// ===== CAMERA — live video stream =====
+document.getElementById('btn-start-camera').addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+        cameraStream = stream;
+        const video = document.getElementById('camera-feed');
+        video.srcObject = stream;
+
+        const btn = document.getElementById('btn-start-camera');
+        btn.disabled = true;
+        btn.textContent = 'Spelar in...';
+
+        let countdown = 5;
+        const timer = document.getElementById('camera-timer');
+        const interval = setInterval(() => {
+            countdown--;
+            timer.textContent = countdown + 's';
+            if (countdown <= 0) {
+                clearInterval(interval);
+                checkinData.hasFace = true;
+                stream.getTracks().forEach(t => t.stop());
+                goToStep(1);
+            }
+        }, 1000);
+    } catch (err) {
+        showToast('Kameran kunde inte startas — hoppar över');
+        skipFace();
+    }
+});
+
+function skipFace() {
+    checkinData.hasFace = false;
+    if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+    goToStep(1);
+}
+
+// ===== VOICE — direct microphone recording =====
+// Create visualizer bars
+(function createBars() {
+    const viz = document.getElementById('voice-visualizer');
+    for (let i = 0; i < 32; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'voice-bar';
+        bar.style.setProperty('--bar-height', (20 + Math.random() * 40) + 'px');
+        viz.appendChild(bar);
+    }
+})();
+
+document.getElementById('btn-start-voice').addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const btn = document.getElementById('btn-start-voice');
+        btn.disabled = true;
+
+        audioContext = new AudioContext();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 64;
+        source.connect(analyser);
+
+        const bars = document.querySelectorAll('.voice-bar');
+        bars.forEach(b => b.classList.add('active'));
+
+        document.getElementById('voice-status').textContent = 'Lyssnar... berätta hur du mår';
+
+        let energySum = 0;
+        let energyCount = 0;
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+        const monitor = setInterval(() => {
+            analyser.getByteFrequencyData(dataArray);
+            const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            energySum += avg;
+            energyCount++;
+        }, 100);
+
+        let countdown = 10;
+        const interval = setInterval(() => {
+            countdown--;
+            document.getElementById('voice-status').textContent = `Spelar in... ${countdown}s kvar`;
+            if (countdown <= 0) {
+                clearInterval(interval);
+                clearInterval(monitor);
+                bars.forEach(b => b.classList.remove('active'));
+                stream.getTracks().forEach(t => t.stop());
+                if (audioContext) audioContext.close();
+
+                checkinData.hasVoice = true;
+                checkinData.voiceEnergy = energyCount > 0 ? Math.min(energySum / energyCount / 128, 1) : 0.5;
+
+                document.getElementById('voice-status').textContent = 'Inspelning klar!';
+                setTimeout(() => goToStep(2), 500);
+            }
+        }, 1000);
+    } catch (err) {
+        showToast('Mikrofonen kunde inte startas — hoppar över');
+        skipVoice();
+    }
+});
+
+function skipVoice() {
+    checkinData.hasVoice = false;
+    goToStep(2);
+}
+
+// ===== TEXT =====
+document.getElementById('text-input').addEventListener('input', (e) => {
+    document.getElementById('char-count').textContent = e.target.value.length;
+});
+
+function addQuickText(word) {
+    const input = document.getElementById('text-input');
+    input.value = input.value ? input.value + ', ' + word : 'Jag känner mig ' + word;
+    document.getElementById('char-count').textContent = input.value.length;
+}
+
+// ===== ANALYSIS & RESULTS =====
+function analyzeAll() {
+    const text = document.getElementById('text-input').value;
+
+    const faceResult = analyzeFace(checkinData.hasFace);
+    const voiceResult = analyzeVoice(checkinData.hasVoice, checkinData.voiceEnergy);
+    const textResult = analyzeText(text);
+
+    const result = fuseResults(faceResult, voiceResult, textResult);
+    const intervention = getIntervention(result.score, result.emotion);
+
+    // Save check-in
+    addCheckin({
+        score: result.score,
+        emotion: result.emotion,
+        text: text,
+        face: faceResult,
+        voice: voiceResult,
+        textAnalysis: textResult,
+        intervention: intervention.type,
+        modalities: {
+            face: checkinData.hasFace,
+            voice: checkinData.hasVoice,
+            text: text.length > 0
+        }
+    });
+
+    // Display result
+    showResult(result, intervention);
+    goToStep(3);
+}
+
+function showResult(result, intervention) {
+    const scoreEl = document.getElementById('score-number');
+    const emotionEl = document.getElementById('result-emotion');
+    const circleEl = document.getElementById('score-circle');
+    const breakdownEl = document.getElementById('result-breakdown');
+
+    // Animate score
+    let current = 0;
+    const target = result.score;
+    const step = Math.ceil(target / 30);
+    const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        scoreEl.textContent = current;
+        circleEl.style.setProperty('--score-pct', current + '%');
+
+        if (current < 40) circleEl.style.setProperty('--score-color', '#E17055');
+        else if (current < 65) circleEl.style.setProperty('--score-color', '#FDCB6E');
+        else circleEl.style.setProperty('--score-color', '#00B894');
+
+        if (current >= target) clearInterval(timer);
+    }, 30);
+
+    const emotionLabels = {
+        glad: '😊 Glad', lugn: '😌 Lugn', neutral: '😐 Neutral',
+        stressad: '😰 Stressad', ledsen: '😢 Ledsen', orolig: '😟 Orolig',
+        arg: '😤 Arg', trott: '😴 Trött'
+    };
+    emotionEl.textContent = emotionLabels[result.emotion] || '😐 Neutral';
+
+    // Breakdown
+    breakdownEl.innerHTML = `
+        <div class="breakdown-item">
+            <span class="label">Ansikte</span>
+            <span class="value">${result.face.confidence > 0 ? result.face.score : '—'}</span>
+        </div>
+        <div class="breakdown-item">
+            <span class="label">Röst</span>
+            <span class="value">${result.voice.confidence > 0 ? result.voice.score : '—'}</span>
+        </div>
+        <div class="breakdown-item">
+            <span class="label">Text</span>
+            <span class="value">${result.text.confidence > 0 ? result.text.score : '—'}</span>
+        </div>
+    `;
+
+    // Intervention
+    document.getElementById('intervention-title').textContent = intervention.icon + ' ' + intervention.title;
+    document.getElementById('intervention-text').textContent = intervention.text;
+
+    const intBtn = document.getElementById('btn-do-intervention');
+    if (intervention.type === 'breathing') {
+        intBtn.style.display = 'inline-flex';
+        intBtn.onclick = () => openBreathing();
+    } else {
+        intBtn.style.display = 'none';
+    }
+}
+
+// ===== STEP NAVIGATION =====
+function goToStep(step) {
+    document.querySelectorAll('.checkin-step').forEach(s => s.classList.remove('active'));
+    const steps = ['step-face', 'step-voice', 'step-text', 'step-result'];
+    document.getElementById(steps[step]).classList.add('active');
+    currentStep = step;
+}
+
+function resetCheckin() {
+    checkinData = { hasFace: false, hasVoice: false, voiceEnergy: 0.5 };
+    document.getElementById('text-input').value = '';
+    document.getElementById('char-count').textContent = '0';
+    document.getElementById('btn-start-camera').disabled = false;
+    document.getElementById('btn-start-camera').textContent = 'Starta kameran';
+    document.getElementById('camera-timer').textContent = '5s';
+    document.getElementById('btn-start-voice').disabled = false;
+    document.getElementById('voice-status').textContent = 'Tryck för att börja spela in';
+    goToStep(0);
+}
+
+// ===== DASHBOARD =====
+function updateDashboard() {
+    const data = getData();
+    const checkins = data.checkins || [];
+
+    // Stats
+    const total = checkins.length;
+    document.getElementById('stat-total').textContent = total;
+
+    if (total === 0) {
+        document.getElementById('stat-avg').textContent = '—';
+        document.getElementById('stat-best').textContent = '—';
+        document.getElementById('stat-streak').textContent = '0';
+        document.getElementById('history-list').innerHTML = '<div class="empty-state"><div class="icon">📊</div><h3>Ingen data ännu</h3><p>Gör din första check-in för att se statistik här.</p></div>';
+        return;
+    }
+
+    const scores = checkins.map(c => c.score);
+    const avg = Math.round(scores.reduce((a, b) => a + b) / scores.length);
+    const best = Math.max(...scores);
+    document.getElementById('stat-avg').textContent = avg;
+    document.getElementById('stat-best').textContent = best;
+
+    // Weekly change
+    const recentWeek = checkins.filter(c => {
+        const d = new Date(c.timestamp);
+        return (Date.now() - d.getTime()) < 7 * 86400000;
+    });
+    const prevWeek = checkins.filter(c => {
+        const d = new Date(c.timestamp);
+        const age = Date.now() - d.getTime();
+        return age >= 7 * 86400000 && age < 14 * 86400000;
+    });
+
+    const changeEl = document.getElementById('stat-avg-change');
+    if (recentWeek.length > 0 && prevWeek.length > 0) {
+        const recentAvg = recentWeek.reduce((a, c) => a + c.score, 0) / recentWeek.length;
+        const prevAvg = prevWeek.reduce((a, c) => a + c.score, 0) / prevWeek.length;
+        const diff = Math.round(recentAvg - prevAvg);
+        if (diff > 0) {
+            changeEl.textContent = `+${diff}% vs förra veckan`;
+            changeEl.className = 'stat-change up';
+        } else if (diff < 0) {
+            changeEl.textContent = `${diff}% vs förra veckan`;
+            changeEl.className = 'stat-change down';
+        } else {
+            changeEl.textContent = 'Oförändrat';
+            changeEl.className = 'stat-change';
+        }
+    } else {
+        changeEl.textContent = '';
+    }
+
+    // Streak
+    const today = new Date().toDateString();
+    let streak = 0;
+    const dateSet = new Set(checkins.map(c => new Date(c.timestamp).toDateString()));
+    let checkDate = new Date();
+    while (dateSet.has(checkDate.toDateString())) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+    }
+    document.getElementById('stat-streak').textContent = streak;
+
+    // Chart
+    drawChart(checkins);
+
+    // History list
+    const recent = checkins.slice(-10).reverse();
+    const emotionEmojis = {
+        glad: '😊', lugn: '😌', neutral: '😐',
+        stressad: '😰', ledsen: '😢', orolig: '😟',
+        arg: '😤', trott: '😴'
+    };
+    document.getElementById('history-list').innerHTML = recent.map(c => {
+        const d = new Date(c.timestamp);
+        const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const emoji = emotionEmojis[c.emotion] || '😐';
+        const scoreColor = c.score >= 65 ? 'var(--success)' : c.score >= 40 ? 'var(--warning)' : 'var(--danger)';
+        return `<div class="history-item">
+            <span class="history-emoji">${emoji}</span>
+            <div class="history-info">
+                <span class="emotion">${c.emotion}</span>
+                <span class="date">${dateStr}</span>
+            </div>
+            <span class="history-score" style="color:${scoreColor}">${c.score}</span>
+        </div>`;
+    }).join('');
+}
+
+// ===== CHART =====
+function drawChart(checkins) {
+    const canvas = document.getElementById('trend-chart');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = canvas.offsetWidth * dpr;
+    canvas.height = canvas.offsetHeight * dpr;
+    ctx.scale(dpr, dpr);
+
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    const padding = { top: 20, right: 10, bottom: 10, left: 30 };
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Get last 14 entries
+    const entries = checkins.slice(-14);
+    if (entries.length < 2) {
+        ctx.fillStyle = '#A7A9BE';
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Minst 2 check-ins behövs för graf', w / 2, h / 2);
+        return;
+    }
+
+    const scores = entries.map(e => e.score);
+    const chartW = w - padding.left - padding.right;
+    const chartH = h - padding.top - padding.bottom;
+
+    // Y axis
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 100; i += 25) {
+        const y = padding.top + chartH - (i / 100) * chartH;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(w - padding.right, y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#A7A9BE';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(i, padding.left - 4, y + 4);
+    }
+
+    // Data line
+    const points = scores.map((s, i) => ({
+        x: padding.left + (i / (scores.length - 1)) * chartW,
+        y: padding.top + chartH - (s / 100) * chartH
+    }));
+
+    // Gradient fill
+    const gradient = ctx.createLinearGradient(0, padding.top, 0, h);
+    gradient.addColorStop(0, 'rgba(108, 92, 231, 0.3)');
+    gradient.addColorStop(1, 'rgba(108, 92, 231, 0)');
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, h - padding.bottom);
+    points.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(points[points.length - 1].x, h - padding.bottom);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        const cp1x = (points[i - 1].x + points[i].x) / 2;
+        ctx.bezierCurveTo(cp1x, points[i - 1].y, cp1x, points[i].y, points[i].x, points[i].y);
+    }
+    ctx.strokeStyle = '#6C5CE7';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Dots
+    points.forEach((p, i) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        const color = scores[i] >= 65 ? '#00B894' : scores[i] >= 40 ? '#FDCB6E' : '#E17055';
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = '#1A1928';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    });
+
+    // Labels
+    const labelsEl = document.getElementById('chart-labels');
+    labelsEl.innerHTML = entries.map(e => {
+        const d = new Date(e.timestamp);
+        return `<span>${d.getDate()}/${d.getMonth() + 1}</span>`;
+    }).join('');
+}
+
+// ===== INSIGHTS =====
+function updateInsights() {
+    const data = getData();
+    const checkins = data.checkins || [];
+    const container = document.getElementById('insights-list');
+    const distContainer = document.getElementById('emotion-distribution');
+
+    if (checkins.length < 3) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">💡</div><h3>Behöver mer data</h3><p>Gör minst 3 check-ins för att få AI-insikter.</p></div>';
+        distContainer.innerHTML = '';
+        return;
+    }
+
+    const insights = [];
+    const scores = checkins.map(c => c.score);
+    const avg = scores.reduce((a, b) => a + b) / scores.length;
+
+    // Trend insight
+    const recent5 = scores.slice(-5);
+    const recentAvg = recent5.reduce((a, b) => a + b) / recent5.length;
+    if (recentAvg > avg + 5) {
+        insights.push({ title: 'Uppåtgående trend', text: `Dina senaste 5 check-ins snittade ${Math.round(recentAvg)} — ${Math.round(recentAvg - avg)} poäng bättre än ditt totala snitt (${Math.round(avg)}). Det du gör fungerar!`, color: 'var(--success)' });
+    } else if (recentAvg < avg - 5) {
+        insights.push({ title: 'Nedåtgående trend', text: `Dina senaste 5 check-ins snittade ${Math.round(recentAvg)} — ${Math.round(avg - recentAvg)} poäng lägre än vanligt. Fundera på vad som förändrats och prioritera återhämtning.`, color: 'var(--danger)' });
+    }
+
+    // Emotion frequency
+    const emotionCounts = {};
+    checkins.forEach(c => {
+        emotionCounts[c.emotion] = (emotionCounts[c.emotion] || 0) + 1;
+    });
+    const topEmotion = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1])[0];
+    insights.push({ title: `Vanligaste känslan: ${topEmotion[0]}`, text: `"${topEmotion[0]}" är din dominerande känsla (${Math.round(topEmotion[1] / checkins.length * 100)}% av alla check-ins). ${topEmotion[0] === 'stressad' || topEmotion[0] === 'orolig' ? 'Överväg dagliga andningsövningar för att balansera detta.' : 'Det ser bra ut!'}`, color: 'var(--primary-light)' });
+
+    // Best/worst
+    const best = Math.max(...scores);
+    const worst = Math.min(...scores);
+    insights.push({ title: 'Ditt KänslaScore-spann', text: `Lägsta: ${worst} | Högsta: ${best} | Spridning: ${best - worst} poäng. ${best - worst > 40 ? 'Stor variation — ditt mående svänger mycket. Regelbundna rutiner kan stabilisera.' : 'Relativt stabilt — bra grund att bygga vidare på.'}`, color: 'var(--warning)' });
+
+    // Modality coverage
+    const withFace = checkins.filter(c => c.modalities?.face).length;
+    const withVoice = checkins.filter(c => c.modalities?.voice).length;
+    if (withFace < checkins.length * 0.5) {
+        insights.push({ title: 'Tips: Använd kameran oftare', text: 'Ansiktsanalys ger mer noggranna resultat. Bara ' + Math.round(withFace / checkins.length * 100) + '% av dina check-ins använde kameran.', color: 'var(--text-muted)' });
+    }
+
+    container.innerHTML = insights.map(i => `
+        <div class="insight-card" style="border-left-color: ${i.color}">
+            <h4>${i.title}</h4>
+            <p>${i.text}</p>
+        </div>
+    `).join('');
+
+    // Emotion distribution
+    const total = checkins.length;
+    const emotionEmojis = { glad: '😊', lugn: '😌', neutral: '😐', stressad: '😰', ledsen: '😢', orolig: '😟', arg: '😤', trott: '😴' };
+    const sorted = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1]);
+    distContainer.innerHTML = sorted.map(([emotion, count]) => {
+        const pct = Math.round(count / total * 100);
+        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="font-size:1.3rem;">${emotionEmojis[emotion] || '😐'}</span>
+            <span style="width:70px;font-size:0.85rem;">${emotion}</span>
+            <div style="flex:1;height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;">
+                <div style="width:${pct}%;height:100%;background:var(--primary);border-radius:4px;transition:width 0.5s;"></div>
+            </div>
+            <span style="font-size:0.8rem;color:var(--text-muted);width:35px;text-align:right;">${pct}%</span>
+        </div>`;
+    }).join('');
+}
+
+// ===== BREATHING EXERCISE =====
+function openBreathing() {
+    document.getElementById('breathing-modal').classList.add('active');
+}
+function closeBreathing() {
+    document.getElementById('breathing-modal').classList.remove('active');
+    breathingActive = false;
+}
+
+let breathingActive = false;
+document.getElementById('btn-start-breathing').addEventListener('click', () => {
+    if (breathingActive) return;
+    breathingActive = true;
+    const circle = document.getElementById('breathing-circle');
+    const instruction = document.getElementById('breathing-instruction');
+    const counter = document.getElementById('breathing-counter');
+    const btn = document.getElementById('btn-start-breathing');
+    btn.style.display = 'none';
+
+    let round = 0;
+    const maxRounds = 3;
+
+    function doRound() {
+        if (round >= maxRounds || !breathingActive) {
+            instruction.textContent = 'Övning klar — bra jobbat!';
+            circle.textContent = '✓';
+            circle.className = 'breathing-circle';
+            counter.textContent = '';
+            btn.style.display = 'inline-flex';
+            btn.textContent = 'Gör om';
+            breathingActive = false;
+            return;
+        }
+        counter.textContent = `Omgång ${round + 1}/${maxRounds}`;
+
+        // Inhale 4s
+        circle.className = 'breathing-circle inhale';
+        circle.textContent = 'Andas in';
+        instruction.textContent = '4 sekunder — in genom näsan';
+        setTimeout(() => {
+            // Hold 7s
+            circle.className = 'breathing-circle hold';
+            circle.textContent = 'Håll';
+            instruction.textContent = '7 sekunder — håll andan';
+            setTimeout(() => {
+                // Exhale 8s
+                circle.className = 'breathing-circle exhale';
+                circle.textContent = 'Andas ut';
+                instruction.textContent = '8 sekunder — ut genom munnen';
+                setTimeout(() => {
+                    round++;
+                    doRound();
+                }, 8000);
+            }, 7000);
+        }, 4000);
+    }
+
+    doRound();
+});
+
+// ===== EXPORT DATA =====
+function exportData() {
+    const data = getData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kanslaflow-data-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Data exporterad!');
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ===== RESIZE CHART ON WINDOW RESIZE =====
+window.addEventListener('resize', () => {
+    try {
+        const data = getData();
+        if (data.checkins?.length >= 2) drawChart(data.checkins);
+    } catch(e) {}
+});
+
+// ===== MOBILE-SAFE BUTTON BINDING =====
+// Bind "Kom igång" with both click and touchend for maximum mobile compatibility
+(function bindStartButton() {
+    const btn = document.getElementById('btn-start-app');
+    if (!btn) return;
+
+    let fired = false;
+    function handleStart(e) {
+        if (fired) return;
+        fired = true;
+        e.preventDefault();
+        startApp();
+        // Reset after short delay in case user needs to tap again
+        setTimeout(() => { fired = false; }, 500);
+    }
+
+    btn.addEventListener('click', handleStart);
+    btn.addEventListener('touchend', handleStart);
+})();
+</script>
+
+</body>
+</html>
