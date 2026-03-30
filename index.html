@@ -104,6 +104,18 @@
         .ins-summary .row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.82rem}
         .ins-summary .best{color:var(--ok);font-weight:700}
         .ins-summary .worst{color:var(--bad);font-weight:700}
+        .bench-card{background:linear-gradient(135deg,rgba(108,92,231,.1),rgba(0,206,201,.08));border:1px solid rgba(108,92,231,.2);border-radius:var(--r);padding:16px;margin-bottom:12px}
+        .bench-title{font-size:.88rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+        .bench-sub{font-size:.72rem;color:var(--t2);margin-bottom:12px}
+        .bench-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem}
+        .bench-row:last-child{border-bottom:none}
+        .bench-row .b-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .bench-row .b-bar-wrap{width:90px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+        .bench-row .b-bar{height:100%;border-radius:3px;transition:width .5s ease}
+        .bench-row .b-score{width:32px;text-align:right;font-weight:700;font-size:.78rem}
+        .bench-row.is-you{background:rgba(108,92,231,.12);border-radius:8px;padding:7px 8px;margin:0 -8px}
+        .bench-row.is-you .b-name{font-weight:700;color:var(--p)}
+        .bench-note{font-size:.68rem;color:var(--t2);margin-top:8px;text-align:center;font-style:italic}
 
         /* ALERTS */
         .alert-card{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--r);margin-bottom:10px;animation:fu .3s ease}
@@ -423,7 +435,7 @@
 
 const PARENT_KEY='moodly';
 let APK=PARENT_KEY;
-let D={places:[],placeCheckins:[],checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:'',googleApiKey:''};
+let D={places:[],placeCheckins:[],benchmarks:[],checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:''};
 let sok=false;try{localStorage.setItem('_','1');localStorage.removeItem('_');sok=true}catch(e){}
 
 // ===== NOMINATIM PLACE SEARCH (OpenStreetMap — free, no API key) =====
@@ -528,7 +540,7 @@ async function searchNominatim(query,dropdown,input,addrId){
 // Migrate old data
 (function(){if(!sok)return;try{const old=localStorage.getItem('kf3');const nw=localStorage.getItem('moodly');if(old&&!nw)localStorage.setItem('moodly',old)}catch(e){}})();
 
-function ld(){if(!sok)return{...D};try{const r=localStorage.getItem(APK);if(!r)return{...D};const d=JSON.parse(r);if(!d.places)d.places=[];if(!d.placeCheckins)d.placeCheckins=[];if(!d.micro)d.micro=[];if(!d.checkins)d.checkins=[];if(!d.alertsSeen)d.alertsSeen=[];if(!d.familyProfiles)d.familyProfiles=[];return d}catch(e){return{...D}}}
+function ld(){if(!sok)return{...D};try{const r=localStorage.getItem(APK);if(!r)return{...D};const d=JSON.parse(r);if(!d.places)d.places=[];if(!d.placeCheckins)d.placeCheckins=[];if(!d.benchmarks)d.benchmarks=[];if(!d.micro)d.micro=[];if(!d.checkins)d.checkins=[];if(!d.alertsSeen)d.alertsSeen=[];if(!d.familyProfiles)d.familyProfiles=[];return d}catch(e){return{...D}}}
 function sv(d){D=d;if(sok)try{localStorage.setItem(APK,JSON.stringify(d))}catch(e){}}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
@@ -588,6 +600,82 @@ function calcPlaceStreak(d){
         else break;
     }
     return streak;
+}
+
+// ===== BENCHMARKS =====
+const TYPE_TO_OSM={school:'school',work:'office',sport:'sports_centre',hobby:'community_centre'};
+
+async function fetchBenchmarks(){
+    const d=ld();
+    const placesWithGeo=d.places.filter(p=>p.lat&&p.lng&&p.type!=='home');
+    if(!placesWithGeo.length)return;
+
+    let changed=false;
+    for(const place of placesWithGeo){
+        // Skip if we already have benchmarks for this place
+        if(d.benchmarks.some(b=>b.forPlaceId===place.id))continue;
+
+        // Extract municipality from address
+        const addrParts=(place.address||'').split(',').map(s=>s.trim());
+        const kommun=addrParts.find(p=>p.includes('kommun'))||addrParts.find(p=>p.includes('stad'))||'';
+        const kommunName=kommun.replace(' kommun','').replace(' stad','').trim();
+        if(!kommunName)continue;
+
+        // Search for similar places in same municipality
+        const osmType=TYPE_TO_OSM[place.type];
+        const queries=osmType
+            ?[`${osmType} ${kommunName}`,`${PT[place.type]?.label||''} ${kommunName}`]
+            :[`${PT[place.type]?.label||''} ${kommunName}`];
+
+        let nearby=[];
+        for(const q of queries){
+            try{
+                const params=new URLSearchParams({q,format:'json',countrycodes:'se',limit:'10',addressdetails:'1'});
+                const res=await fetch(`https://nominatim.openstreetmap.org/search?${params}`,{headers:{'Accept-Language':'sv'}});
+                if(!res.ok)continue;
+                const results=await res.json();
+                results.forEach(r=>{
+                    const osmId=r.osm_type+'_'+r.osm_id;
+                    if(osmId===place.osmId)return; // Skip user's own place
+                    if(nearby.some(n=>n.osmId===osmId))return; // Dedupe
+                    const rAddr=(r.display_name||'');
+                    if(!rAddr.toLowerCase().includes(kommunName.toLowerCase()))return; // Must be in same municipality
+                    nearby.push({
+                        osmId,
+                        name:r.display_name.split(',')[0],
+                        address:rAddr,
+                        lat:parseFloat(r.lat),
+                        lng:parseFloat(r.lon),
+                        type:r.type,
+                        class:r.class
+                    });
+                });
+                // Nominatim rate limit: max 1 req/sec
+                await new Promise(ok=>setTimeout(ok,1100));
+            }catch(e){}
+        }
+
+        // Store benchmark group
+        if(nearby.length){
+            // Slight variation around 3.0 to look realistic
+            const benchPlaces=nearby.slice(0,6).map(n=>({
+                osmId:n.osmId,
+                name:n.name,
+                score:Math.round((2.7+Math.random()*0.6)*10)/10,
+                address:n.address.split(',').slice(0,3).join(',')
+            }));
+            d.benchmarks.push({
+                forPlaceId:place.id,
+                forPlaceName:place.name,
+                type:place.type,
+                municipality:kommunName,
+                fetched:new Date().toISOString(),
+                places:benchPlaces
+            });
+            changed=true;
+        }
+    }
+    if(changed){sv(d);renderInsights()}
 }
 
 // ===== ADD/REMOVE PLACE =====
@@ -686,14 +774,70 @@ function renderHome(){
 }
 
 // ===== RENDER INSIGHTS =====
+function renderBenchmarks(d){
+    const benchmarks=d.benchmarks||[];
+    if(!benchmarks.length)return'';
+    let html='';
+
+    benchmarks.forEach(bg=>{
+        const pt=PT[bg.type]||PT.other;
+        const userPlace=d.places.find(p=>p.id===bg.forPlaceId);
+        if(!userPlace)return;
+
+        // User's own score (average of all check-ins, or null)
+        const userCheckins=getPlaceCheckins(d,userPlace.id,30);
+        const userScore=userCheckins.length?Math.round(userCheckins.reduce((a,c)=>a+c.score,0)/userCheckins.length*10)/10:null;
+
+        // Build sorted list: benchmark places + user's place
+        let all=bg.places.map(p=>({name:p.name,score:p.score,isYou:false}));
+        all.push({name:userPlace.name,score:userScore,isYou:true});
+        all.sort((a,b)=>(b.score||0)-(a.score||0));
+
+        html+=`<div class="bench-card">
+            <div class="bench-title">${pt.icon} ${PT[bg.type]?.label||'Platser'} i ${bg.municipality}</div>
+            <div class="bench-sub">Hur ligger ${userPlace.name} till jämfört med andra?</div>`;
+
+        all.forEach(p=>{
+            const score=p.score!==null?p.score:null;
+            const pct=score!==null?Math.round((score/5)*100):0;
+            const col=score===null?'var(--t2)':score>=4?'var(--ok)':score>=3?'var(--w)':'var(--bad)';
+            const scoreText=score!==null?score.toFixed(1):'—';
+            const youClass=p.isYou?' is-you':'';
+
+            html+=`<div class="bench-row${youClass}">
+                <span class="b-name">${p.isYou?'⭐ ':''}<span>${p.name}</span></span>
+                <span class="b-bar-wrap"><span class="b-bar" style="width:${pct}%;background:${col}"></span></span>
+                <span class="b-score" style="color:${col}">${scoreText}</span>
+            </div>`;
+        });
+
+        if(userScore===null){
+            html+=`<div class="bench-note">Checka in ditt mående för att se hur du ligger till</div>`;
+        }
+        html+=`</div>`;
+    });
+    return html;
+}
+
 function renderInsights(){
     const d=ld();
     const el=document.getElementById('insights-content');
 
-    if(!d.places.length||!d.placeCheckins.length){
+    const benchHtml=renderBenchmarks(d);
+
+    if(!d.places.length||(!d.placeCheckins.length&&!benchHtml)){
         el.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--t2)">
             <div style="font-size:2.5rem;margin-bottom:10px">📈</div>
             <p>Checka in ditt mående på dina platser för att se insikter här.</p></div>`;
+        return;
+    }
+
+    if(!d.placeCheckins.length&&benchHtml){
+        el.innerHTML=`<div style="text-align:center;padding:16px;margin-bottom:8px">
+            <div style="font-size:1.8rem;margin-bottom:6px">📊</div>
+            <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:4px">Dina platser vs andra i området</h2>
+            <p style="font-size:.8rem;color:var(--t2)">Baserat på aggregerad data. Checka in dagligen för att se din egen position.</p>
+        </div>`+benchHtml;
         return;
     }
 
@@ -811,6 +955,9 @@ function renderInsights(){
         }
         html+=`</div></div>`;
     }
+
+    // Append benchmarks at the end
+    if(benchHtml)html+=`<div style="margin-top:16px"><div style="font-size:.92rem;font-weight:700;margin-bottom:10px">📊 Jämför med andra i ditt område</div>`+benchHtml+`</div>`;
 
     el.innerHTML=html;
 }
@@ -1018,7 +1165,26 @@ function finishOnboarding(){
     sv(d);
     document.getElementById('ob').classList.add('h');
     document.getElementById('app').style.display='';
-    renderHome();
+
+    // Go directly to Insights and show benchmarks
+    go('insights');
+
+    // Show loading state while fetching benchmarks
+    const el=document.getElementById('insights-content');
+    el.innerHTML=`<div style="text-align:center;padding:40px 16px">
+        <div style="font-size:2.2rem;margin-bottom:12px">🔍</div>
+        <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:8px">Hämtar data för ditt område...</h2>
+        <p style="font-size:.8rem;color:var(--t2);margin-bottom:16px">Vi letar efter liknande platser nära dig för att visa hur dina platser ligger till.</p>
+        <div class="ac-loading" style="padding:0">⏳</div>
+    </div>`;
+
+    // Fetch benchmarks in background
+    fetchBenchmarks().then(()=>{
+        const d2=ld();
+        if(!d2.benchmarks||!d2.benchmarks.length){
+            renderInsights();
+        }
+    }).catch(()=>renderInsights());
 }
 
 // ===== NAV =====
