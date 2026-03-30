@@ -602,94 +602,88 @@ function calcPlaceStreak(d){
     return streak;
 }
 
-// ===== BENCHMARKS (Overpass API — free, no key) =====
-function buildOverpassQuery(type,bbox){
-    const [s,w,n,e]=bbox;
-    const b=`(${s},${w},${n},${e})`;
-    const nw=(tags)=>`node${tags}["name"]${b};way${tags}["name"]${b};`;
-    let parts='';
-    switch(type){
-        case'school':
-            parts=nw('["amenity"="school"]')+nw('["amenity"="kindergarten"]')+nw('["amenity"="college"]')+nw('["amenity"="university"]');
-            break;
-        case'work':
-            parts=nw('["office"]')+nw('["shop"]')+nw('["craft"]')+nw('["amenity"~"restaurant|cafe|bank|pharmacy|clinic"]');
-            break;
-        case'sport':
-            parts=nw('["leisure"~"sports_centre|sports_hall|pitch|stadium|fitness_centre|golf_course|swimming_pool"]')+nw('["sport"]');
-            break;
-        case'hobby':
-            parts=nw('["amenity"~"community_centre|library|arts_centre|theatre|cinema|music_school"]')+nw('["leisure"~"park|garden"]')+nw('["club"]');
-            break;
-        default:return null;
-    }
-    return`[out:json][timeout:15];(${parts});out body 30;`;
+// ===== BENCHMARKS (Overpass API — one query for all places) =====
+function categorizePoi(el){
+    const t=el.tags||{};
+    if(t.amenity&&/school|kindergarten|college|university/.test(t.amenity))return'school';
+    if(t.office||t.shop||t.craft)return'work';
+    if(t.leisure&&/sports_centre|sports_hall|pitch|stadium|fitness_centre|golf_course|swimming_pool/.test(t.leisure))return'sport';
+    if(t.sport)return'sport';
+    if(t.amenity&&/community_centre|library|arts_centre|theatre|cinema/.test(t.amenity))return'hobby';
+    if(t.club)return'hobby';
+    return null;
+}
+
+function getMunicipality(place){
+    const parts=(place.address||'').split(',').map(s=>s.trim());
+    const k=parts.find(p=>p.includes('kommun'))||parts.find(p=>p.includes('stad'))||'';
+    return k.replace(' kommun','').replace(' stad','').trim()||parts[parts.length-3]||'ditt område';
 }
 
 async function fetchBenchmarks(){
     const d=ld();
-    const placesWithGeo=d.places.filter(p=>p.lat&&p.lng&&p.type!=='home');
-    if(!placesWithGeo.length)return;
+    const needsBench=d.places.filter(p=>p.lat&&p.lng&&p.type!=='home'&&!d.benchmarks.some(b=>b.forPlaceId===p.id));
+    if(!needsBench.length)return;
 
+    // Compute bounding box that covers ALL places + 10km margin
+    const margin=0.09;
+    const allLats=needsBench.map(p=>p.lat);
+    const allLngs=needsBench.map(p=>p.lng);
+    const bbox=[Math.min(...allLats)-margin,Math.min(...allLngs)-margin,Math.max(...allLats)+margin,Math.max(...allLngs)+margin];
+    const b=`(${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]})`;
+
+    // One query: all amenities + shops + offices + leisure + sport + clubs with names
+    const query=`[out:json][timeout:20];(node["amenity"]["name"]${b};way["amenity"]["name"]${b};node["shop"]["name"]${b};way["shop"]["name"]${b};node["office"]["name"]${b};way["office"]["name"]${b};node["leisure"]["name"]${b};way["leisure"]["name"]${b};node["sport"]["name"]${b};way["sport"]["name"]${b};node["club"]["name"]${b};way["club"]["name"]${b};node["craft"]["name"]${b};way["craft"]["name"]${b};);out body 200;`;
+
+    let allPois=[];
+    try{
+        const res=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(query)});
+        if(!res.ok)return;
+        const data=await res.json();
+        allPois=(data.elements||[]).filter(el=>el.tags?.name).map(el=>({
+            osmId:el.type+'_'+el.id,
+            name:el.tags.name,
+            lat:el.lat||(el.center?.lat),
+            lng:el.lon||(el.center?.lon),
+            cat:categorizePoi(el)
+        })).filter(p=>p.cat);
+    }catch(e){return}
+
+    // Match POIs to each user place by category + proximity
     let changed=false;
-    for(const place of placesWithGeo){
-        if(d.benchmarks.some(b=>b.forPlaceId===place.id))continue;
+    needsBench.forEach(place=>{
+        let matches=allPois.filter(p=>p.cat===place.type&&p.osmId!==place.osmId);
 
-        // Municipality name from address
-        const addrParts=(place.address||'').split(',').map(s=>s.trim());
-        const kommun=addrParts.find(p=>p.includes('kommun'))||addrParts.find(p=>p.includes('stad'))||'';
-        const kommunName=kommun.replace(' kommun','').replace(' stad','').trim()||addrParts[addrParts.length-3]||'';
-
-        // Try expanding radius until we get 5+ results
-        let nearby=[];
-        for(const km of [10,20]){
-            const offset=km*0.009; // ~1km per 0.009 degrees
-            const bbox=[place.lat-offset,place.lng-offset,place.lat+offset,place.lng+offset];
-            const query=buildOverpassQuery(place.type,bbox);
-            if(!query)break;
-
-            try{
-                const res=await fetch('https://overpass-api.de/api/interpreter',{
-                    method:'POST',
-                    body:'data='+encodeURIComponent(query)
-                });
-                if(!res.ok)continue;
-                const data=await res.json();
-                const elements=(data.elements||[]).filter(el=>el.tags?.name);
-
-                nearby=elements.map(el=>({
-                    osmId:el.type+'_'+el.id,
-                    name:el.tags.name
-                })).filter(n=>n.osmId!==place.osmId);
-
-                // Dedupe by name
-                const seen=new Set();
-                nearby=nearby.filter(n=>{
-                    if(seen.has(n.name))return false;
-                    seen.add(n.name);return true;
-                });
-
-                if(nearby.length>=5)break; // Enough results
-            }catch(e){}
+        // Sort by distance to user's place
+        if(place.lat&&place.lng){
+            matches.forEach(m=>{
+                if(m.lat&&m.lng){
+                    m.dist=Math.sqrt(Math.pow(m.lat-place.lat,2)+Math.pow(m.lng-place.lng,2));
+                }else{m.dist=999}
+            });
+            matches.sort((a,b)=>a.dist-b.dist);
         }
 
-        if(nearby.length){
-            const benchPlaces=nearby.slice(0,8).map(n=>({
-                osmId:n.osmId,
-                name:n.name,
-                score:Math.round((2.7+Math.random()*0.6)*10)/10
-            }));
+        // Dedupe by name
+        const seen=new Set();
+        matches=matches.filter(m=>{if(seen.has(m.name))return false;seen.add(m.name);return true});
+
+        if(matches.length){
             d.benchmarks.push({
                 forPlaceId:place.id,
                 forPlaceName:place.name,
                 type:place.type,
-                municipality:kommunName||'ditt område',
+                municipality:getMunicipality(place),
                 fetched:new Date().toISOString(),
-                places:benchPlaces
+                places:matches.slice(0,8).map(m=>({
+                    osmId:m.osmId,
+                    name:m.name,
+                    score:Math.round((2.7+Math.random()*0.6)*10)/10
+                }))
             });
             changed=true;
         }
-    }
+    });
     if(changed){sv(d);renderInsights()}
 }
 
