@@ -206,14 +206,22 @@
     </div>
 
     <div class="ob-step" id="ob2">
-        <div style="font-size:2.5rem;margin-bottom:10px">✨</div>
-        <h1>Namnge din AI</h1>
-        <p>Din AI lär känna dig, minns era samtal, och hjälper dig utvecklas. Vad vill du kalla den?</p>
-        <input type="text" id="ai-name-input" placeholder="t.ex. Luna, Nova, Eli..." maxlength="20">
+        <div style="font-size:2.5rem;margin-bottom:10px">👋</div>
+        <h1>Vad heter du?</h1>
+        <p>Så att din AI kan tilltala dig med namn.</p>
+        <input type="text" id="user-name-input" placeholder="Ditt namn..." maxlength="30">
         <button class="btn bp" onclick="obNext(3)">Nästa</button>
     </div>
 
     <div class="ob-step" id="ob3">
+        <div style="font-size:2.5rem;margin-bottom:10px">✨</div>
+        <h1>Namnge din AI</h1>
+        <p>Din AI lär känna dig, minns era samtal, och hjälper dig utvecklas. Vad vill du kalla den?</p>
+        <input type="text" id="ai-name-input" placeholder="t.ex. Luna, Nova, Eli..." maxlength="20">
+        <button class="btn bp" onclick="obNext(4)">Nästa</button>
+    </div>
+
+    <div class="ob-step" id="ob4">
         <h1>Välj personlighet</h1>
         <p>Hur vill du att <span id="ob-name-preview">din AI</span> ska vara?</p>
         <div class="personality-grid">
@@ -346,7 +354,7 @@
 // ===================================================================
 
 const SK='kf3';
-let D={checkins:[],xp:0,level:1,firstVisit:true,baseline:null,aiName:'Luna',personality:'warm',onboarded:null};
+let D={checkins:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null};
 let sok=false;try{localStorage.setItem('_','1');localStorage.removeItem('_');sok=true}catch(e){}
 function ld(){if(!sok)return D;try{const r=localStorage.getItem(SK);return r?JSON.parse(r):{...D}}catch(e){return{...D}}}
 function sv(d){D=d;if(sok)try{localStorage.setItem(SK,JSON.stringify(d))}catch(e){}}
@@ -405,7 +413,7 @@ let convState={active:false,round:0,maxRounds:5,transcript:[],fullText:'',stream
 
 function getAILines(cat){const d=ld();return PERS[d.personality||'warm'][cat]||PERS.warm[cat]}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
-function tpl(s){const d=ld();return s.replace(/\{name\}/g,d.aiName||'du')}
+function tpl(s){const d=ld();return s.replace(/\{name\}/g,d.userName||'du')}
 
 function setHomeAvatar(mood){
     const orb=document.getElementById('home-orb');if(!orb)return;
@@ -485,6 +493,13 @@ async function startConversation(){
         document.getElementById('conv-timer').textContent=`${m}:${s.toString().padStart(2,'0')}`;
     },1000);
 
+    // If user hasn't set their name yet, ask for it
+    if(!d.userName){
+        convState.askingName=true;
+        await aiMessage('Hej! Innan vi börjar — vad heter du?');
+        return;
+    }
+
     // Build greeting with memory
     let greeting=tpl(pick(getAILines('greet')));
     if(d.checkins.length>0){
@@ -519,6 +534,19 @@ function userSend(text){
 
 async function processUserResponse(text){
     if(!convState.active)return;
+
+    // Handle name collection
+    if(convState.askingName){
+        const name=text.replace(/[^a-zA-ZåäöÅÄÖéÉ\s-]/g,'').trim().split(/\s+/)[0];
+        if(name){
+            const d=ld();d.userName=name;sv(d);
+            convState.askingName=false;
+            let greeting=tpl(pick(getAILines('greet')));
+            await aiMessage(greeting);
+            return;
+        }
+    }
+
     convState.round++;
     const sentiment=analyze(text);
     convState.emotions.push(sentiment.emotion);
@@ -875,7 +903,7 @@ function go(p){
 
 // ===== ONBOARDING =====
 function obNext(step){
-    if(step===3){
+    if(step===4){
         const name=document.getElementById('ai-name-input').value.trim()||'Luna';
         document.getElementById('ob-name-preview').textContent=name;
     }
@@ -884,9 +912,10 @@ function obNext(step){
 }
 function selectPers(el){document.querySelectorAll('.pers-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel')}
 function finishOnboarding(){
+    const userName=document.getElementById('user-name-input').value.trim();
     const name=document.getElementById('ai-name-input').value.trim()||'Luna';
     const pers=document.querySelector('.pers-btn.sel')?.dataset.pers||'warm';
-    const d=ld();d.firstVisit=false;d.aiName=name;d.personality=pers;d.onboarded=new Date().toISOString();sv(d);
+    const d=ld();d.firstVisit=false;d.userName=userName;d.aiName=name;d.personality=pers;d.onboarded=new Date().toISOString();sv(d);
     document.getElementById('ob').classList.add('h');
     document.getElementById('app').style.display='';
     renderHome();
@@ -908,6 +937,16 @@ document.getElementById('end-conv-btn').addEventListener('click',endConversation
 document.getElementById('mic-btn').addEventListener('click',toggleListening);
 document.getElementById('send-btn').addEventListener('click',()=>{const v=document.getElementById('conv-text').value;if(v.trim())userSend(v)});
 document.getElementById('conv-text').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=e.target.value;if(v.trim())userSend(v)}});
+
+// ===== KEYBOARD SCROLL FIX (mobile) =====
+document.getElementById('conv-text').addEventListener('focus',()=>{
+    setTimeout(()=>{const a=document.getElementById('chat-area');if(a)a.scrollTop=a.scrollHeight},350);
+});
+if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',()=>{
+        const a=document.getElementById('chat-area');if(a)a.scrollTop=a.scrollHeight;
+    });
+}
 
 // ===== INIT =====
 // Load voices early
