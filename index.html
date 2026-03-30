@@ -300,6 +300,20 @@
     </div>
 
     <div class="ob-step" id="ob4">
+        <div style="font-size:2.5rem;margin-bottom:10px">👨‍👩‍👧‍👦</div>
+        <h1>Bjud in dina nära</h1>
+        <p>Moodly blir bättre tillsammans. Bjud in familj, vänner eller kollegor så ni kan följa välmåendet på era gemensamma platser.</p>
+        <div id="ob-invite-list" style="width:100%;max-width:300px;margin-bottom:16px"></div>
+        <div style="width:100%;max-width:300px;margin-bottom:8px">
+            <input type="text" id="ob-invite-name" placeholder="Namn (valfritt)" maxlength="30" style="width:100%;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:.95rem;text-align:center;outline:none;margin-bottom:8px">
+            <div class="pt-grid" id="ob-rel-types" style="margin-bottom:8px"></div>
+            <button class="btn ba" onclick="obInvite()" style="width:100%">📤 Skicka inbjudan</button>
+        </div>
+        <button class="btn bp" onclick="obNext(5)" style="max-width:280px;margin-top:8px">Nästa</button>
+        <button class="btn" onclick="obNext(5)" style="max-width:280px;background:none;color:var(--t2);font-size:.8rem;margin-top:4px">Hoppa över</button>
+    </div>
+
+    <div class="ob-step" id="ob5">
         <div style="font-size:2.5rem;margin-bottom:10px">✨</div>
         <h1>Klart!</h1>
         <p>Du kan börja checka in ditt mående direkt. Ju mer du loggar, desto bättre insikter.</p>
@@ -910,6 +924,11 @@ function obNext(step){
         renderObPlaces();
         setupPlaceSearch('ob-place-name','ac-drop-ob','ob-place-addr');
     }
+    if(step===4){
+        selectedRelType='partner';
+        renderRelTypeGrid('ob-rel-types');
+        renderObInvites();
+    }
 }
 
 function renderObPlaces(){
@@ -934,6 +953,60 @@ function obAddPlace(){
 }
 
 function obRemovePlace(i){obPlaces.splice(i,1);renderObPlaces()}
+
+// ===== ONBOARDING INVITE =====
+const REL_TYPES={partner:{icon:'💑',label:'Partner'},child:{icon:'👧',label:'Barn'},parent:{icon:'👨‍👦',label:'Förälder'},friend:{icon:'🧑‍🤝‍🧑',label:'Vän'},colleague:{icon:'💼',label:'Kollega'}};
+let selectedRelType='partner';
+let obInvites=[];
+
+function renderRelTypeGrid(containerId){
+    const el=document.getElementById(containerId);
+    el.innerHTML=Object.entries(REL_TYPES).map(([k,v])=>
+        `<div class="pt-btn${k===selectedRelType?' sel':''}" onclick="selectRelType('${k}','${containerId}')"><span class="ico">${v.icon}</span><span class="lbl">${v.label}</span></div>`
+    ).join('');
+}
+
+function selectRelType(type,containerId){
+    selectedRelType=type;
+    renderRelTypeGrid(containerId);
+}
+
+function renderObInvites(){
+    const el=document.getElementById('ob-invite-list');
+    if(!obInvites.length){el.innerHTML='';return}
+    el.innerHTML=obInvites.map((inv,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--c2);border-radius:8px;margin-bottom:6px;font-size:.84rem">
+        <span>${REL_TYPES[inv.rel]?.icon||'👤'}</span><span style="flex:1">${inv.name||REL_TYPES[inv.rel]?.label}</span><span style="color:var(--good);font-size:.75rem">✓ Skickad</span></div>`).join('');
+}
+
+async function obInvite(){
+    const name=document.getElementById('ob-invite-name').value.trim();
+    const relLabel=REL_TYPES[selectedRelType]?.label||'';
+    const userName=document.getElementById('user-name-input').value.trim()||'Någon';
+    const msg=`Hej${name?' '+name:''}! ${userName} vill att du testar Moodly — en app för att mäta ditt välmående kopplat till platser som skola, jobb och fritid. Prova här:`;
+    const url='https://guslinmarcus.github.io/kanslaflow/';
+
+    if(navigator.share){
+        try{
+            await navigator.share({title:'Prova Moodly',text:msg,url});
+            obInvites.push({name:name||relLabel,rel:selectedRelType});
+            renderObInvites();
+            document.getElementById('ob-invite-name').value='';
+            toast('Inbjudan skickad!');
+        }catch(e){if(e.name!=='AbortError')copyInviteLink(msg,url,name,relLabel)}
+    }else{
+        copyInviteLink(msg,url,name,relLabel);
+    }
+}
+
+function copyInviteLink(msg,url,name,relLabel){
+    const full=msg+' '+url;
+    navigator.clipboard.writeText(full).then(()=>{
+        obInvites.push({name:name||relLabel,rel:selectedRelType});
+        renderObInvites();
+        document.getElementById('ob-invite-name').value='';
+        toast('Länk kopierad — klistra in i valfri app!');
+    }).catch(()=>toast('Kunde inte kopiera'));
+}
 
 function finishOnboarding(){
     const userName=document.getElementById('user-name-input').value.trim();
