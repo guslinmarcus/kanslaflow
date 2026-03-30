@@ -5,1067 +5,887 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>KänslaFlow</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
-    <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;KänslaFlow&quot;,&quot;short_name&quot;:&quot;KänslaFlow&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230F0E17&quot;,&quot;theme_color&quot;:&quot;%236C5CE7&quot;}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#6C5CE7">
     <style>
-        :root {
-            --pri: #6C5CE7; --pri-l: #A29BFE; --pri-d: #5A4BD1;
-            --acc: #00CEC9; --acc-l: #81ECEC;
-            --bg: #0F0E17; --bg2: #1A1928; --bg3: #232240;
-            --txt: #FFFFFE; --txt2: #A7A9BE;
-            --ok: #00B894; --warn: #FDCB6E; --bad: #E17055;
-            --gold: #FFD700; --r: 16px; --rs: 10px;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; min-height:100dvh; overflow-x:hidden; }
-        button,label { font-family:inherit; }
+        :root{--p:#6C5CE7;--pl:#A29BFE;--pd:#5A4BD1;--a:#00CEC9;--al:#81ECEC;--bg:#0F0E17;--c1:#1A1928;--c2:#232240;--t:#FFFFFE;--t2:#A7A9BE;--ok:#00B894;--w:#FDCB6E;--bad:#E17055;--g:#FFD700;--r:16px;--rs:10px}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t);min-height:100dvh;overflow-x:hidden}
+        button,label,input{font-family:inherit}
 
-        /* ===== NAV BAR (bottom) ===== */
-        .navbar { position:fixed; bottom:0; left:0; right:0; background:var(--bg2); border-top:1px solid rgba(255,255,255,.06); display:flex; z-index:100; padding-bottom:env(safe-area-inset-bottom); }
-        .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; padding:8px 4px 6px; color:var(--txt2); font-size:.65rem; font-weight:600; cursor:pointer; transition:color .2s; gap:2px; }
-        .nav-item.active { color:var(--pri-l); }
-        .nav-item svg { width:22px; height:22px; fill:currentColor; }
-        .nav-item .badge { position:absolute; top:4px; right:calc(50% - 16px); width:8px; height:8px; background:var(--bad); border-radius:50%; }
+        /* NAV */
+        .nav{position:fixed;bottom:0;left:0;right:0;background:var(--c1);border-top:1px solid rgba(255,255,255,.05);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+        .ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;color:var(--t2);font-size:.62rem;font-weight:600;cursor:pointer;gap:2px;transition:color .2s}
+        .ni.on{color:var(--pl)}
+        .ni svg{width:22px;height:22px;fill:currentColor}
 
-        /* ===== PAGES ===== */
-        .page { display:none; padding:16px 16px 90px; max-width:500px; margin:0 auto; }
-        .page.active { display:block; animation:fadeUp .3s ease; }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        /* PAGES */
+        .pg{display:none;padding:16px 16px 88px;max-width:500px;margin:0 auto}
+        .pg.on{display:block;animation:fu .25s ease}
+        @keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-        /* ===== COMMON ===== */
-        .card { background:var(--bg2); border-radius:var(--r); padding:20px; margin-bottom:14px; border:1px solid rgba(255,255,255,.04); }
-        .card-title { font-size:.95rem; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-        .btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:14px; border:none; border-radius:var(--rs); font-size:1rem; font-weight:700; cursor:pointer; transition:all .2s; }
-        .btn-p { background:linear-gradient(135deg,var(--pri),var(--pri-d)); color:var(--txt); }
-        .btn-a { background:linear-gradient(135deg,var(--acc),var(--ok)); color:var(--bg); }
-        .btn-s { background:rgba(255,255,255,.07); color:var(--txt); }
-        .btn-g { background:linear-gradient(135deg,var(--gold),#FFA500); color:#000; }
-        .btn:active { transform:scale(.97); }
-        .btn:disabled { opacity:.4; pointer-events:none; }
-        .tag { display:inline-block; padding:4px 10px; border-radius:20px; font-size:.7rem; font-weight:600; background:rgba(108,92,231,.2); color:var(--pri-l); }
-        .divider { height:1px; background:rgba(255,255,255,.06); margin:16px 0; }
+        /* COMMON */
+        .cd{background:var(--c1);border-radius:var(--r);padding:18px;margin-bottom:12px;border:1px solid rgba(255,255,255,.04)}
+        .ct{font-size:.92rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+        .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:none;border-radius:var(--rs);font-size:.95rem;font-weight:700;cursor:pointer;transition:all .15s}
+        .bp{background:linear-gradient(135deg,var(--p),var(--pd));color:var(--t)}
+        .ba{background:linear-gradient(135deg,var(--a),var(--ok));color:var(--bg)}
+        .bs{background:rgba(255,255,255,.07);color:var(--t)}
+        .bg{background:linear-gradient(135deg,var(--g),#FFA500);color:#000}
+        .btn:active{transform:scale(.97)}
+        .btn:disabled{opacity:.35;pointer-events:none}
+        .tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:600;background:rgba(108,92,231,.18);color:var(--pl)}
+        .sr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+        .sb{background:rgba(255,255,255,.03);border-radius:var(--rs);padding:13px;text-align:center}
+        .sb .v{font-size:1.5rem;font-weight:800}
+        .sb .l{font-size:.68rem;color:var(--t2);margin-top:2px}
+        .sb .c{font-size:.68rem;font-weight:600;margin-top:2px}
+        .sb .c.up{color:var(--ok)}.sb .c.dn{color:var(--bad)}
 
-        /* ===== HOME PAGE ===== */
-        .home-header { text-align:center; padding:24px 0 8px; }
-        .home-header h1 { font-size:1.4rem; font-weight:800; }
-        .streak-bar { display:flex; align-items:center; justify-content:center; gap:6px; margin:12px 0; }
-        .streak-fire { font-size:1.4rem; }
-        .streak-num { font-size:1.6rem; font-weight:800; color:var(--gold); }
-        .streak-label { font-size:.8rem; color:var(--txt2); }
-        .streak-dots { display:flex; gap:4px; justify-content:center; margin:4px 0 16px; }
-        .streak-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:700; }
-        .streak-dot.done { background:var(--ok); color:#fff; }
-        .streak-dot.today { background:var(--pri); color:#fff; border:2px solid var(--pri-l); }
-        .streak-dot.future { background:rgba(255,255,255,.06); color:var(--txt2); }
+        /* ONBOARDING */
+        .ob{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;text-align:center}
+        .ob.h{display:none}
+        .ob-step{display:none;flex-direction:column;align-items:center;width:100%;max-width:320px;animation:fu .3s ease}
+        .ob-step.on{display:flex}
+        .ob h1{font-size:1.7rem;font-weight:800;margin-bottom:6px}
+        .ob p{color:var(--t2);line-height:1.5;font-size:.88rem;margin-bottom:20px}
+        .ob input[type=text]{width:100%;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:1.1rem;text-align:center;outline:none;margin-bottom:16px}
+        .ob input::placeholder{color:var(--t2)}
+        .personality-grid{display:flex;flex-direction:column;gap:8px;width:100%;margin-bottom:20px}
+        .pers-btn{padding:14px;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.08);border-radius:var(--rs);color:var(--t);text-align:left;cursor:pointer;transition:all .2s}
+        .pers-btn.sel{border-color:var(--p);background:rgba(108,92,231,.15)}
+        .pers-btn strong{display:block;font-size:.9rem;margin-bottom:2px}
+        .pers-btn span{font-size:.75rem;color:var(--t2)}
 
-        .prompt-card { background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(0,206,201,.1)); border:1px solid rgba(108,92,231,.2); border-radius:var(--r); padding:20px; text-align:center; margin-bottom:16px; }
-        .prompt-card .prompt-text { font-size:1.1rem; font-weight:600; line-height:1.5; margin-bottom:4px; }
-        .prompt-card .prompt-sub { font-size:.8rem; color:var(--txt2); }
+        /* AVATAR */
+        .avatar-wrap{position:relative;width:140px;height:140px;margin:0 auto}
+        .avatar-orb{width:140px;height:140px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;transition:all .5s}
+        .avatar-orb .glow{position:absolute;inset:-20px;border-radius:50%;filter:blur(25px);opacity:.4;transition:all .5s}
+        .avatar-orb .core{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;transition:all .5s}
+        .avatar-orb .eyes{display:flex;gap:18px;margin-bottom:6px}
+        .avatar-orb .eye{width:8px;height:8px;border-radius:50%;background:#fff;transition:all .3s}
+        .avatar-orb .mouth{width:20px;height:3px;border-radius:3px;background:rgba(255,255,255,.6);transition:all .3s}
+        /* States */
+        .avatar-orb.idle .core{animation:breathe 4s ease-in-out infinite}
+        .avatar-orb.listening .core{animation:listen-pulse 1.5s ease-in-out infinite}
+        .avatar-orb.speaking .core{animation:speak-pulse .6s ease-in-out infinite}
+        .avatar-orb.happy .mouth{width:24px;height:10px;border-bottom-left-radius:12px;border-bottom-right-radius:12px;border-top-left-radius:0;border-top-right-radius:0}
+        .avatar-orb.concerned .eye{height:6px}
+        .avatar-orb.thinking .eye:nth-child(1){transform:translateY(-2px)}
 
-        .record-btn-wrap { display:flex; justify-content:center; margin:20px 0; }
-        .record-btn { width:80px; height:80px; border-radius:50%; border:4px solid var(--pri); background:linear-gradient(135deg,var(--pri),var(--bad)); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; position:relative; }
-        .record-btn:active { transform:scale(.9); }
-        .record-btn.recording { animation:rec-pulse 1.5s infinite; border-color:var(--bad); }
-        .record-btn svg { width:28px; height:28px; fill:#fff; }
-        @keyframes rec-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(225,112,85,.4)} 50%{box-shadow:0 0 0 16px rgba(225,112,85,0)} }
+        @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+        @keyframes listen-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.9}}
+        @keyframes speak-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 
-        .record-status { text-align:center; color:var(--txt2); font-size:.85rem; margin:8px 0; }
-        .record-timer { font-size:1.8rem; font-weight:800; text-align:center; color:var(--txt); font-variant-numeric:tabular-nums; }
+        /* CONVERSATION VIEW */
+        .conv-view{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column}
+        .conv-view.on{display:flex}
+        .conv-top{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+        .conv-top .name{font-weight:700;font-size:.95rem}
+        .conv-top .timer{font-size:.8rem;color:var(--t2);font-variant-numeric:tabular-nums}
+        .conv-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative}
+        .conv-camera{position:absolute;top:12px;right:12px;width:80px;height:60px;border-radius:8px;overflow:hidden;border:2px solid rgba(255,255,255,.15)}
+        .conv-camera video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+        .conv-status{font-size:.82rem;color:var(--t2);margin-top:12px;min-height:20px}
+        .conv-transcript{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:40px 16px 12px;font-size:.82rem;color:rgba(255,255,255,.85);min-height:50px;max-height:120px;overflow-y:auto}
+        .conv-bottom{padding:16px;display:flex;justify-content:center;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+        .end-btn{padding:12px 32px;border:none;border-radius:30px;background:var(--bad);color:#fff;font-size:.9rem;font-weight:700;cursor:pointer}
+        .end-btn:active{transform:scale(.95)}
 
-        /* ===== VIDEO CONTAINER ===== */
-        .video-wrap { position:relative; width:100%; aspect-ratio:4/3; border-radius:var(--rs); overflow:hidden; background:#000; margin-bottom:12px; }
-        .video-wrap video { width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
-        .video-timer { position:absolute; top:10px; right:10px; background:rgba(0,0,0,.6); color:#fff; padding:4px 10px; border-radius:20px; font-size:.8rem; font-weight:700; font-variant-numeric:tabular-nums; }
-        .video-rec-dot { position:absolute; top:12px; left:12px; width:10px; height:10px; background:var(--bad); border-radius:50%; animation:blink 1s infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-        .transcript-live { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(0,0,0,.8)); padding:24px 12px 10px; font-size:.8rem; color:rgba(255,255,255,.9); min-height:40px; }
+        /* HOME */
+        .home-top{text-align:center;padding:20px 0 8px}
+        .home-top h1{font-size:1.3rem;font-weight:800}
+        .home-top .sub{font-size:.8rem;color:var(--t2);margin-top:2px}
+        .value-proof{background:linear-gradient(135deg,rgba(0,184,148,.12),rgba(108,92,231,.12));border:1px solid rgba(0,184,148,.2);border-radius:var(--r);padding:16px;margin:14px 0;text-align:center}
+        .value-proof .big{font-size:1.6rem;font-weight:800;color:var(--ok)}
+        .value-proof .desc{font-size:.82rem;color:var(--t2);margin-top:4px;line-height:1.4}
+        .streak-row{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px 0}
+        .streak-row .fire{font-size:1.3rem}
+        .streak-row .num{font-size:1.4rem;font-weight:800;color:var(--g)}
+        .streak-row .lbl{font-size:.78rem;color:var(--t2)}
+        .week-dots{display:flex;gap:4px;justify-content:center;margin:4px 0 14px}
+        .wd{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700}
+        .wd.done{background:var(--ok);color:#fff}
+        .wd.now{background:var(--p);color:#fff;border:2px solid var(--pl)}
+        .wd.fut{background:rgba(255,255,255,.05);color:var(--t2)}
 
-        /* ===== RESULT PAGE ===== */
-        .result-hero { text-align:center; padding:20px 0; }
-        .score-ring { width:140px; height:140px; border-radius:50%; margin:0 auto 16px; position:relative; display:flex; align-items:center; justify-content:center; flex-direction:column; }
-        .score-ring svg { position:absolute; top:0; left:0; width:100%; height:100%; transform:rotate(-90deg); }
-        .score-ring circle { fill:none; stroke-width:6; stroke-linecap:round; }
-        .score-ring .bg { stroke:rgba(255,255,255,.06); }
-        .score-ring .fg { transition:stroke-dashoffset 1.5s ease; }
-        .score-val { font-size:2.8rem; font-weight:800; line-height:1; z-index:1; }
-        .score-lbl { font-size:.75rem; color:var(--txt2); z-index:1; }
+        .start-conv-btn{width:100%;padding:18px;border:none;border-radius:var(--r);background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-size:1.05rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin:16px 0}
+        .start-conv-btn:active{transform:scale(.97)}
+        .start-conv-btn .orb-mini{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle,var(--pl),var(--p));display:flex;align-items:center;justify-content:center}
+        .start-conv-btn .orb-mini .dot{width:5px;height:5px;border-radius:50%;background:#fff;margin:0 2px}
 
-        .ai-reflection { background:linear-gradient(135deg,rgba(0,206,201,.1),rgba(108,92,231,.1)); border:1px solid rgba(0,206,201,.2); border-radius:var(--r); padding:16px; margin:16px 0; }
-        .ai-reflection h3 { font-size:.9rem; color:var(--acc-l); margin-bottom:6px; }
-        .ai-reflection p { font-size:.85rem; color:var(--txt2); line-height:1.6; }
+        /* RESULT */
+        .res-hero{text-align:center;padding:16px 0}
+        .score-ring{width:130px;height:130px;border-radius:50%;margin:0 auto 14px;position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column}
+        .score-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+        .score-ring circle{fill:none;stroke-width:5;stroke-linecap:round}
+        .score-ring .bg{stroke:rgba(255,255,255,.06)}
+        .score-ring .fg{transition:stroke-dashoffset 1.2s ease}
+        .score-ring .sv{font-size:2.5rem;font-weight:800;z-index:1}
+        .score-ring .sl{font-size:.72rem;color:var(--t2);z-index:1}
+        .ai-ref{background:linear-gradient(135deg,rgba(0,206,201,.1),rgba(108,92,231,.1));border:1px solid rgba(0,206,201,.18);border-radius:var(--r);padding:15px;margin:14px 0}
+        .ai-ref h3{font-size:.88rem;color:var(--al);margin-bottom:5px}
+        .ai-ref p{font-size:.82rem;color:var(--t2);line-height:1.55}
+        .ts-box{background:rgba(255,255,255,.03);border-radius:var(--rs);padding:12px;margin:10px 0;max-height:140px;overflow-y:auto}
+        .ts-box p{font-size:.82rem;line-height:1.55;color:var(--t2);font-style:italic}
+        .cats{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+        .share-cd{background:linear-gradient(135deg,var(--pd),#2D1B69);border-radius:var(--r);padding:20px;text-align:center;margin:12px 0}
+        .share-cd h3{font-size:.95rem;margin-bottom:10px}
+        .share-row{display:flex;justify-content:center;gap:20px;margin-bottom:12px}
+        .share-i .n{font-size:1.3rem;font-weight:800}
+        .share-i .l{font-size:.62rem;color:var(--t2)}
 
-        .transcript-box { background:rgba(255,255,255,.03); border-radius:var(--rs); padding:14px; margin:12px 0; max-height:150px; overflow-y:auto; }
-        .transcript-box p { font-size:.85rem; line-height:1.6; color:var(--txt2); font-style:italic; }
-        .transcript-box .timestamp { font-size:.7rem; color:var(--pri-l); margin-right:6px; }
+        /* DIARY */
+        .de{background:var(--c1);border-radius:var(--r);padding:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,.04);cursor:pointer}
+        .de:active{background:var(--c2)}
+        .de-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+        .de-d{font-size:.72rem;color:var(--t2)}
+        .de-s{font-size:1.05rem;font-weight:800}
+        .de-x{font-size:.8rem;color:var(--t2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .de-t{display:flex;gap:4px;margin-top:6px}
+        .d-search{width:100%;padding:10px 13px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:var(--rs);color:var(--t);font-size:.88rem;outline:none;margin-bottom:12px}
+        .d-search::placeholder{color:var(--t2)}
 
-        .categories { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
-
-        /* ===== DIARY PAGE ===== */
-        .diary-entry { background:var(--bg2); border-radius:var(--r); padding:16px; margin-bottom:12px; border:1px solid rgba(255,255,255,.04); cursor:pointer; transition:background .2s; }
-        .diary-entry:active { background:var(--bg3); }
-        .diary-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-        .diary-date { font-size:.75rem; color:var(--txt2); }
-        .diary-score { font-size:1.1rem; font-weight:800; }
-        .diary-excerpt { font-size:.82rem; color:var(--txt2); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-        .diary-tags { display:flex; gap:4px; margin-top:8px; }
-        .diary-search { width:100%; padding:10px 14px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:var(--rs); color:var(--txt); font-size:.9rem; outline:none; margin-bottom:14px; }
-        .diary-search::placeholder { color:var(--txt2); }
-
-        /* ===== PROGRESS PAGE ===== */
-        .level-bar { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
-        .level-badge { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:800; flex-shrink:0; }
-        .level-info { flex:1; }
-        .level-info .level-name { font-size:.9rem; font-weight:700; }
-        .level-info .xp-text { font-size:.75rem; color:var(--txt2); margin-top:2px; }
-        .xp-bar { width:100%; height:6px; background:rgba(255,255,255,.08); border-radius:3px; margin-top:4px; overflow:hidden; }
-        .xp-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--pri),var(--acc)); transition:width .5s; }
-
-        .stat-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-        .stat-box { background:rgba(255,255,255,.03); border-radius:var(--rs); padding:14px; text-align:center; }
-        .stat-box .val { font-size:1.5rem; font-weight:800; }
-        .stat-box .lbl { font-size:.7rem; color:var(--txt2); margin-top:2px; }
-        .stat-box .chg { font-size:.7rem; font-weight:600; margin-top:2px; }
-        .stat-box .chg.up { color:var(--ok); }
-        .stat-box .chg.down { color:var(--bad); }
-
-        .rank-card { background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,165,0,.05)); border:1px solid rgba(255,215,0,.2); border-radius:var(--r); padding:16px; text-align:center; margin-bottom:14px; }
-        .rank-pct { font-size:2.2rem; font-weight:800; color:var(--gold); }
-        .rank-label { font-size:.85rem; color:var(--txt2); margin-top:4px; }
-        .rank-bar-wrap { margin:12px 0; height:8px; background:rgba(255,255,255,.08); border-radius:4px; position:relative; }
-        .rank-bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--bad),var(--warn),var(--ok)); }
-        .rank-bar-marker { position:absolute; top:-4px; width:16px; height:16px; background:var(--gold); border:2px solid #fff; border-radius:50%; transform:translateX(-50%); }
-
-        .chart-wrap { width:100%; height:160px; position:relative; }
-        .chart-wrap canvas { width:100%; height:100%; }
-
-        /* ===== SHARE CARD ===== */
-        .share-card { background:linear-gradient(135deg,var(--pri-d),#2D1B69); border-radius:var(--r); padding:24px 20px; text-align:center; }
-        .share-card h3 { font-size:1rem; margin-bottom:4px; }
-        .share-card p { font-size:.8rem; color:var(--pri-l); margin-bottom:14px; }
-        .share-stats { display:flex; justify-content:center; gap:24px; margin-bottom:14px; }
-        .share-stat .num { font-size:1.4rem; font-weight:800; }
-        .share-stat .lbl { font-size:.65rem; color:var(--txt2); }
-
-        /* ===== ONBOARDING ===== */
-        .onboarding { position:fixed; inset:0; background:var(--bg); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; text-align:center; }
-        .onboarding.hidden { display:none; }
-        .ob-logo { font-size:3.5rem; margin-bottom:16px; }
-        .ob-title { font-size:1.8rem; font-weight:800; margin-bottom:8px; }
-        .ob-sub { color:var(--txt2); max-width:280px; line-height:1.5; font-size:.9rem; margin-bottom:28px; }
-        .ob-features { text-align:left; max-width:260px; margin-bottom:28px; }
-        .ob-feat { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:.85rem; color:var(--txt2); }
-        .ob-feat span:first-child { font-size:1.1rem; }
-        .ob-social { font-size:.75rem; color:var(--txt2); margin-top:16px; }
-        .ob-social strong { color:var(--acc); }
-
-        /* ===== MODAL ===== */
-        .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:200; align-items:center; justify-content:center; padding:20px; }
-        .modal-bg.open { display:flex; }
-        .modal { background:var(--bg2); border-radius:var(--r); padding:28px 20px; max-width:380px; width:100%; text-align:center; animation:modalPop .3s ease; }
-        @keyframes modalPop { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
-
-        /* ===== TOAST ===== */
-        .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:var(--bg2); border:1px solid rgba(255,255,255,.1); color:var(--txt); padding:10px 20px; border-radius:var(--rs); font-size:.82rem; z-index:150; opacity:0; transition:opacity .3s; pointer-events:none; }
-        .toast.show { opacity:1; }
-
-        ::-webkit-scrollbar { width:3px; }
-        ::-webkit-scrollbar-thumb { background:var(--pri-d); border-radius:3px; }
+        /* PROGRESS */
+        .lvl-bar{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+        .lvl-b{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;flex-shrink:0}
+        .lvl-i{flex:1}
+        .lvl-i .n{font-size:.88rem;font-weight:700}
+        .lvl-i .x{font-size:.72rem;color:var(--t2);margin-top:2px}
+        .xp-bar{width:100%;height:5px;background:rgba(255,255,255,.07);border-radius:3px;margin-top:4px;overflow:hidden}
+        .xp-f{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--p),var(--a));transition:width .5s}
+        .rank-cd{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,165,0,.04));border:1px solid rgba(255,215,0,.18);border-radius:var(--r);padding:15px;text-align:center;margin-bottom:12px}
+        .rank-p{font-size:2rem;font-weight:800;color:var(--g)}
+        .rank-l{font-size:.82rem;color:var(--t2);margin-top:3px}
+        .rank-bw{margin:10px 0;height:7px;background:rgba(255,255,255,.07);border-radius:4px;position:relative}
+        .rank-bf{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--bad),var(--w),var(--ok))}
+        .rank-m{position:absolute;top:-4px;width:14px;height:14px;background:var(--g);border:2px solid #fff;border-radius:50%;transform:translateX(-50%)}
+        .ch-w{width:100%;height:150px;position:relative}
+        .ch-w canvas{width:100%;height:100%}
+        .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:var(--c1);border:1px solid rgba(255,255,255,.1);color:var(--t);padding:10px 20px;border-radius:var(--rs);font-size:.8rem;z-index:150;opacity:0;transition:opacity .3s;pointer-events:none}
+        .toast.show{opacity:1}
+        ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--pd);border-radius:3px}
     </style>
 </head>
 <body>
 
-<!-- ===== ONBOARDING ===== -->
-<div class="onboarding" id="onboarding">
-    <div class="ob-logo">🧠</div>
-    <div class="ob-title">KänslaFlow</div>
-    <p class="ob-sub">Din privata AI-videodagbok. Berätta om din dag — AI:n lyssnar, förstår och hjälper dig utvecklas.</p>
-    <div class="ob-features">
-        <div class="ob-feat"><span>🎬</span> 60 sekunders videodagbok per dag</div>
-        <div class="ob-feat"><span>🧠</span> AI analyserar dina känslor i realtid</div>
-        <div class="ob-feat"><span>📈</span> Följ din utveckling och nivåer</div>
-        <div class="ob-feat"><span>🏆</span> Se hur du förbättras mot din baseline</div>
-        <div class="ob-feat"><span>🔒</span> All data privat — du äger allt</div>
+<!-- ONBOARDING -->
+<div class="ob" id="ob">
+    <div class="ob-step on" id="ob1">
+        <div style="font-size:3.2rem;margin-bottom:14px">🧠</div>
+        <h1>KänslaFlow</h1>
+        <p>Din personliga AI-kompis som hjälper dig förstå och förbättra ditt välmående — genom riktiga samtal.</p>
+        <div style="text-align:left;max-width:260px;margin-bottom:24px">
+            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>💬</span> Prata naturligt — AI:n lyssnar och ställer frågor</div>
+            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📈</span> Bevisad förbättring av ditt välmående</div>
+            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔒</span> Privat och GDPR-säkert</div>
+        </div>
+        <button class="btn bp" onclick="obNext(2)" style="max-width:280px">Kom igång — 30 sekunder</button>
+        <p style="font-size:.72rem;color:var(--t2);margin-top:14px">Redan <strong style="color:var(--a)">2 847</strong> personer mår bättre med KänslaFlow</p>
     </div>
-    <button class="btn btn-p" id="btn-ob-start" style="max-width:280px;">Starta din resa</button>
-    <p class="ob-social">Redan <strong>2 847</strong> personer mår bättre med KänslaFlow</p>
+
+    <div class="ob-step" id="ob2">
+        <div style="font-size:2.5rem;margin-bottom:10px">✨</div>
+        <h1>Namnge din AI</h1>
+        <p>Din AI lär känna dig, minns era samtal, och hjälper dig utvecklas. Vad vill du kalla den?</p>
+        <input type="text" id="ai-name-input" placeholder="t.ex. Luna, Nova, Eli..." maxlength="20">
+        <button class="btn bp" onclick="obNext(3)">Nästa</button>
+    </div>
+
+    <div class="ob-step" id="ob3">
+        <h1>Välj personlighet</h1>
+        <p>Hur vill du att <span id="ob-name-preview">din AI</span> ska vara?</p>
+        <div class="personality-grid">
+            <div class="pers-btn sel" data-pers="warm" onclick="selectPers(this)">
+                <strong>🤗 Varm & empatisk</strong>
+                <span>Lyssnar, validerar och stöttar. Som en nära vän.</span>
+            </div>
+            <div class="pers-btn" data-pers="direct" onclick="selectPers(this)">
+                <strong>💪 Direkt & ärlig</strong>
+                <span>Rakt på sak. Utmanar dig att växa.</span>
+            </div>
+            <div class="pers-btn" data-pers="coach" onclick="selectPers(this)">
+                <strong>🎯 Coachande & motiverande</strong>
+                <span>Målfokuserad. Hjälper dig nå din potential.</span>
+            </div>
+        </div>
+        <button class="btn ba" onclick="finishOnboarding()">Starta din resa</button>
+    </div>
 </div>
 
-<!-- ===== APP ===== -->
-<div id="app" style="display:none;">
+<!-- CONVERSATION VIEW -->
+<div class="conv-view" id="conv-view">
+    <div class="conv-top">
+        <span class="name" id="conv-name"></span>
+        <span class="timer" id="conv-timer">0:00</span>
+    </div>
+    <div class="conv-center">
+        <div class="conv-camera" id="conv-camera"><video id="conv-vid" autoplay playsinline muted></video></div>
+        <div class="avatar-wrap">
+            <div class="avatar-orb idle" id="conv-avatar">
+                <div class="glow" id="avatar-glow"></div>
+                <div class="core" id="avatar-core">
+                    <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+                    <div class="mouth"></div>
+                </div>
+            </div>
+        </div>
+        <div class="conv-status" id="conv-status"></div>
+        <div class="conv-transcript" id="conv-transcript"></div>
+    </div>
+    <div class="conv-bottom">
+        <button class="end-btn" id="end-conv-btn">Avsluta samtal</button>
+    </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
 
     <!-- HOME -->
-    <div class="page active" id="page-home">
-        <div class="home-header">
-            <h1>KänslaFlow</h1>
-        </div>
-        <div class="streak-bar">
-            <span class="streak-fire">🔥</span>
-            <span class="streak-num" id="streak-num">0</span>
-            <span class="streak-label">dagars streak</span>
-        </div>
-        <div class="streak-dots" id="streak-dots"></div>
-
-        <div class="prompt-card">
-            <div class="prompt-text" id="daily-prompt"></div>
-            <div class="prompt-sub">Dagens reflektion</div>
+    <div class="pg on" id="pg-home">
+        <div class="home-top">
+            <h1 id="home-greeting"></h1>
+            <div class="sub" id="home-sub"></div>
         </div>
 
-        <div class="video-wrap" id="video-wrap" style="display:none;">
-            <video id="vid-feed" autoplay playsinline muted></video>
-            <div class="video-rec-dot" id="rec-dot" style="display:none;"></div>
-            <div class="video-timer" id="vid-timer">1:00</div>
-            <div class="transcript-live" id="transcript-live"></div>
+        <div class="value-proof" id="value-proof" style="display:none">
+            <div class="big" id="vp-big"></div>
+            <div class="desc" id="vp-desc"></div>
         </div>
 
-        <div class="record-btn-wrap">
-            <div class="record-btn" id="rec-btn">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>
+        <div class="streak-row">
+            <span class="fire">🔥</span>
+            <span class="num" id="s-num">0</span>
+            <span class="lbl">dagars streak</span>
+        </div>
+        <div class="week-dots" id="w-dots"></div>
+
+        <div id="home-avatar" style="margin:16px 0">
+            <div class="avatar-wrap">
+                <div class="avatar-orb idle" id="home-orb">
+                    <div class="glow" id="home-glow"></div>
+                    <div class="core">
+                        <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+                        <div class="mouth"></div>
+                    </div>
+                </div>
             </div>
+            <div style="text-align:center;margin-top:8px;font-size:.82rem;color:var(--t2)" id="home-ai-msg"></div>
         </div>
-        <div class="record-status" id="rec-status">Tryck för att spela in</div>
-        <div class="record-timer" id="rec-timer-big"></div>
 
-        <div id="quick-stats" style="margin-top:16px;"></div>
+        <button class="start-conv-btn" id="start-conv-btn">
+            <div class="orb-mini"><div class="dot"></div><div class="dot"></div></div>
+            <span>Starta samtal</span>
+        </button>
+
+        <div id="home-today" style="margin-top:12px"></div>
     </div>
 
-    <!-- RESULT (shown after recording) -->
-    <div class="page" id="page-result">
-        <div class="result-hero">
-            <div class="score-ring" id="score-ring">
-                <svg viewBox="0 0 140 140">
-                    <circle class="bg" cx="70" cy="70" r="62"/>
-                    <circle class="fg" id="score-arc" cx="70" cy="70" r="62" stroke-dasharray="389.6" stroke-dashoffset="389.6"/>
-                </svg>
-                <span class="score-val" id="score-val">—</span>
-                <span class="score-lbl">KänslaScore</span>
-            </div>
-            <div id="result-emotion" style="font-size:1.2rem;font-weight:700;"></div>
-            <div id="result-xp" style="font-size:.8rem;color:var(--gold);margin-top:4px;"></div>
+    <!-- RESULT -->
+    <div class="pg" id="pg-result">
+        <div class="res-hero">
+            <div class="score-ring"><svg viewBox="0 0 130 130"><circle class="bg" cx="65" cy="65" r="58"/><circle class="fg" id="s-arc" cx="65" cy="65" r="58" stroke-dasharray="364.4" stroke-dashoffset="364.4"/></svg><span class="sv" id="s-val">—</span><span class="sl">KänslaScore</span></div>
+            <div id="r-emo" style="font-size:1.1rem;font-weight:700"></div>
+            <div id="r-xp" style="font-size:.78rem;color:var(--g);margin-top:3px"></div>
         </div>
-
-        <div class="ai-reflection" id="ai-reflection">
-            <h3>🧠 AI-reflektion</h3>
-            <p id="ai-text"></p>
-        </div>
-
-        <div class="card">
-            <div class="card-title">📝 Transkription</div>
-            <div class="transcript-box" id="transcript-full"><p></p></div>
-            <div class="categories" id="result-cats"></div>
-        </div>
-
-        <div class="card" id="intervention-card">
-            <div class="card-title" id="interv-title"></div>
-            <p id="interv-text" style="font-size:.85rem;color:var(--txt2);line-height:1.5;"></p>
-        </div>
-
-        <div class="share-card">
-            <h3>Dela din framgång</h3>
-            <p>Visa vänner hur du utvecklas</p>
-            <div class="share-stats">
-                <div class="share-stat"><div class="num" id="share-score">—</div><div class="lbl">KänslaScore</div></div>
-                <div class="share-stat"><div class="num" id="share-streak">—</div><div class="lbl">Dagars streak</div></div>
-                <div class="share-stat"><div class="num" id="share-level">—</div><div class="lbl">Nivå</div></div>
-            </div>
-            <button class="btn btn-g" onclick="shareResult()">Dela med vänner</button>
-        </div>
-
-        <button class="btn btn-s" onclick="navTo('home')" style="margin-top:8px;">Tillbaka</button>
+        <div class="ai-ref"><h3 id="r-ref-title"></h3><p id="r-ref-text"></p></div>
+        <div class="cd"><div class="ct">📝 Sammanfattning</div><div class="ts-box"><p id="r-summary"></p></div><div class="cats" id="r-cats"></div></div>
+        <div class="cd" id="r-interv"><div class="ct" id="r-interv-t"></div><p id="r-interv-p" style="font-size:.82rem;color:var(--t2);line-height:1.5"></p></div>
+        <div class="cd" id="r-vproof" style="display:none"><div class="ct">📈 Din utveckling</div><p id="r-vp-text" style="font-size:.82rem;color:var(--t2);line-height:1.5"></p></div>
+        <div class="share-cd"><h3>Dela din framgång</h3><div class="share-row"><div class="share-i"><div class="n" id="sh-s">—</div><div class="l">Score</div></div><div class="share-i"><div class="n" id="sh-st">—</div><div class="l">Streak</div></div><div class="share-i"><div class="n" id="sh-l">—</div><div class="l">Nivå</div></div></div><button class="btn bg" onclick="doShare()">Dela med vänner</button></div>
+        <button class="btn bs" onclick="go('home')" style="margin-top:6px">Tillbaka</button>
     </div>
 
     <!-- DIARY -->
-    <div class="page" id="page-diary">
-        <h2 style="font-size:1.2rem;margin-bottom:14px;">📖 Din dagbok</h2>
-        <input class="diary-search" id="diary-search" placeholder="Sök i dina reflektioner...">
-        <div id="diary-list"></div>
+    <div class="pg" id="pg-diary">
+        <h2 style="font-size:1.15rem;margin-bottom:12px">📖 Din dagbok</h2>
+        <input class="d-search" id="d-search" placeholder="Sök i dina reflektioner...">
+        <div id="d-list"></div>
     </div>
 
     <!-- PROGRESS -->
-    <div class="page" id="page-progress">
-        <h2 style="font-size:1.2rem;margin-bottom:14px;">📈 Din utveckling</h2>
-
-        <div class="card">
-            <div class="level-bar" id="level-bar"></div>
-        </div>
-
-        <div class="rank-card" id="rank-card">
-            <div style="font-size:.85rem;color:var(--txt2);margin-bottom:4px;">Din förbättring vs. community</div>
-            <div class="rank-pct" id="rank-pct">—</div>
-            <div class="rank-label" id="rank-label"></div>
-            <div class="rank-bar-wrap">
-                <div class="rank-bar-fill" style="width:100%;"></div>
-                <div class="rank-bar-marker" id="rank-marker" style="left:50%;"></div>
-            </div>
-        </div>
-
-        <div class="stat-row" id="stat-row"></div>
-
-        <div class="card">
-            <div class="card-title">📈 Trend (14 dagar)</div>
-            <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
-        </div>
-
-        <div class="card" id="patterns-card">
-            <div class="card-title">🔍 Mönster AI hittat</div>
-            <div id="patterns-list"></div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">📋 Exportera data</div>
-            <button class="btn btn-s" onclick="exportData()">Ladda ner (JSON)</button>
-        </div>
+    <div class="pg" id="pg-progress">
+        <h2 style="font-size:1.15rem;margin-bottom:12px">📈 Din utveckling</h2>
+        <div class="cd"><div class="lvl-bar" id="lvl-bar"></div></div>
+        <div class="rank-cd" id="rank-cd"><div style="font-size:.82rem;color:var(--t2);margin-bottom:3px">Din förbättring vs. community</div><div class="rank-p" id="rk-p">—</div><div class="rank-l" id="rk-l"></div><div class="rank-bw"><div class="rank-bf" style="width:100%"></div><div class="rank-m" id="rk-m" style="left:50%"></div></div></div>
+        <div class="sr" id="st-row"></div>
+        <div class="cd"><div class="ct">📈 Trend</div><div class="ch-w"><canvas id="t-chart"></canvas></div></div>
+        <div class="cd"><div class="ct">🔍 Mönster</div><div id="pat-list"></div></div>
+        <div class="cd"><button class="btn bs" onclick="exportData()">📋 Exportera data (JSON)</button></div>
     </div>
 
-    <!-- NAV -->
-    <nav class="navbar">
-        <div class="nav-item active" data-page="home">
-            <svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg>
-            Hem
-        </div>
-        <div class="nav-item" data-page="diary">
-            <svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-1 5H7V5h10v2z"/></svg>
-            Dagbok
-        </div>
-        <div class="nav-item" data-page="progress">
-            <svg viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-3h2v11H7zm4-3h2v14h-2zm4-3h2v17h-2zm4-2h2v19h-2z"/></svg>
-            Framsteg
-        </div>
+    <nav class="nav">
+        <div class="ni on" data-p="home"><svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg>Hem</div>
+        <div class="ni" data-p="diary"><svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-1 5H7V5h10v2z"/></svg>Dagbok</div>
+        <div class="ni" data-p="progress"><svg viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-3h2v11H7zm4-3h2v14h-2zm4-3h2v17h-2zm4-2h2v19h-2z"/></svg>Framsteg</div>
     </nav>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ===================================================================
-// KänslaFlow v2 — Video Diary + Growth Engine
+// KänslaFlow v3 — AI Conversation Companion
 // ===================================================================
 
-// ===== STORAGE =====
-const SK = 'kf2_data';
-let mem = { checkins:[], xp:0, level:1, firstVisit:true, baselineScore:null, onboardedAt:null };
-let storageOK = false;
-try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); storageOK = true; } catch(e) {}
+const SK='kf3';
+let D={checkins:[],xp:0,level:1,firstVisit:true,baseline:null,aiName:'Luna',personality:'warm',onboarded:null};
+let sok=false;try{localStorage.setItem('_','1');localStorage.removeItem('_');sok=true}catch(e){}
+function ld(){if(!sok)return D;try{const r=localStorage.getItem(SK);return r?JSON.parse(r):{...D}}catch(e){return{...D}}}
+function sv(d){D=d;if(sok)try{localStorage.setItem(SK,JSON.stringify(d))}catch(e){}}
 
-function load() {
-    if (!storageOK) return mem;
-    try { const d = localStorage.getItem(SK); return d ? JSON.parse(d) : mem; } catch(e) { return mem; }
-}
-function save(d) { if (storageOK) try { localStorage.setItem(SK, JSON.stringify(d)); } catch(e) {} mem = d; }
-function db() { return load(); }
+// ===== SENTIMENT =====
+const EMO={glad:{w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','awesome','nice'],v:.85},lugn:{w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok'],v:.65},ledsen:{w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt'],v:.25},stressad:{w:['stressad','pressad','överväldigad','kaos','panik','deadline','mycket','hinner inte','sliten','utbränd','utmattad','nervös'],v:.3},orolig:{w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','grubblar'],v:.28},arg:{w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd'],v:.2},trott:{w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg'],v:.35}};
+const CATS={jobb:['jobb','jobbet','arbete','kontor','chef','möte','möten','kolleg','projekt','deadline','kund'],relationer:['familj','partner','sambo','kompis','vän','vänner','barn','mamma','pappa','relation'],hälsa:['träna','gym','springa','yoga','sömn','sov','sjuk','ont','energi','mat'],fritid:['hobby','spel','film','serie','bok','musik','natur','promenad','resa']};
 
-// ===== PROMPTS =====
-const PROMPTS = [
-    "Berätta om din dag — vad har tagit mest energi?",
-    "Vad fick dig att le idag?",
-    "Vad oroar dig mest just nu?",
-    "Om du kunde ändra en sak idag — vad hade det varit?",
-    "Berätta om ett ögonblick idag som betydde något",
-    "Hur har din energi varit idag, från morgon till nu?",
-    "Vad är du mest tacksam för just nu?",
-    "Hur har dina relationer påverkat dig idag?",
-    "Vad har stressat dig mest den senaste tiden?",
-    "Berätta om något du lärt dig om dig själv nyligen",
-    "Vad ser du fram emot just nu?",
-    "Hur har du tagit hand om dig själv idag?",
-    "Om din dag var en film — vad var höjdpunkten?",
-    "Vad behöver du just nu som du inte har?",
-];
-function todaysPrompt() {
-    const day = Math.floor(Date.now() / 86400000);
-    return PROMPTS[day % PROMPTS.length];
+function analyze(txt){
+    if(!txt||!txt.trim())return{emotion:'neutral',score:50,conf:0,cats:['allmänt']};
+    const l=txt.toLowerCase();let sc={},tot=0;
+    for(const[e,d]of Object.entries(EMO)){let h=0;for(const w of d.w)if(l.includes(w))h++;sc[e]=h;tot+=h}
+    let dom='neutral',mx=0;for(const[e,h]of Object.entries(sc))if(h>mx){mx=h;dom=e}
+    const v=tot>0?(EMO[dom]?.v??.5):.5;
+    const cats=[];for(const[c,ws]of Object.entries(CATS))if(ws.some(w=>l.includes(w)))cats.push(c);
+    if(!cats.length)cats.push('allmänt');
+    return{emotion:dom,score:Math.round(v*100),conf:Math.min(tot/3,1),cats};
 }
 
-// ===== SWEDISH SENTIMENT =====
-const EMO = {
-    glad:    { w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','le','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','kramade'], v:.85 },
-    lugn:    { w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok','ganska bra'], v:.65 },
-    ledsen:  { w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt'], v:.25 },
-    stressad:{ w:['stressad','pressad','överväldigad','kaos','panik','deadline','mycket','hinner inte','sliten','utbränd','utmattad','nervös','jäkta','rushing','hundra saker'], v:.3 },
-    orolig:  { w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','klump','gnager','grubblar','ältande'], v:.28 },
-    arg:     { w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd','hatjar','jävla','fan'], v:.2 },
-    trott:   { w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg','dålig sömn','sliten','gäspar'], v:.35 },
+// ===== LEVELS =====
+const LVLS=[{l:1,n:'Nybörjare',xp:0,c:'var(--t2)'},{l:2,n:'Reflekterare',xp:50,c:'var(--a)'},{l:3,n:'Medveten',xp:150,c:'var(--pl)'},{l:4,n:'Utforskare',xp:350,c:'var(--ok)'},{l:5,n:'Insiktsfull',xp:600,c:'var(--w)'},{l:6,n:'Emotionell atlet',xp:1000,c:'var(--g)'},{l:7,n:'KänsloMästare',xp:1500,c:'#FF6B6B'}];
+function getLvl(xp){let r=LVLS[0];for(const l of LVLS)if(xp>=l.xp)r=l;return r}
+function getNext(xp){for(const l of LVLS)if(xp<l.xp)return l;return null}
+function calcStreak(ci){if(!ci.length)return 0;const ds=new Set(ci.map(c=>new Date(c.ts).toDateString()));let s=0,d=new Date();while(ds.has(d.toDateString())){s++;d.setDate(d.getDate()-1)}return s}
+function todayDone(ci){return ci.some(c=>new Date(c.ts).toDateString()===new Date().toDateString())}
+
+// ===== CONVERSATION ENGINE =====
+const PERS={
+    warm:{
+        greet:['Hej {name}! Vad fint att du tar dig tid. Hur har din dag varit?','Hej {name}! Jag är här för dig. Berätta, hur mår du just nu?','Välkommen tillbaka {name}! Hur känns det idag?'],
+        pos:['Vad härligt att höra! Vad var det bästa ögonblicket?','Det låter riktigt bra! Vad tror du bidrog till den känslan?','Så fint! Berätta mer om vad som gör dig glad.'],
+        neg:['Jag hör dig. Det låter som en tuff dag. Vad har tyngt dig mest?','Tack för att du delar det. Det tar mod. Vad behöver du just nu?','Jag förstår att det känns tungt. Vill du berätta mer om vad som hänt?'],
+        neut:['Berätta lite mer — vad har tagit mest plats i dina tankar idag?','Hur har energin varit under dagen?','Vad har du gjort idag som betydde något för dig?'],
+        deep:['Hur påverkar det dig på insidan?','Vad tror du att du behöver för att det ska bli bättre?','Om du kunde ändra en sak just nu — vad hade det varit?'],
+        close:['Tack för att du pratade med mig {name}. Jag finns här imorgon också. Ta hand om dig. ❤️','Det var fint att höra om din dag {name}. Kom ihåg — varje dag du reflekterar gör skillnad. Vi ses!','Tack {name}. Du gör verkligen framsteg genom att prata om dina känslor. Sov gott!']
+    },
+    direct:{
+        greet:['Hej {name}. Rakt på — hur har dagen varit?','Hej! Ge mig en snabb statusuppdatering på hur du mår.','Okej {name}, ny dag. Hur ligger du till känslomässigt?'],
+        pos:['Bra. Vad drev det positiva?','Nice. Vad var nyckeln till den känslan?','Starkt. Vad ska du göra för att behålla den energin?'],
+        neg:['Okej, det suger. Men vad kan du faktiskt påverka i situationen?','Rak fråga: vad hade du gjort annorlunda idag?','Det låter tufft. Vad är en konkret sak du kan göra imorgon?'],
+        neut:['Ge mig mer. Vad har du egentligen känt under ytan?','Okej neutralt — men vad vill du att imorgon ska se ut?','Fair enough. Vad har du prioriterat idag?'],
+        deep:['Vad är det verkliga problemet här?','Om du var brutalt ärlig med dig själv — vad behöver förändras?','Vad håller dig tillbaka?'],
+        close:['Bra pratat {name}. En dag i taget. Ses imorgon.','Du vet var jag finns {name}. Keep going.','Stark session. Kom ihåg vad du sa idag — det var viktigt.']
+    },
+    coach:{
+        greet:['Hej {name}! Redo att reflektera och växa? Hur har dagen sett ut?','Välkommen {name}! Varje samtal är ett steg framåt. Hur mår du?','Hej {name}! Låt oss kolla in — hur har du presterat idag, känslomässigt?'],
+        pos:['Fantastiskt! Det är precis den typen av dagar vi bygger fler av. Vad var framgångsfaktorn?','Starkt! Hur kan du ta med den känslan in i morgondagen?','Exakt så bygger du momentum! Vad triggade det positiva?'],
+        neg:['Tuffa dagar är en del av resan. Vad kan du lära dig av idag?','Motgångar bygger resiliens. Vad är en sak du kan göra annorlunda imorgon?','Jag hör dig. Men här är utmaningen: vad ÄR inom din kontroll just nu?'],
+        neut:['Neutralt är inte dåligt — men vi siktar högre. Vad hade gjort dagen till en 8/10?','Vad är ett litet mål du kan sätta för imorgon?','Bra att du checkar in. Vad vill du fokusera på framåt?'],
+        deep:['Vad driver dig egentligen? Vad vill du känna mer av?','Om du tänker 3 månader framåt — vad vill du ha förändrat?','Vad är din superkraft? Använder du den tillräckligt?'],
+        close:['Bra session {name}! Du tar ansvar för ditt välmående — det är modigt. Ses imorgon, redo att bygga vidare!','Starkt jobbat {name}. Varje reflektion stärker din emotionella intelligens. Vi kör igen imorgon!','Remember: du är starkare än du tror {name}. Bra att du investerar i dig själv. 🏆']
+    }
 };
 
-// Categories for tagging
-const CATS = {
-    jobb:      ['jobb','jobbet','arbete','kontor','chef','möte','möten','kolleg','projekt','deadline','kund','mail','Teams','Slack'],
-    relationer:['familj','partner','sambo','flickvän','pojkvän','kompis','vän','vänner','barn','mamma','pappa','relation','dejt'],
-    hälsa:     ['träna','gym','springa','yoga','sömn','sov','sjuk','ont','huvudvärk','energi','mat','äta'],
-    fritid:    ['hobby','spel','film','serie','bok','musik','natur','promenad','resa','semester','fest'],
-    ekonomi:   ['pengar','ekonomi','räkning','lön','spara','köpa','dyrt','budget'],
-};
+let convState={active:false,round:0,maxRounds:5,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],speaking:false};
 
-function analyzeText(text) {
-    if (!text || !text.trim()) return { emotion:'neutral', score:50, confidence:0, categories:[] };
-    const low = text.toLowerCase();
+function getAILines(cat){const d=ld();return PERS[d.personality||'warm'][cat]||PERS.warm[cat]}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function tpl(s){const d=ld();return s.replace('{name}',d.aiName||'du')}
 
-    // Emotion
-    let scores = {};
-    let total = 0;
-    for (const [emo, d] of Object.entries(EMO)) {
-        let h = 0;
-        for (const w of d.w) { if (low.includes(w)) h++; }
-        scores[emo] = h;
-        total += h;
-    }
-    let dominant = 'neutral', maxH = 0;
-    for (const [e,h] of Object.entries(scores)) { if (h > maxH) { maxH = h; dominant = e; } }
-    const valence = total > 0 ? (EMO[dominant]?.v ?? .5) : .5;
-    const confidence = Math.min(total / 3, 1);
-
-    // Categories
-    const cats = [];
-    for (const [cat, words] of Object.entries(CATS)) {
-        if (words.some(w => low.includes(w))) cats.push(cat);
-    }
-    if (cats.length === 0) cats.push('allmänt');
-
-    return { emotion: dominant, score: Math.round(valence * 100), confidence, categories: cats };
+function setAvatar(state,mood){
+    ['conv-avatar','home-orb'].forEach(id=>{
+        const el=document.getElementById(id);if(!el)return;
+        el.className='avatar-orb '+state;
+        if(mood==='happy')el.classList.add('happy');
+        if(mood==='concerned')el.classList.add('concerned');
+        if(mood==='thinking')el.classList.add('thinking');
+    });
+    const colors={happy:'radial-gradient(circle,#81ECEC,#00CEC9)',concerned:'radial-gradient(circle,#A29BFE,#6C5CE7)',sad:'radial-gradient(circle,#DFE6E9,#636E72)',neutral:'radial-gradient(circle,#A29BFE,#6C5CE7)',energetic:'radial-gradient(circle,#FFEAA7,#FDCB6E)'};
+    const c=colors[mood]||colors.neutral;
+    ['avatar-glow','home-glow'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.background=c});
+    ['avatar-core','home-orb .core'].forEach(sel=>{
+        const el=document.getElementById('avatar-core')||document.querySelector('.avatar-orb .core');
+        if(el)el.style.background=c;
+    });
 }
 
-// ===== AI REFLECTION GENERATOR =====
-function generateReflection(entry, data) {
-    const { score, emotion, transcript, categories } = entry;
-    const checkins = data.checkins;
-    const parts = [];
+async function startConversation(){
+    const d=ld();
+    convState={active:true,round:0,maxRounds:5,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],speaking:false};
 
-    // Compare with yesterday
-    if (checkins.length > 0) {
-        const last = checkins[checkins.length - 1];
-        const diff = score - last.score;
-        if (diff > 15) parts.push(`Din KänslaScore gick upp ${diff} poäng sedan sist — något gör dig gott.`);
-        else if (diff < -15) parts.push(`Din score sjönk ${Math.abs(diff)} poäng. Det är okej att ha sämre dagar — det viktigaste är att du reflekterar.`);
+    document.getElementById('conv-view').classList.add('on');
+    document.getElementById('conv-name').textContent=d.aiName||'Luna';
+    document.getElementById('conv-transcript').textContent='';
+    document.getElementById('conv-status').textContent='Ansluter...';
+    document.getElementById('conv-timer').textContent='0:00';
+
+    // Start camera
+    try{
+        convState.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:true});
+        document.getElementById('conv-vid').srcObject=convState.stream;
+    }catch(e){
+        try{convState.stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e2){}
+        document.getElementById('conv-camera').style.display='none';
     }
 
-    // Category-based insight
-    if (categories.includes('jobb') && score < 45) {
-        parts.push('Du nämner jobbet och verkar tyngd. Finns det en specifik sak du kan påverka, eller behöver du bara ventilera?');
-    } else if (categories.includes('relationer') && score > 60) {
-        parts.push('Relationer ger dig energi — det märks i din röst och dina ord.');
-    } else if (categories.includes('hälsa')) {
-        parts.push('Bra att du uppmärksammar din hälsa. Forskning visar att kropp och känsla hänger ihop starkare än de flesta tror.');
+    // Timer
+    convState.timer=setInterval(()=>{
+        convState.elapsed++;
+        const m=Math.floor(convState.elapsed/60),s=convState.elapsed%60;
+        document.getElementById('conv-timer').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+    },1000);
+
+    // Start with greeting
+    setAvatar('speaking','happy');
+    const greeting=tpl(pick(getAILines('greet')));
+
+    // Check if AI remembers something
+    let memory='';
+    if(d.checkins.length>0){
+        const last=d.checkins[d.checkins.length-1];
+        const daysSince=Math.floor((Date.now()-new Date(last.ts).getTime())/864e5);
+        if(daysSince<=2&&last.emotion==='stressad')memory=` Förra gången pratade vi om att du var stressad — hur är det nu?`;
+        else if(daysSince<=2&&last.cats?.includes('jobb'))memory=` Sist nämnde du jobbet — hur har det gått?`;
     }
 
-    // Emotion-specific
-    const emotionTexts = {
-        stressad: 'Stress är kroppens signal att något behöver förändras. Även 2 minuters medveten andning kan sänka kortisolet märkbart.',
-        orolig: 'Oro handlar ofta om framtiden. Prova att fokusera på en sak du kan kontrollera just nu — det minskar orons grepp.',
-        glad: 'Glädje är smittsam — din positiva energi påverkar människorna runt dig mer än du tror.',
-        ledsen: 'Det tar mod att erkänna att man är ledsen. Att sätta ord på känslan, som du just gjorde, är i sig ett bevisat sätt att bearbeta den.',
-        trott: 'Trötthet påverkar allt — humör, beslut, relationer. Prioritera sömn ikväll så kommer morgondagen se annorlunda ut.',
-        arg: 'Ilska bär ofta på viktig information. Vad är det egentligen som gör dig frustrerad? Svaret kan avslöja vad som verkligen är viktigt för dig.',
-        lugn: 'Lugn är inte frånvaro av problem — det är närvaron av inre styrka. Du verkar ha en bra balans just nu.',
+    await aiSpeak(greeting+memory);
+    listenToUser();
+}
+
+function aiSpeak(text){
+    return new Promise(resolve=>{
+        convState.speaking=true;
+        setAvatar('speaking');
+        document.getElementById('conv-status').textContent=`${ld().aiName} pratar...`;
+        convState.transcript.push({role:'ai',text});
+        updateConvTranscript();
+
+        const u=new SpeechSynthesisUtterance(text);
+        u.lang='sv-SE';
+        u.rate=.95;u.pitch=1.05;
+        // Try to find Swedish voice
+        const voices=speechSynthesis.getVoices();
+        const sv=voices.find(v=>v.lang.startsWith('sv'));
+        if(sv)u.voice=sv;
+        u.onend=()=>{convState.speaking=false;resolve()};
+        u.onerror=()=>{convState.speaking=false;resolve()};
+        speechSynthesis.speak(u);
+        // Fallback if TTS doesn't work
+        setTimeout(()=>{if(convState.speaking){convState.speaking=false;resolve()}},Math.max(3000,text.length*60));
+    });
+}
+
+function listenToUser(){
+    if(!convState.active)return;
+    setAvatar('listening');
+    document.getElementById('conv-status').textContent='Lyssnar på dig...';
+
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){
+        document.getElementById('conv-status').textContent='(Röstigen. stöds ej — avslutar)';
+        setTimeout(()=>endConversation(),2000);return;
+    }
+
+    const rec=new SR();
+    convState.recognition=rec;
+    rec.lang='sv-SE';rec.continuous=true;rec.interimResults=true;
+    let finalText='',silenceTimer=null,hasSpoken=false;
+
+    rec.onresult=(e)=>{
+        let interim='';
+        for(let i=e.resultIndex;i<e.results.length;i++){
+            if(e.results[i].isFinal)finalText+=e.results[i][0].transcript+' ';
+            else interim=e.results[i][0].transcript;
+        }
+        hasSpoken=true;
+        document.getElementById('conv-transcript').textContent=finalText+interim;
+        // Reset silence timer
+        clearTimeout(silenceTimer);
+        silenceTimer=setTimeout(()=>{
+            if(finalText.trim().length>5){rec.stop()}
+        },3000);
     };
-    if (emotionTexts[emotion] && parts.length < 2) parts.push(emotionTexts[emotion]);
 
-    // Pattern detection
-    if (checkins.length >= 5) {
-        const recent5 = checkins.slice(-5).map(c => c.score);
-        const avg5 = recent5.reduce((a,b) => a+b) / 5;
-        const trend = score - avg5;
-        if (trend > 10) parts.push(`Du ligger ${Math.round(trend)} poäng över ditt snitt senaste 5 dagarna. Din positiva trend fortsätter!`);
+    rec.onend=()=>{
+        if(!convState.active)return;
+        if(finalText.trim()){
+            convState.transcript.push({role:'user',text:finalText.trim()});
+            convState.fullText+=finalText+' ';
+            updateConvTranscript();
+            processUserResponse(finalText.trim());
+        }else if(!hasSpoken&&convState.round<2){
+            // Retry listening if user hasn't spoken yet
+            try{rec.start()}catch(e){}
+        }else{
+            processUserResponse('');
+        }
+    };
+    rec.onerror=(e)=>{
+        if(e.error==='no-speech'){try{rec.start()}catch(ex){}}
+        else if(convState.active&&convState.round<convState.maxRounds){processUserResponse(finalText||'')}
+    };
+    try{rec.start()}catch(e){}
+
+    // Safety: auto-advance after 30s
+    setTimeout(()=>{if(convState.active&&convState.recognition===rec)try{rec.stop()}catch(e){}},30000);
+}
+
+async function processUserResponse(text){
+    if(!convState.active)return;
+    convState.round++;
+    const sentiment=analyze(text);
+    convState.emotions.push(sentiment.emotion);
+
+    setAvatar('thinking','thinking');
+    document.getElementById('conv-status').textContent=`${ld().aiName} tänker...`;
+    await new Promise(r=>setTimeout(r,800+Math.random()*700));
+
+    if(convState.round>=convState.maxRounds){
+        // Closing
+        const close=tpl(pick(getAILines('close')));
+        setAvatar('speaking','happy');
+        await aiSpeak(close);
+        endConversation();
+        return;
     }
 
-    if (parts.length === 0) parts.push('Tack för att du delade. Varje reflektion bygger din emotionella medvetenhet — och det är grunden för förändring.');
-    return parts.join(' ');
+    let lines;
+    if(convState.round<=2){
+        // Follow-up based on sentiment
+        if(sentiment.score>=65)lines=getAILines('pos');
+        else if(sentiment.score<=40)lines=getAILines('neg');
+        else lines=getAILines('neut');
+    }else{
+        lines=getAILines('deep');
+    }
+
+    const mood=sentiment.score>=65?'happy':sentiment.score<=40?'concerned':'neutral';
+    setAvatar('speaking',mood);
+    await aiSpeak(tpl(pick(lines)));
+    listenToUser();
+}
+
+function updateConvTranscript(){
+    const el=document.getElementById('conv-transcript');
+    const last3=convState.transcript.slice(-3);
+    el.innerHTML=last3.map(t=>`<div style="margin-bottom:4px;${t.role==='ai'?'color:var(--al)':''}"><strong>${t.role==='ai'?(ld().aiName):'Du'}:</strong> ${t.text}</div>`).join('');
+    el.scrollTop=el.scrollHeight;
+}
+
+function endConversation(){
+    convState.active=false;
+    if(convState.recognition)try{convState.recognition.stop()}catch(e){}
+    if(convState.stream)convState.stream.getTracks().forEach(t=>t.stop());
+    clearInterval(convState.timer);
+    speechSynthesis.cancel();
+    document.getElementById('conv-view').classList.remove('on');
+    document.getElementById('conv-camera').style.display='';
+
+    const d=ld();
+    const fullText=convState.fullText.trim();
+    const result=analyze(fullText);
+
+    // Score: blend text analysis + simulated face/voice
+    const face=40+Math.random()*35,voice=35+Math.random()*40,text=result.score;
+    const w=fullText.length>20?{f:.3,v:.25,t:.45}:{f:.35,v:.35,t:.3};
+    const score=Math.max(5,Math.min(99,Math.round(face*w.f+voice*w.v+text*w.t)));
+
+    // Generate AI diary summary
+    const summary=generateSummary(convState.transcript,result,d);
+
+    const entry={
+        ts:new Date().toISOString(),score,emotion:result.emotion,
+        transcript:fullText,summary,cats:result.cats,
+        duration:convState.elapsed,rounds:convState.round,
+        emotions:convState.emotions
+    };
+
+    if(d.baseline===null)d.baseline=score;
+    const xp=15+(fullText.length>50?10:0)+(score>70?5:0)+(convState.round>=3?5:0);
+    const oldLvl=getLvl(d.xp||0);
+    d.xp=(d.xp||0)+xp;entry.xp=xp;
+    const preStrk=calcStreak(d.checkins);
+    d.checkins.push(entry);
+    const postStrk=calcStreak(d.checkins);
+    if(postStrk>preStrk&&postStrk>1){const b=postStrk*2;d.xp+=b;entry.streakBonus=b}
+    const newLvl=getLvl(d.xp);
+    sv(d);
+    showResult(entry,d,newLvl.l>oldLvl.l?newLvl:null);
+}
+
+function generateSummary(transcript,result,data){
+    const userParts=transcript.filter(t=>t.role==='user').map(t=>t.text).join(' ');
+    const name=data.aiName||'AI';
+    if(!userParts.trim())return `${name} och användaren hade ett kort samtal. Inte tillräckligt med data för en sammanfattning.`;
+
+    const emoLabel={glad:'glad och positiv',lugn:'lugn och balanserad',neutral:'neutral',stressad:'stressad',ledsen:'ledsen och tyngd',orolig:'orolig',arg:'frustrerad',trott:'trött och energilös'};
+    const mood=emoLabel[result.emotion]||'reflekterande';
+    const cats=result.cats.filter(c=>c!=='allmänt');
+    const catText=cats.length>0?` Samtalet berörde främst: ${cats.join(', ')}.`:'';
+
+    let summary=`Dagens samtal varade ${Math.floor(convState.elapsed/60)} minuter. Stämningen var övervägande ${mood}.${catText}`;
+
+    // Add insight based on history
+    if(data.checkins.length>=3){
+        const recent=data.checkins.slice(-3).map(c=>c.score);
+        const avg=recent.reduce((a,b)=>a+b)/recent.length;
+        const diff=result.score-Math.round(avg);
+        if(diff>10)summary+=` Välmåendet är ${diff} poäng bättre än de senaste dagarna.`;
+        else if(diff<-10)summary+=` Välmåendet sjönk ${Math.abs(diff)} poäng — en nedåtgående trend att uppmärksamma.`;
+    }
+    return summary;
 }
 
 // ===== INTERVENTIONS =====
-function getIntervention(score) {
-    if (score < 35) return { title:'🧘 Andningsövning', text:'4-7-8 andning: Andas in 4s genom näsan, håll 7s, ut 8s genom munnen. 3 omgångar. Det sänker ditt kortisol och aktiverar vila-och-läk-systemet.' };
-    if (score < 55) return { title:'🌿 Grounding', text:'5-4-3-2-1: Identifiera 5 saker du ser, 4 du rör, 3 du hör, 2 du luktar, 1 du smakar. Det bryter tankespiraler och förankrar dig i nuet.' };
-    if (score < 75) return { title:'🎵 Humörboost', text:'Sätt på en låt som ger dig energi och rör dig i 2 minuter. Musik + rörelse frigör endorfiner och höjer humöret mätbart inom minuter.' };
-    return { title:'🌟 Bevara känslan', text:'Skriv 3 saker du är tacksam för just nu. Gratitude journaling stärker de neurala kopplingarna för positiva känslor och bygger resiliens.' };
-}
-
-// ===== XP & LEVELS =====
-const LEVELS = [
-    { level:1, name:'Nybörjare', xp:0, color:'var(--txt2)' },
-    { level:2, name:'Reflekterare', xp:50, color:'var(--acc)' },
-    { level:3, name:'Medveten', xp:150, color:'var(--pri-l)' },
-    { level:4, name:'Utforskare', xp:350, color:'var(--ok)' },
-    { level:5, name:'Insiktsfull', xp:600, color:'var(--warn)' },
-    { level:6, name:'Emotionell atlet', xp:1000, color:'var(--gold)' },
-    { level:7, name:'KänsloMästare', xp:1500, color:'#FF6B6B' },
-];
-
-function getLevel(xp) {
-    let lvl = LEVELS[0];
-    for (const l of LEVELS) { if (xp >= l.xp) lvl = l; }
-    return lvl;
-}
-function getNextLevel(xp) {
-    for (const l of LEVELS) { if (xp < l.xp) return l; }
-    return null;
-}
-
-function calcXP(entry) {
-    let xp = 15; // base: daily check-in
-    if (entry.transcript && entry.transcript.length > 50) xp += 10; // spoke meaningfully
-    if (entry.score > 70) xp += 5; // positive state bonus
-    return xp;
-}
-
-// ===== STREAK =====
-function calcStreak(checkins) {
-    if (checkins.length === 0) return 0;
-    const days = new Set(checkins.map(c => new Date(c.timestamp).toDateString()));
-    let streak = 0;
-    let d = new Date();
-    while (days.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
-    return streak;
-}
-function didCheckInToday(checkins) {
-    if (checkins.length === 0) return false;
-    return checkins.some(c => new Date(c.timestamp).toDateString() === new Date().toDateString());
-}
-
-// ===== RANKING (simulated community benchmark) =====
-function calcRank(data) {
-    const checkins = data.checkins;
-    if (checkins.length < 3) return { percentile: 50, label: 'Gör fler check-ins för ranking' };
-    const baseline = data.baselineScore || checkins[0].score;
-    const recent = checkins.slice(-5).reduce((a,c) => a+c.score, 0) / Math.min(checkins.length, 5);
-    const improvement = recent - baseline;
-    // Simulate percentile based on improvement (in prod: real backend)
-    const pct = Math.max(5, Math.min(99, 50 + improvement * 1.5 + calcStreak(checkins) * 2));
-    const rounded = Math.round(pct);
-    let label = `Du förbättras snabbare än ${rounded}% av alla användare`;
-    if (rounded > 80) label = `Topp ${100 - rounded}%! Du utvecklas otroligt bra`;
-    return { percentile: rounded, label };
-}
-
-// ===== STATE =====
-let recording = false;
-let stream = null;
-let recognition = null;
-let liveTranscript = '';
-let fullTranscript = '';
-let recStart = 0;
-let recInterval = null;
-let maxDuration = 180; // 3 min max
-let faceAnalyzed = false;
-
-// ===== INIT =====
-function init() {
-    const d = db();
-    if (!d.firstVisit) {
-        document.getElementById('onboarding').classList.add('hidden');
-        document.getElementById('app').style.display = 'block';
-        renderHome();
-    }
-}
-init();
-
-// ===== ONBOARDING =====
-document.getElementById('btn-ob-start').addEventListener('click', () => {
-    const d = db();
-    d.firstVisit = false;
-    d.onboardedAt = new Date().toISOString();
-    save(d);
-    document.getElementById('onboarding').classList.add('hidden');
-    document.getElementById('app').style.display = 'block';
-    renderHome();
-});
-
-// ===== NAVIGATION =====
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => navTo(item.dataset.page));
-});
-function navTo(page) {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.page === page));
-    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
-    if (page === 'home') renderHome();
-    if (page === 'diary') renderDiary();
-    if (page === 'progress') renderProgress();
-    window.scrollTo(0,0);
-}
-
-// ===== RENDER HOME =====
-function renderHome() {
-    const d = db();
-    const streak = calcStreak(d.checkins);
-    const today = didCheckInToday(d.checkins);
-    document.getElementById('streak-num').textContent = streak;
-    document.getElementById('daily-prompt').textContent = todaysPrompt();
-
-    // Week dots
-    const dotsCont = document.getElementById('streak-dots');
-    const dayNames = ['M','T','O','T','F','L','S'];
-    const now = new Date();
-    const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0
-    let html = '';
-    for (let i = 0; i < 7; i++) {
-        const cls = i < dayOfWeek ? 'done' : i === dayOfWeek ? (today ? 'done' : 'today') : 'future';
-        html += `<div class="streak-dot ${cls}">${dayNames[i]}</div>`;
-    }
-    dotsCont.innerHTML = html;
-
-    // Quick stats
-    const qs = document.getElementById('quick-stats');
-    if (d.checkins.length > 0 && today) {
-        const last = d.checkins[d.checkins.length - 1];
-        qs.innerHTML = `<div class="card" style="text-align:center;cursor:pointer;" onclick="navTo('progress')">
-            <div style="font-size:.8rem;color:var(--txt2);">Dagens KänslaScore</div>
-            <div style="font-size:2rem;font-weight:800;color:${last.score>=65?'var(--ok)':last.score>=40?'var(--warn)':'var(--bad)'}">${last.score}</div>
-            <div style="font-size:.75rem;color:var(--txt2);margin-top:4px;">Tryck för att se din utveckling →</div>
-        </div>`;
-        document.getElementById('rec-status').textContent = 'Du har redan reflekterat idag ✓ (du kan göra fler)';
-    } else {
-        qs.innerHTML = '';
-        document.getElementById('rec-status').textContent = 'Tryck för att spela in';
-    }
-}
-
-// ===== RECORDING =====
-const recBtn = document.getElementById('rec-btn');
-recBtn.addEventListener('click', () => {
-    if (!recording) startRecording();
-    else stopRecording();
-});
-
-async function startRecording() {
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user' }, audio: true });
-    } catch(e) {
-        toast('Kamera/mikrofon behövs — tillåt åtkomst och försök igen');
-        return;
-    }
-
-    const vid = document.getElementById('vid-feed');
-    vid.srcObject = stream;
-    document.getElementById('video-wrap').style.display = 'block';
-    document.getElementById('rec-dot').style.display = 'block';
-    recBtn.classList.add('recording');
-    recBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
-    recording = true;
-    faceAnalyzed = true;
-    liveTranscript = '';
-    fullTranscript = '';
-    document.getElementById('rec-status').textContent = 'Spelar in — berätta hur du mår';
-
-    recStart = Date.now();
-    recInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - recStart) / 1000);
-        const remaining = maxDuration - elapsed;
-        const min = Math.floor(remaining / 60);
-        const sec = remaining % 60;
-        const timeStr = `${min}:${sec.toString().padStart(2,'0')}`;
-        document.getElementById('vid-timer').textContent = timeStr;
-        document.getElementById('rec-timer-big').textContent = `${Math.floor(elapsed/60)}:${(elapsed%60).toString().padStart(2,'0')}`;
-
-        // Auto-stop at max
-        if (remaining <= 0) stopRecording();
-        // Nudge at 60s
-        if (elapsed === 55) document.getElementById('rec-status').textContent = 'Du kan avsluta när du vill, eller fortsätt upp till 3 min';
-    }, 1000);
-
-    // Start speech recognition
-    startTranscription();
-}
-
-function stopRecording() {
-    recording = false;
-    clearInterval(recInterval);
-    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-    if (recognition) { try { recognition.stop(); } catch(e) {} }
-
-    document.getElementById('video-wrap').style.display = 'none';
-    document.getElementById('rec-dot').style.display = 'none';
-    recBtn.classList.remove('recording');
-    recBtn.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>';
-    document.getElementById('rec-timer-big').textContent = '';
-    document.getElementById('rec-status').textContent = 'Analyserar...';
-    document.getElementById('vid-timer').textContent = '1:00';
-
-    const duration = Math.floor((Date.now() - recStart) / 1000);
-    processResult(fullTranscript, duration);
-}
-
-// ===== TRANSCRIPTION =====
-function startTranscription() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { document.getElementById('transcript-live').textContent = '(Transkribering stöds ej i denna webbläsare)'; return; }
-
-    recognition = new SR();
-    recognition.lang = 'sv-SE';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    recognition.onresult = (e) => {
-        let interim = '';
-        let finalText = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-            const t = e.results[i][0].transcript;
-            if (e.results[i].isFinal) { finalText += t + ' '; }
-            else { interim = t; }
-        }
-        if (finalText) fullTranscript += finalText;
-        document.getElementById('transcript-live').textContent = fullTranscript + interim;
-    };
-
-    recognition.onerror = (e) => {
-        if (e.error !== 'no-speech' && e.error !== 'aborted') {
-            document.getElementById('transcript-live').textContent = '(Kunde inte transkribera — analysen fortsätter ändå)';
-        }
-    };
-
-    recognition.onend = () => { if (recording) try { recognition.start(); } catch(e) {} };
-    try { recognition.start(); } catch(e) {}
-}
-
-// ===== PROCESS RESULT =====
-function processResult(transcript, duration) {
-    const d = db();
-    const textResult = analyzeText(transcript);
-
-    // Combine face (simulated) + voice energy + text
-    const faceScore = faceAnalyzed ? (40 + Math.random() * 35) : 50;
-    const voiceScore = 35 + Math.random() * 40; // simulated prosody
-    const textScore = textResult.score;
-
-    const wF = faceAnalyzed ? .35 : 0;
-    const wV = .25;
-    const wT = transcript.length > 20 ? .40 : .15;
-    const totalW = wF + wV + wT || 1;
-    const combined = Math.round((faceScore * wF + voiceScore * wV + textScore * wT) / totalW);
-    const score = Math.max(5, Math.min(99, combined));
-
-    const entry = {
-        timestamp: new Date().toISOString(),
-        score,
-        emotion: textResult.emotion,
-        transcript: transcript.trim(),
-        categories: textResult.categories,
-        duration,
-    };
-
-    // Set baseline on first check-in
-    if (d.baselineScore === null) d.baselineScore = score;
-
-    // XP
-    const xpGain = calcXP(entry);
-    d.xp = (d.xp || 0) + xpGain;
-    const oldLevel = getLevel(d.xp - xpGain);
-    const newLevel = getLevel(d.xp);
-    entry.xpGain = xpGain;
-
-    // Streak bonus XP
-    const preStreak = calcStreak(d.checkins);
-    d.checkins.push(entry);
-    const postStreak = calcStreak(d.checkins);
-    if (postStreak > preStreak && postStreak > 1) {
-        const streakBonus = postStreak * 2;
-        d.xp += streakBonus;
-        entry.streakBonus = streakBonus;
-    }
-
-    // AI reflection
-    const reflection = generateReflection(entry, d);
-    entry.reflection = reflection;
-
-    save(d);
-    showResult(entry, d, newLevel.level > oldLevel.level ? newLevel : null);
+function getInterv(s){
+    if(s<35)return{t:'🧘 Andningsövning',p:'4-7-8: Andas in 4s, håll 7s, ut 8s genom munnen. 3 omgångar.'};
+    if(s<55)return{t:'🌿 Grounding-teknik',p:'5-4-3-2-1: Se 5 saker, rör 4, hör 3, lukta 2, smaka 1.'};
+    if(s<75)return{t:'🎵 Humörboost',p:'Sätt på en favoritlåt och rör dig i 2 minuter — det frigör endorfiner.'};
+    return{t:'🌟 Bevara känslan',p:'Skriv 3 saker du är tacksam för. Det stärker positiva neurala kopplingar.'};
 }
 
 // ===== SHOW RESULT =====
-function showResult(entry, data, levelUp) {
-    navTo('result');
-    const score = entry.score;
+function showResult(entry,data,lvlUp){
+    go('result');
+    const s=entry.score,arc=document.getElementById('s-arc');
+    const col=s>=65?'var(--ok)':s>=40?'var(--w)':'var(--bad)';
+    arc.style.stroke=col;
+    setTimeout(()=>{arc.style.strokeDashoffset=364.4*(1-s/100)},50);
+    let c=0;const el=document.getElementById('s-val');
+    const an=setInterval(()=>{c=Math.min(c+Math.ceil(s/20),s);el.textContent=c;if(c>=s)clearInterval(an)},30);
 
-    // Animate score ring
-    const arc = document.getElementById('score-arc');
-    const color = score >= 65 ? 'var(--ok)' : score >= 40 ? 'var(--warn)' : 'var(--bad)';
-    arc.style.stroke = color;
-    setTimeout(() => { arc.style.strokeDashoffset = 389.6 * (1 - score / 100); }, 50);
-
-    let s = 0;
-    const target = score;
-    const valEl = document.getElementById('score-val');
-    const anim = setInterval(() => {
-        s = Math.min(s + Math.ceil(target / 25), target);
-        valEl.textContent = s;
-        if (s >= target) clearInterval(anim);
-    }, 30);
-
-    // Emotion
-    const emoLabels = { glad:'😊 Glad', lugn:'😌 Lugn', neutral:'😐 Neutral', stressad:'😰 Stressad', ledsen:'😢 Ledsen', orolig:'😟 Orolig', arg:'😤 Arg', trott:'😴 Trött' };
-    document.getElementById('result-emotion').textContent = emoLabels[entry.emotion] || '😐 Neutral';
-
-    // XP
-    const xpText = `+${entry.xpGain} XP` + (entry.streakBonus ? ` +${entry.streakBonus} streak bonus!` : '');
-    document.getElementById('result-xp').textContent = xpText;
+    const emo={glad:'😊 Glad',lugn:'😌 Lugn',neutral:'😐 Neutral',stressad:'😰 Stressad',ledsen:'😢 Ledsen',orolig:'😟 Orolig',arg:'😤 Arg',trott:'😴 Trött'};
+    document.getElementById('r-emo').textContent=emo[entry.emotion]||'😐 Neutral';
+    document.getElementById('r-xp').textContent=`+${entry.xp||15} XP`+(entry.streakBonus?` +${entry.streakBonus} streak bonus!`:'');
 
     // AI reflection
-    document.getElementById('ai-text').textContent = entry.reflection;
-
-    // Transcript
-    const transEl = document.getElementById('transcript-full');
-    transEl.innerHTML = entry.transcript ? `<p><em>"${entry.transcript}"</em></p>` : '<p style="color:var(--txt2);">(Ingen transkribering tillgänglig)</p>';
-
-    // Categories
-    document.getElementById('result-cats').innerHTML = entry.categories.map(c => `<span class="tag">${c}</span>`).join('');
-
-    // Intervention
-    const interv = getIntervention(score);
-    document.getElementById('interv-title').textContent = interv.title;
-    document.getElementById('interv-text').textContent = interv.text;
-
-    // Share card
-    const streak = calcStreak(data.checkins);
-    const lvl = getLevel(data.xp);
-    document.getElementById('share-score').textContent = score;
-    document.getElementById('share-streak').textContent = streak;
-    document.getElementById('share-level').textContent = lvl.level;
-
-    // Level up modal
-    if (levelUp) {
-        setTimeout(() => {
-            toast(`🎉 Nivå ${levelUp.level}: ${levelUp.name}!`);
-        }, 1500);
+    const aiName=data.aiName||'AI';
+    document.getElementById('r-ref-title').textContent=`🧠 ${aiName}s reflektion`;
+    let refText='';
+    if(data.checkins.length>1){
+        const prev=data.checkins[data.checkins.length-2];
+        const diff=s-prev.score;
+        if(diff>10)refText+=`Din score gick upp ${diff} poäng sedan igår — det du gör fungerar! `;
+        else if(diff<-10)refText+=`Idag var ${Math.abs(diff)} poäng lägre. Det är okej — alla dagar ser inte likadana ut. `;
     }
+    if(entry.cats.includes('jobb')&&s<50)refText+='Jobbet verkar tynga dig. Fundera på vad du kan påverka vs. vad du behöver släppa. ';
+    if(entry.cats.includes('relationer')&&s>60)refText+='Relationer ger dig energi — investera i dem! ';
+    if(s<35)refText+='Det tar mod att erkänna att man har det tufft. Att du reflekterar är i sig ett steg framåt.';
+    else if(s>75)refText+='Du är i ett riktigt bra läge. Notera vad som bidrar — det är din formel.';
+    else refText+='Fortsätt reflektera dagligen. Medvetenhet är första steget till förändring.';
+    document.getElementById('r-ref-text').textContent=refText;
+
+    document.getElementById('r-summary').textContent=entry.summary||'(Ingen sammanfattning)';
+    document.getElementById('r-cats').innerHTML=(entry.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('');
+
+    const iv=getInterv(s);
+    document.getElementById('r-interv-t').textContent=iv.t;
+    document.getElementById('r-interv-p').textContent=iv.p;
+
+    // Value proof
+    const vp=document.getElementById('r-vproof');
+    if(data.checkins.length>=3&&data.baseline){
+        const recent=data.checkins.slice(-3).map(c=>c.score);
+        const avg=Math.round(recent.reduce((a,b)=>a+b)/recent.length);
+        const improvement=avg-data.baseline;
+        if(improvement!==0){
+            vp.style.display='';
+            document.getElementById('r-vp-text').textContent=improvement>0
+                ?`Sedan du började prata med ${aiName} har ditt genomsnittliga KänslaScore ökat med ${improvement} poäng. Dina samtal gör skillnad!`
+                :`Ditt score har sjunkit ${Math.abs(improvement)} poäng sedan start. Det kan vara en tuff period — men att du fortsätter reflektera är det viktigaste.`;
+        }else vp.style.display='none';
+    }else vp.style.display='none';
+
+    const strk=calcStreak(data.checkins),lv=getLvl(data.xp||0);
+    document.getElementById('sh-s').textContent=s;
+    document.getElementById('sh-st').textContent=strk;
+    document.getElementById('sh-l').textContent=lv.l;
+
+    if(lvlUp)setTimeout(()=>toast(`🎉 Nivå ${lvlUp.l}: ${lvlUp.n}!`),1200);
+}
+
+// ===== VALUE PROOF (home) =====
+function renderValueProof(d){
+    const vp=document.getElementById('value-proof');
+    if(d.checkins.length<2){vp.style.display='none';return}
+    vp.style.display='';
+    const recent=d.checkins.slice(-5).map(c=>c.score);
+    const avg=Math.round(recent.reduce((a,b)=>a+b)/recent.length);
+    const diff=d.baseline?avg-d.baseline:0;
+    if(diff>0){
+        document.getElementById('vp-big').textContent=`+${diff} poäng`;
+        document.getElementById('vp-big').style.color='var(--ok)';
+        document.getElementById('vp-desc').textContent=`Ditt välmående har förbättrats sedan du började prata med ${d.aiName}`;
+    }else if(diff<0){
+        document.getElementById('vp-big').textContent=`${diff} poäng`;
+        document.getElementById('vp-big').style.color='var(--w)';
+        document.getElementById('vp-desc').textContent='En tuff period — men att du fortsätter visa upp är det som gör skillnad';
+    }else{
+        document.getElementById('vp-big').textContent=`${avg}/100`;
+        document.getElementById('vp-big').style.color='var(--pl)';
+        document.getElementById('vp-desc').textContent='Ditt genomsnittliga KänslaScore. Fortsätt — mönstren blir tydligare med tid.';
+    }
+}
+
+// ===== RENDER HOME =====
+function renderHome(){
+    const d=ld();
+    const hr=new Date().getHours();
+    const greet=hr<10?'God morgon':hr<17?'Hej':hr<21?'God kväll':'God natt';
+    document.getElementById('home-greeting').textContent=greet+'!';
+    const td=todayDone(d.checkins);
+    document.getElementById('home-sub').textContent=td?'Du har pratat med '+d.aiName+' idag ✓':'Dags att checka in med '+d.aiName;
+
+    const strk=calcStreak(d.checkins);
+    document.getElementById('s-num').textContent=strk;
+    const days=['M','T','O','T','F','L','S'];const dow=(new Date().getDay()+6)%7;
+    document.getElementById('w-dots').innerHTML=days.map((n,i)=>`<div class="wd ${i<dow?'done':i===dow?(td?'done':'now'):'fut'}">${n}</div>`).join('');
+
+    renderValueProof(d);
+
+    // AI message on home
+    const msgs=td
+        ?['Bra jobbat idag! Vi ses imorgon 💛','Du tog dig tid att reflektera — det gör skillnad','Varje samtal bygger din emotionella styrka']
+        :['Jag är redo när du är — tryck för att prata','Hur har din dag varit? Jag lyssnar','Ta 2 minuter för dig själv — det är värt det'];
+    document.getElementById('home-ai-msg').textContent=pick(msgs);
+
+    setAvatar('idle',td?'happy':'neutral');
+
+    if(td&&d.checkins.length>0){
+        const last=d.checkins[d.checkins.length-1];
+        const col=last.score>=65?'var(--ok)':last.score>=40?'var(--w)':'var(--bad)';
+        document.getElementById('home-today').innerHTML=`<div class="cd" style="text-align:center;cursor:pointer" onclick="go('progress')">
+            <div style="font-size:.78rem;color:var(--t2)">Dagens KänslaScore</div>
+            <div style="font-size:1.8rem;font-weight:800;color:${col}">${last.score}</div>
+            <div style="font-size:.72rem;color:var(--t2);margin-top:3px">Se din utveckling →</div></div>`;
+    }else document.getElementById('home-today').innerHTML='';
 }
 
 // ===== RENDER DIARY =====
-function renderDiary() {
-    const d = db();
-    const entries = [...d.checkins].reverse();
-    const list = document.getElementById('diary-list');
-    const emoEmoji = { glad:'😊', lugn:'😌', neutral:'😐', stressad:'😰', ledsen:'😢', orolig:'😟', arg:'😤', trott:'😴' };
-
-    if (entries.length === 0) {
-        list.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--txt2);"><div style="font-size:2.5rem;margin-bottom:8px;">📖</div><p>Din dagbok är tom.<br>Gör din första inspelning!</p></div>';
-        return;
-    }
-
-    list.innerHTML = entries.map((e, i) => {
-        const dt = new Date(e.timestamp);
-        const dateStr = dt.toLocaleDateString('sv-SE', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-        const color = e.score >= 65 ? 'var(--ok)' : e.score >= 40 ? 'var(--warn)' : 'var(--bad)';
-        const excerpt = e.transcript ? e.transcript.slice(0, 120) + (e.transcript.length > 120 ? '...' : '') : 'Ingen transkription';
-        return `<div class="diary-entry" onclick="showDiaryEntry(${d.checkins.length - 1 - i})">
-            <div class="diary-header">
-                <span class="diary-date">${emoEmoji[e.emotion] || '😐'} ${dateStr}</span>
-                <span class="diary-score" style="color:${color}">${e.score}</span>
-            </div>
-            <div class="diary-excerpt">${excerpt}</div>
-            <div class="diary-tags">${(e.categories||[]).map(c => `<span class="tag">${c}</span>`).join('')}</div>
-        </div>`;
+function renderDiary(){
+    const d=ld(),list=document.getElementById('d-list');
+    const emo={glad:'😊',lugn:'😌',neutral:'😐',stressad:'😰',ledsen:'😢',orolig:'😟',arg:'😤',trott:'😴'};
+    if(!d.checkins.length){list.innerHTML='<div style="text-align:center;padding:36px 16px;color:var(--t2)"><div style="font-size:2.2rem;margin-bottom:6px">📖</div><p>Din dagbok är tom.<br>Starta ditt första samtal!</p></div>';return}
+    list.innerHTML=[...d.checkins].reverse().map((e,i)=>{
+        const dt=new Date(e.ts);const ds=dt.toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        const col=e.score>=65?'var(--ok)':e.score>=40?'var(--w)':'var(--bad)';
+        const txt=e.summary||e.transcript?.slice(0,100)||'Inget innehåll';
+        return`<div class="de" onclick="showEntry(${d.checkins.length-1-i})"><div class="de-h"><span class="de-d">${emo[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${txt}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
     }).join('');
 }
-
-// Diary search
-document.getElementById('diary-search').addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase();
-    document.querySelectorAll('.diary-entry').forEach(el => {
-        el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
-    });
-});
-
-function showDiaryEntry(idx) {
-    const d = db();
-    const e = d.checkins[idx];
-    if (!e) return;
-    // Show as result page
-    showResult(e, d, null);
-}
+document.getElementById('d-search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.de').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(q)?'':'none'})});
+function showEntry(i){const d=ld(),e=d.checkins[i];if(e)showResult(e,d,null)}
 
 // ===== RENDER PROGRESS =====
-function renderProgress() {
-    const d = db();
-    const checkins = d.checkins;
-    const streak = calcStreak(checkins);
-    const lvl = getLevel(d.xp || 0);
-    const next = getNextLevel(d.xp || 0);
+function renderProgress(){
+    const d=ld(),ci=d.checkins,strk=calcStreak(ci),lv=getLvl(d.xp||0),nx=getNext(d.xp||0);
+    const prog=nx?((d.xp-lv.xp)/(nx.xp-lv.xp)*100):100;
+    document.getElementById('lvl-bar').innerHTML=`<div class="lvl-b" style="background:${lv.c};color:#000">Lv${lv.l}</div><div class="lvl-i"><div class="n">${lv.n}</div><div class="x">${d.xp||0} XP${nx?` — ${nx.xp-(d.xp||0)} till ${nx.n}`:' — Max!'}</div><div class="xp-bar"><div class="xp-f" style="width:${prog}%"></div></div></div>`;
 
-    // Level bar
-    const progress = next ? ((d.xp - lvl.xp) / (next.xp - lvl.xp) * 100) : 100;
-    document.getElementById('level-bar').innerHTML = `
-        <div class="level-badge" style="background:${lvl.color};color:#000;">Lv${lvl.level}</div>
-        <div class="level-info">
-            <div class="level-name">${lvl.name}</div>
-            <div class="xp-text">${d.xp || 0} XP${next ? ` — ${next.xp - (d.xp||0)} XP till ${next.name}` : ' — Max nivå!'}</div>
-            <div class="xp-bar"><div class="xp-fill" style="width:${progress}%"></div></div>
-        </div>`;
-
-    // Ranking
-    const rank = calcRank(d);
-    document.getElementById('rank-pct').textContent = `Topp ${100 - rank.percentile}%`;
-    document.getElementById('rank-label').textContent = rank.label;
-    document.getElementById('rank-marker').style.left = rank.percentile + '%';
-
-    // Stats
-    const total = checkins.length;
-    const scores = checkins.map(c => c.score);
-    const avg = total > 0 ? Math.round(scores.reduce((a,b) => a+b) / total) : 0;
-    const best = total > 0 ? Math.max(...scores) : 0;
-
-    // Week comparison
-    const thisWeek = checkins.filter(c => (Date.now() - new Date(c.timestamp).getTime()) < 7*864e5);
-    const lastWeek = checkins.filter(c => { const a = Date.now() - new Date(c.timestamp).getTime(); return a >= 7*864e5 && a < 14*864e5; });
-    let weekChange = '';
-    if (thisWeek.length > 0 && lastWeek.length > 0) {
-        const twAvg = thisWeek.reduce((a,c)=>a+c.score,0)/thisWeek.length;
-        const lwAvg = lastWeek.reduce((a,c)=>a+c.score,0)/lastWeek.length;
-        const diff = Math.round(twAvg - lwAvg);
-        weekChange = diff > 0 ? `<div class="chg up">+${diff} vs förra veckan</div>` : diff < 0 ? `<div class="chg down">${diff} vs förra veckan</div>` : '';
+    // Rank
+    if(ci.length>=3&&d.baseline){
+        const rec=ci.slice(-5).reduce((a,c)=>a+c.score,0)/Math.min(ci.length,5);
+        const imp=rec-d.baseline;
+        const pct=Math.max(5,Math.min(99,Math.round(50+imp*1.5+strk*2)));
+        document.getElementById('rk-p').textContent=`Topp ${100-pct}%`;
+        document.getElementById('rk-l').textContent=pct>80?`Du utvecklas snabbare än ${pct}% av alla`:`Du förbättras mer än ${pct}% av användarna`;
+        document.getElementById('rk-m').style.left=pct+'%';
     }
 
-    document.getElementById('stat-row').innerHTML = `
-        <div class="stat-box"><div class="val">${avg || '—'}</div><div class="lbl">Genomsnitt</div>${weekChange}</div>
-        <div class="stat-box"><div class="val" style="color:var(--gold)">${streak}</div><div class="lbl">Dagars streak</div></div>
-        <div class="stat-box"><div class="val" style="color:var(--ok)">${best || '—'}</div><div class="lbl">Bästa score</div></div>
-        <div class="stat-box"><div class="val">${total}</div><div class="lbl">Check-ins</div></div>`;
+    const tot=ci.length,scores=ci.map(c=>c.score);
+    const avg=tot?Math.round(scores.reduce((a,b)=>a+b)/tot):0;
+    const best=tot?Math.max(...scores):0;
+    let wc='';
+    const tw=ci.filter(c=>(Date.now()-new Date(c.ts).getTime())<7*864e5);
+    const lw=ci.filter(c=>{const a=Date.now()-new Date(c.ts).getTime();return a>=7*864e5&&a<14*864e5});
+    if(tw.length&&lw.length){const d2=Math.round(tw.reduce((a,c)=>a+c.score,0)/tw.length-lw.reduce((a,c)=>a+c.score,0)/lw.length);wc=d2>0?`<div class="c up">+${d2} vs förra v.</div>`:d2<0?`<div class="c dn">${d2} vs förra v.</div>`:''}
+    document.getElementById('st-row').innerHTML=`<div class="sb"><div class="v">${avg||'—'}</div><div class="l">Snitt</div>${wc}</div><div class="sb"><div class="v" style="color:var(--g)">${strk}</div><div class="l">Streak</div></div><div class="sb"><div class="v" style="color:var(--ok)">${best||'—'}</div><div class="l">Bästa</div></div><div class="sb"><div class="v">${tot}</div><div class="l">Samtal</div></div>`;
 
-    // Chart
-    drawChart(checkins);
+    drawChart(ci);
 
     // Patterns
-    renderPatterns(d);
-}
-
-// ===== PATTERNS =====
-function renderPatterns(d) {
-    const list = document.getElementById('patterns-list');
-    const checkins = d.checkins;
-    if (checkins.length < 5) {
-        list.innerHTML = '<p style="font-size:.82rem;color:var(--txt2);">Gör minst 5 check-ins för att AI:n ska hitta mönster.</p>';
-        return;
+    const pl=document.getElementById('pat-list');
+    if(ci.length<5){pl.innerHTML='<p style="font-size:.8rem;color:var(--t2)">5+ samtal behövs för mönster.</p>';return}
+    const pats=[];
+    for(const cat of['jobb','relationer','hälsa','fritid']){
+        const w=ci.filter(c=>c.cats?.includes(cat)),wo=ci.filter(c=>!c.cats?.includes(cat));
+        if(w.length>=2&&wo.length>=2){const df=Math.round(w.reduce((a,c)=>a+c.score,0)/w.length-wo.reduce((a,c)=>a+c.score,0)/wo.length);if(Math.abs(df)>5)pats.push(`Dagar du nämner <strong>${cat}</strong>: ${df>0?'+':''}${df} poäng ${df>0?'↑':'↓'}`)}
     }
-
-    const patterns = [];
-
-    // Category correlation
-    for (const cat of ['jobb','relationer','hälsa','fritid']) {
-        const withCat = checkins.filter(c => c.categories?.includes(cat));
-        const without = checkins.filter(c => !c.categories?.includes(cat));
-        if (withCat.length >= 2 && without.length >= 2) {
-            const avgWith = withCat.reduce((a,c) => a+c.score, 0) / withCat.length;
-            const avgWithout = without.reduce((a,c) => a+c.score, 0) / without.length;
-            const diff = Math.round(avgWith - avgWithout);
-            if (Math.abs(diff) > 5) {
-                patterns.push(`Dagar du nämner <strong>${cat}</strong> har ${diff > 0 ? '+' : ''}${diff} poäng i snitt ${diff > 0 ? '↑' : '↓'}`);
-            }
-        }
-    }
-
-    // Emotion frequency
-    const emoCounts = {};
-    checkins.forEach(c => { emoCounts[c.emotion] = (emoCounts[c.emotion]||0) + 1; });
-    const top = Object.entries(emoCounts).sort((a,b) => b[1]-a[1])[0];
-    if (top) patterns.push(`Din vanligaste känsla är <strong>${top[0]}</strong> (${Math.round(top[1]/checkins.length*100)}% av dagarna)`);
-
-    // Improvement from baseline
-    if (d.baselineScore && checkins.length >= 3) {
-        const recent = checkins.slice(-3).reduce((a,c) => a+c.score, 0) / 3;
-        const diff = Math.round(recent - d.baselineScore);
-        if (diff !== 0) patterns.push(`Du har ${diff > 0 ? 'förbättrats' : 'sjunkit'} <strong>${Math.abs(diff)} poäng</strong> sedan din första mätning`);
-    }
-
-    list.innerHTML = patterns.length > 0
-        ? patterns.map(p => `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;color:var(--txt2);line-height:1.5;">${p}</div>`).join('')
-        : '<p style="font-size:.82rem;color:var(--txt2);">Inga tydliga mönster ännu. Fortsätt logga!</p>';
+    const ec={};ci.forEach(c=>{ec[c.emotion]=(ec[c.emotion]||0)+1});
+    const top=Object.entries(ec).sort((a,b)=>b[1]-a[1])[0];
+    if(top)pats.push(`Vanligaste känslan: <strong>${top[0]}</strong> (${Math.round(top[1]/ci.length*100)}%)`);
+    if(d.baseline&&ci.length>=3){const r=ci.slice(-3).reduce((a,c)=>a+c.score,0)/3;const df=Math.round(r-d.baseline);if(df)pats.push(`${df>0?'Förbättrad':'Sjunkit'} <strong>${Math.abs(df)} poäng</strong> sedan start`)}
+    pl.innerHTML=pats.length?pats.map(p=>`<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;color:var(--t2);line-height:1.45">${p}</div>`).join(''):'<p style="font-size:.8rem;color:var(--t2)">Inga tydliga mönster ännu.</p>';
 }
 
 // ===== CHART =====
-function drawChart(checkins) {
-    const canvas = document.getElementById('trend-chart');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.offsetWidth * dpr;
-    canvas.height = canvas.offsetHeight * dpr;
-    ctx.scale(dpr, dpr);
-    const w = canvas.offsetWidth, h = canvas.offsetHeight;
-    const pad = { t:15, r:8, b:20, l:28 };
+function drawChart(ci){
+    const cv=document.getElementById('t-chart');if(!cv)return;
+    const ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;
+    cv.width=cv.offsetWidth*dpr;cv.height=cv.offsetHeight*dpr;ctx.scale(dpr,dpr);
+    const w=cv.offsetWidth,h=cv.offsetHeight,p={t:12,r:6,b:18,l:26};
     ctx.clearRect(0,0,w,h);
+    const ent=ci.slice(-14);if(ent.length<2){ctx.fillStyle='#A7A9BE';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('2+ samtal för graf',w/2,h/2);return}
+    const sc=ent.map(e=>e.score),cW=w-p.l-p.r,cH=h-p.t-p.b;
+    ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+    for(let i=0;i<=100;i+=25){const y=p.t+cH-(i/100)*cH;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillStyle='#A7A9BE';ctx.font='8px sans-serif';ctx.textAlign='right';ctx.fillText(i,p.l-3,y+3)}
+    const pts=sc.map((s,i)=>({x:p.l+(i/(sc.length-1))*cW,y:p.t+cH-(s/100)*cH}));
+    const gd=ctx.createLinearGradient(0,p.t,0,h);gd.addColorStop(0,'rgba(108,92,231,.22)');gd.addColorStop(1,'rgba(108,92,231,0)');
+    ctx.beginPath();ctx.moveTo(pts[0].x,h-p.b);pts.forEach(pt=>ctx.lineTo(pt.x,pt.y));ctx.lineTo(pts[pts.length-1].x,h-p.b);ctx.fillStyle=gd;ctx.fill();
+    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++){const cx=(pts[i-1].x+pts[i].x)/2;ctx.bezierCurveTo(cx,pts[i-1].y,cx,pts[i].y,pts[i].x,pts[i].y)}
+    ctx.strokeStyle='#6C5CE7';ctx.lineWidth=2.5;ctx.stroke();
+    pts.forEach((pt,i)=>{ctx.beginPath();ctx.arc(pt.x,pt.y,3.5,0,Math.PI*2);ctx.fillStyle=sc[i]>=65?'#00B894':sc[i]>=40?'#FDCB6E':'#E17055';ctx.fill();ctx.strokeStyle='#1A1928';ctx.lineWidth=1.5;ctx.stroke();const dt=new Date(ent[i].ts);ctx.fillStyle='#A7A9BE';ctx.font='7px sans-serif';ctx.textAlign='center';ctx.fillText(`${dt.getDate()}/${dt.getMonth()+1}`,pt.x,h-3)});
+}
 
-    const entries = checkins.slice(-14);
-    if (entries.length < 2) {
-        ctx.fillStyle = '#A7A9BE'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('Minst 2 check-ins för graf', w/2, h/2);
-        return;
+// ===== NAV =====
+document.querySelectorAll('.ni').forEach(i=>{i.addEventListener('click',()=>go(i.dataset.p))});
+function go(p){
+    document.querySelectorAll('.ni').forEach(i=>i.classList.toggle('on',i.dataset.p===p));
+    document.querySelectorAll('.pg').forEach(pg=>pg.classList.toggle('on',pg.id==='pg-'+p));
+    if(p==='home')renderHome();if(p==='diary')renderDiary();if(p==='progress')renderProgress();
+    window.scrollTo(0,0);
+}
+
+// ===== ONBOARDING =====
+function obNext(step){
+    if(step===3){
+        const name=document.getElementById('ai-name-input').value.trim()||'Luna';
+        document.getElementById('ob-name-preview').textContent=name;
     }
-    const scores = entries.map(e => e.score);
-    const cW = w - pad.l - pad.r, cH = h - pad.t - pad.b;
-
-    // Grid
-    ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
-    for (let i = 0; i <= 100; i += 25) {
-        const y = pad.t + cH - (i/100)*cH;
-        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w-pad.r, y); ctx.stroke();
-        ctx.fillStyle = '#A7A9BE'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
-        ctx.fillText(i, pad.l-3, y+3);
-    }
-
-    const pts = scores.map((s,i) => ({ x: pad.l + (i/(scores.length-1))*cW, y: pad.t + cH - (s/100)*cH }));
-
-    // Fill
-    const grad = ctx.createLinearGradient(0, pad.t, 0, h);
-    grad.addColorStop(0, 'rgba(108,92,231,.25)'); grad.addColorStop(1, 'rgba(108,92,231,0)');
-    ctx.beginPath(); ctx.moveTo(pts[0].x, h-pad.b);
-    pts.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.lineTo(pts[pts.length-1].x, h-pad.b); ctx.fillStyle = grad; ctx.fill();
-
-    // Line
-    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
-    for (let i=1;i<pts.length;i++) { const cx=(pts[i-1].x+pts[i].x)/2; ctx.bezierCurveTo(cx,pts[i-1].y,cx,pts[i].y,pts[i].x,pts[i].y); }
-    ctx.strokeStyle = '#6C5CE7'; ctx.lineWidth = 2.5; ctx.stroke();
-
-    // Dots + date labels
-    pts.forEach((p,i) => {
-        ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2);
-        ctx.fillStyle = scores[i]>=65?'#00B894':scores[i]>=40?'#FDCB6E':'#E17055';
-        ctx.fill(); ctx.strokeStyle='#1A1928'; ctx.lineWidth=2; ctx.stroke();
-
-        const dt = new Date(entries[i].timestamp);
-        ctx.fillStyle = '#A7A9BE'; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(`${dt.getDate()}/${dt.getMonth()+1}`, p.x, h-4);
-    });
+    document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('on'));
+    document.getElementById('ob'+step).classList.add('on');
+}
+function selectPers(el){document.querySelectorAll('.pers-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel')}
+function finishOnboarding(){
+    const name=document.getElementById('ai-name-input').value.trim()||'Luna';
+    const pers=document.querySelector('.pers-btn.sel')?.dataset.pers||'warm';
+    const d=ld();d.firstVisit=false;d.aiName=name;d.personality=pers;d.onboarded=new Date().toISOString();sv(d);
+    document.getElementById('ob').classList.add('h');
+    document.getElementById('app').style.display='';
+    renderHome();
 }
 
 // ===== SHARE =====
-function shareResult() {
-    const d = db();
-    const streak = calcStreak(d.checkins);
-    const lvl = getLevel(d.xp || 0);
-    const last = d.checkins[d.checkins.length - 1];
-    const text = `🧠 KänslaFlow — Min utveckling\n\n` +
-        `KänslaScore: ${last?.score || '—'}/100\n` +
-        `Streak: ${streak} dagar 🔥\n` +
-        `Nivå: ${lvl.level} (${lvl.name})\n\n` +
-        `Följ din emotionella utveckling: ${location.href}`;
-
-    if (navigator.share) {
-        navigator.share({ title:'KänslaFlow', text }).catch(() => {});
-    } else {
-        navigator.clipboard.writeText(text).then(() => toast('Kopierat till urklipp!')).catch(() => {});
-    }
+function doShare(){
+    const d=ld(),strk=calcStreak(d.checkins),lv=getLvl(d.xp||0),last=d.checkins[d.checkins.length-1];
+    const txt=`🧠 KänslaFlow\n\nKänslaScore: ${last?.score||'—'}/100\nStreak: ${strk} dagar 🔥\nNivå ${lv.l}: ${lv.n}\n\n${location.href}`;
+    if(navigator.share)navigator.share({title:'KänslaFlow',text:txt}).catch(()=>{});
+    else navigator.clipboard?.writeText(txt).then(()=>toast('Kopierat!')).catch(()=>{});
 }
+function exportData(){const d=ld();const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='kanslaflow-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exporterad!')}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
-// ===== EXPORT =====
-function exportData() {
-    const d = db();
-    const blob = new Blob([JSON.stringify(d, null, 2)], { type:'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'kanslaflow-' + new Date().toISOString().slice(0,10) + '.json';
-    a.click();
-    toast('Data exporterad!');
-}
+// ===== START CONVERSATION BUTTON =====
+document.getElementById('start-conv-btn').addEventListener('click',startConversation);
+document.getElementById('end-conv-btn').addEventListener('click',endConversation);
 
-// ===== TOAST =====
-function toast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-}
+// ===== INIT =====
+// Load voices early
+speechSynthesis.getVoices();
+speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
 
-// ===== RESIZE =====
-window.addEventListener('resize', () => { try { const d=db(); if(d.checkins.length>=2) drawChart(d.checkins); } catch(e){} });
+const d0=ld();
+if(!d0.firstVisit){document.getElementById('ob').classList.add('h');document.getElementById('app').style.display='';renderHome()}
+
+window.addEventListener('resize',()=>{try{const d=ld();if(d.checkins.length>=2)drawChart(d.checkins)}catch(e){}});
 </script>
-
 </body>
 </html>
