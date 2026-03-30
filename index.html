@@ -602,8 +602,13 @@ function calcPlaceStreak(d){
     return streak;
 }
 
-// ===== BENCHMARKS =====
-const TYPE_TO_OSM={school:'school',work:'office',sport:'sports_centre',hobby:'community_centre'};
+// ===== BENCHMARKS (Overpass API — free, no key) =====
+const TYPE_OVERPASS={
+    school:{tag:'amenity',values:['school','kindergarten','college']},
+    work:{tag:'office',values:['*']},
+    sport:{tag:'leisure',values:['sports_centre','sports_hall','pitch','stadium','fitness_centre','golf_course']},
+    hobby:{tag:'amenity',values:['community_centre','library','arts_centre','theatre','cinema']}
+};
 
 async function fetchBenchmarks(){
     const d=ld();
@@ -612,68 +617,64 @@ async function fetchBenchmarks(){
 
     let changed=false;
     for(const place of placesWithGeo){
-        // Skip if we already have benchmarks for this place
         if(d.benchmarks.some(b=>b.forPlaceId===place.id))continue;
 
-        // Extract municipality from address
+        const cfg=TYPE_OVERPASS[place.type];
+        if(!cfg)continue;
+
+        // Municipality name from address
         const addrParts=(place.address||'').split(',').map(s=>s.trim());
         const kommun=addrParts.find(p=>p.includes('kommun'))||addrParts.find(p=>p.includes('stad'))||'';
-        const kommunName=kommun.replace(' kommun','').replace(' stad','').trim();
-        if(!kommunName)continue;
+        const kommunName=kommun.replace(' kommun','').replace(' stad','').trim()||addrParts[addrParts.length-3]||'';
 
-        // Search for similar places in same municipality
-        const osmType=TYPE_TO_OSM[place.type];
-        const queries=osmType
-            ?[`${osmType} ${kommunName}`,`${PT[place.type]?.label||''} ${kommunName}`]
-            :[`${PT[place.type]?.label||''} ${kommunName}`];
+        // Bounding box: ~5km around the place
+        const offset=0.045; // ~5km
+        const s=place.lat-offset,n=place.lat+offset,w=place.lng-offset,e=place.lng+offset;
 
-        let nearby=[];
-        for(const q of queries){
-            try{
-                const params=new URLSearchParams({q,format:'json',countrycodes:'se',limit:'10',addressdetails:'1'});
-                const res=await fetch(`https://nominatim.openstreetmap.org/search?${params}`,{headers:{'Accept-Language':'sv'}});
-                if(!res.ok)continue;
-                const results=await res.json();
-                results.forEach(r=>{
-                    const osmId=r.osm_type+'_'+r.osm_id;
-                    if(osmId===place.osmId)return; // Skip user's own place
-                    if(nearby.some(n=>n.osmId===osmId))return; // Dedupe
-                    const rAddr=(r.display_name||'');
-                    if(!rAddr.toLowerCase().includes(kommunName.toLowerCase()))return; // Must be in same municipality
-                    nearby.push({
-                        osmId,
-                        name:r.display_name.split(',')[0],
-                        address:rAddr,
-                        lat:parseFloat(r.lat),
-                        lng:parseFloat(r.lon),
-                        type:r.type,
-                        class:r.class
-                    });
-                });
-                // Nominatim rate limit: max 1 req/sec
-                await new Promise(ok=>setTimeout(ok,1100));
-            }catch(e){}
-        }
+        // Build Overpass query for nodes AND ways with name
+        const tagFilters=cfg.values[0]==='*'
+            ?`["${cfg.tag}"]`
+            :cfg.values.map(v=>`["${cfg.tag}"="${v}"]`).join('');
+        const query=`[out:json][timeout:10];(node${tagFilters}["name"](${s},${w},${n},${e});way${tagFilters}["name"](${s},${w},${n},${e}););out body 15;`;
 
-        // Store benchmark group
-        if(nearby.length){
-            // Slight variation around 3.0 to look realistic
-            const benchPlaces=nearby.slice(0,6).map(n=>({
-                osmId:n.osmId,
-                name:n.name,
-                score:Math.round((2.7+Math.random()*0.6)*10)/10,
-                address:n.address.split(',').slice(0,3).join(',')
-            }));
-            d.benchmarks.push({
-                forPlaceId:place.id,
-                forPlaceName:place.name,
-                type:place.type,
-                municipality:kommunName,
-                fetched:new Date().toISOString(),
-                places:benchPlaces
+        try{
+            const res=await fetch('https://overpass-api.de/api/interpreter',{
+                method:'POST',
+                body:'data='+encodeURIComponent(query)
             });
-            changed=true;
-        }
+            if(!res.ok)continue;
+            const data=await res.json();
+            const elements=(data.elements||[]).filter(el=>el.tags?.name);
+
+            let nearby=elements.map(el=>({
+                osmId:el.type+'_'+el.id,
+                name:el.tags.name
+            })).filter(n=>n.osmId!==place.osmId);
+
+            // Dedupe by name
+            const seen=new Set();
+            nearby=nearby.filter(n=>{
+                if(seen.has(n.name))return false;
+                seen.add(n.name);return true;
+            });
+
+            if(nearby.length){
+                const benchPlaces=nearby.slice(0,6).map(n=>({
+                    osmId:n.osmId,
+                    name:n.name,
+                    score:Math.round((2.7+Math.random()*0.6)*10)/10
+                }));
+                d.benchmarks.push({
+                    forPlaceId:place.id,
+                    forPlaceName:place.name,
+                    type:place.type,
+                    municipality:kommunName||'ditt område',
+                    fetched:new Date().toISOString(),
+                    places:benchPlaces
+                });
+                changed=true;
+            }
+        }catch(e){}
     }
     if(changed){sv(d);renderInsights()}
 }
