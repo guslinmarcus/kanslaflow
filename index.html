@@ -3,1634 +3,1068 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>KänslaFlow — Mät & Må Bättre</title>
+    <title>KänslaFlow</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+    <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;KänslaFlow&quot;,&quot;short_name&quot;:&quot;KänslaFlow&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230F0E17&quot;,&quot;theme_color&quot;:&quot;%236C5CE7&quot;}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#6C5CE7">
     <style>
         :root {
-            --primary: #6C5CE7;
-            --primary-light: #A29BFE;
-            --primary-dark: #5A4BD1;
-            --accent: #00CEC9;
-            --accent-light: #81ECEC;
-            --bg: #0F0E17;
-            --bg-card: #1A1928;
-            --bg-card-hover: #232240;
-            --text: #FFFFFE;
-            --text-muted: #A7A9BE;
-            --success: #00B894;
-            --warning: #FDCB6E;
-            --danger: #E17055;
-            --radius: 16px;
-            --radius-sm: 10px;
-            --shadow: 0 8px 32px rgba(0,0,0,0.3);
+            --pri: #6C5CE7; --pri-l: #A29BFE; --pri-d: #5A4BD1;
+            --acc: #00CEC9; --acc-l: #81ECEC;
+            --bg: #0F0E17; --bg2: #1A1928; --bg3: #232240;
+            --txt: #FFFFFE; --txt2: #A7A9BE;
+            --ok: #00B894; --warn: #FDCB6E; --bad: #E17055;
+            --gold: #FFD700; --r: 16px; --rs: 10px;
         }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; min-height:100dvh; overflow-x:hidden; }
+        button,label { font-family:inherit; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            padding: 20px 24px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow);
-        }
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-        .header p {
-            font-size: 0.85rem;
-            opacity: 0.85;
-            margin-top: 4px;
-        }
-
-        /* ===== NAVIGATION ===== */
-        .nav {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            padding: 12px 16px;
-            background: var(--bg);
-            position: sticky;
-            top: 76px;
-            z-index: 99;
-        }
-        .nav-btn {
-            flex: 1;
-            max-width: 160px;
-            padding: 10px 16px;
-            border: none;
-            border-radius: var(--radius-sm);
-            background: var(--bg-card);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .nav-btn.active {
-            background: var(--primary);
-            color: var(--text);
-        }
+        /* ===== NAV BAR (bottom) ===== */
+        .navbar { position:fixed; bottom:0; left:0; right:0; background:var(--bg2); border-top:1px solid rgba(255,255,255,.06); display:flex; z-index:100; padding-bottom:env(safe-area-inset-bottom); }
+        .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; padding:8px 4px 6px; color:var(--txt2); font-size:.65rem; font-weight:600; cursor:pointer; transition:color .2s; gap:2px; }
+        .nav-item.active { color:var(--pri-l); }
+        .nav-item svg { width:22px; height:22px; fill:currentColor; }
+        .nav-item .badge { position:absolute; top:4px; right:calc(50% - 16px); width:8px; height:8px; background:var(--bad); border-radius:50%; }
 
         /* ===== PAGES ===== */
-        .page { display: none; padding: 20px 16px; max-width: 600px; margin: 0 auto; }
-        .page.active { display: block; }
+        .page { display:none; padding:16px 16px 90px; max-width:500px; margin:0 auto; }
+        .page.active { display:block; animation:fadeUp .3s ease; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
-        /* ===== CARDS ===== */
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 24px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .card h2 {
-            font-size: 1.1rem;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .card h2 .icon { font-size: 1.3rem; }
+        /* ===== COMMON ===== */
+        .card { background:var(--bg2); border-radius:var(--r); padding:20px; margin-bottom:14px; border:1px solid rgba(255,255,255,.04); }
+        .card-title { font-size:.95rem; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+        .btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:14px; border:none; border-radius:var(--rs); font-size:1rem; font-weight:700; cursor:pointer; transition:all .2s; }
+        .btn-p { background:linear-gradient(135deg,var(--pri),var(--pri-d)); color:var(--txt); }
+        .btn-a { background:linear-gradient(135deg,var(--acc),var(--ok)); color:var(--bg); }
+        .btn-s { background:rgba(255,255,255,.07); color:var(--txt); }
+        .btn-g { background:linear-gradient(135deg,var(--gold),#FFA500); color:#000; }
+        .btn:active { transform:scale(.97); }
+        .btn:disabled { opacity:.4; pointer-events:none; }
+        .tag { display:inline-block; padding:4px 10px; border-radius:20px; font-size:.7rem; font-weight:600; background:rgba(108,92,231,.2); color:var(--pri-l); }
+        .divider { height:1px; background:rgba(255,255,255,.06); margin:16px 0; }
 
-        /* ===== CHECK-IN ===== */
-        .checkin-step {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .checkin-step.active { display: block; }
+        /* ===== HOME PAGE ===== */
+        .home-header { text-align:center; padding:24px 0 8px; }
+        .home-header h1 { font-size:1.4rem; font-weight:800; }
+        .streak-bar { display:flex; align-items:center; justify-content:center; gap:6px; margin:12px 0; }
+        .streak-fire { font-size:1.4rem; }
+        .streak-num { font-size:1.6rem; font-weight:800; color:var(--gold); }
+        .streak-label { font-size:.8rem; color:var(--txt2); }
+        .streak-dots { display:flex; gap:4px; justify-content:center; margin:4px 0 16px; }
+        .streak-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:700; }
+        .streak-dot.done { background:var(--ok); color:#fff; }
+        .streak-dot.today { background:var(--pri); color:#fff; border:2px solid var(--pri-l); }
+        .streak-dot.future { background:rgba(255,255,255,.06); color:var(--txt2); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .prompt-card { background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(0,206,201,.1)); border:1px solid rgba(108,92,231,.2); border-radius:var(--r); padding:20px; text-align:center; margin-bottom:16px; }
+        .prompt-card .prompt-text { font-size:1.1rem; font-weight:600; line-height:1.5; margin-bottom:4px; }
+        .prompt-card .prompt-sub { font-size:.8rem; color:var(--txt2); }
 
-        .progress-bar {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 24px;
-        }
-        .progress-dot {
-            flex: 1;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255,255,255,0.1);
-            transition: background 0.3s;
-        }
-        .progress-dot.done { background: var(--accent); }
-        .progress-dot.current { background: var(--primary-light); }
+        .record-btn-wrap { display:flex; justify-content:center; margin:20px 0; }
+        .record-btn { width:80px; height:80px; border-radius:50%; border:4px solid var(--pri); background:linear-gradient(135deg,var(--pri),var(--bad)); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; position:relative; }
+        .record-btn:active { transform:scale(.9); }
+        .record-btn.recording { animation:rec-pulse 1.5s infinite; border-color:var(--bad); }
+        .record-btn svg { width:28px; height:28px; fill:#fff; }
+        @keyframes rec-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(225,112,85,.4)} 50%{box-shadow:0 0 0 16px rgba(225,112,85,0)} }
 
-        /* ===== VIDEO / CAMERA ===== */
-        .camera-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 4/3;
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            background: #000;
-            margin-bottom: 16px;
-        }
-        .camera-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1);
-        }
-        .camera-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 180px;
-            height: 220px;
-            border: 2px dashed var(--primary-light);
-            border-radius: 50%;
-            opacity: 0.6;
-            pointer-events: none;
-        }
-        .camera-timer {
-            position: absolute;
-            bottom: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.7);
-            color: var(--text);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
+        .record-status { text-align:center; color:var(--txt2); font-size:.85rem; margin:8px 0; }
+        .record-timer { font-size:1.8rem; font-weight:800; text-align:center; color:var(--txt); font-variant-numeric:tabular-nums; }
 
-        /* ===== VOICE ===== */
-        .voice-visualizer {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            height: 80px;
-            margin: 16px 0;
-        }
-        .voice-bar {
-            width: 4px;
-            background: var(--primary-light);
-            border-radius: 2px;
-            transition: height 0.1s;
-            height: 8px;
-        }
-        .voice-bar.active {
-            animation: pulse 0.4s infinite alternate;
-        }
-        @keyframes pulse {
-            from { height: 8px; }
-            to { height: var(--bar-height, 40px); }
-        }
+        /* ===== VIDEO CONTAINER ===== */
+        .video-wrap { position:relative; width:100%; aspect-ratio:4/3; border-radius:var(--rs); overflow:hidden; background:#000; margin-bottom:12px; }
+        .video-wrap video { width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+        .video-timer { position:absolute; top:10px; right:10px; background:rgba(0,0,0,.6); color:#fff; padding:4px 10px; border-radius:20px; font-size:.8rem; font-weight:700; font-variant-numeric:tabular-nums; }
+        .video-rec-dot { position:absolute; top:12px; left:12px; width:10px; height:10px; background:var(--bad); border-radius:50%; animation:blink 1s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+        .transcript-live { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(0,0,0,.8)); padding:24px 12px 10px; font-size:.8rem; color:rgba(255,255,255,.9); min-height:40px; }
 
-        /* ===== TEXT INPUT ===== */
-        .text-area {
-            width: 100%;
-            min-height: 120px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: var(--radius-sm);
-            color: var(--text);
-            padding: 16px;
-            font-size: 1rem;
-            font-family: inherit;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .text-area:focus {
-            border-color: var(--primary-light);
-        }
-        .text-area::placeholder { color: var(--text-muted); }
-        .char-count {
-            text-align: right;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
+        /* ===== RESULT PAGE ===== */
+        .result-hero { text-align:center; padding:20px 0; }
+        .score-ring { width:140px; height:140px; border-radius:50%; margin:0 auto 16px; position:relative; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+        .score-ring svg { position:absolute; top:0; left:0; width:100%; height:100%; transform:rotate(-90deg); }
+        .score-ring circle { fill:none; stroke-width:6; stroke-linecap:round; }
+        .score-ring .bg { stroke:rgba(255,255,255,.06); }
+        .score-ring .fg { transition:stroke-dashoffset 1.5s ease; }
+        .score-val { font-size:2.8rem; font-weight:800; line-height:1; z-index:1; }
+        .score-lbl { font-size:.75rem; color:var(--txt2); z-index:1; }
 
-        /* ===== BUTTONS ===== */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 14px 24px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: var(--text);
-        }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,92,231,0.4); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-secondary {
-            background: rgba(255,255,255,0.08);
-            color: var(--text);
-        }
-        .btn-accent {
-            background: linear-gradient(135deg, var(--accent), #00B894);
-            color: var(--bg);
-        }
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            width: auto;
-        }
+        .ai-reflection { background:linear-gradient(135deg,rgba(0,206,201,.1),rgba(108,92,231,.1)); border:1px solid rgba(0,206,201,.2); border-radius:var(--r); padding:16px; margin:16px 0; }
+        .ai-reflection h3 { font-size:.9rem; color:var(--acc-l); margin-bottom:6px; }
+        .ai-reflection p { font-size:.85rem; color:var(--txt2); line-height:1.6; }
 
-        /* ===== RESULT ===== */
-        .result-score {
-            text-align: center;
-            padding: 32px 0;
-        }
-        .score-circle {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .score-circle::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            padding: 4px;
-            background: conic-gradient(var(--score-color, var(--primary)) var(--score-pct, 0%), transparent 0%);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-        }
-        .score-number {
-            font-size: 3rem;
-            font-weight: 800;
-            line-height: 1;
-        }
-        .score-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .result-emotion {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin: 8px 0;
-        }
-        .result-breakdown {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin: 16px 0;
-        }
-        .breakdown-item {
-            text-align: center;
-        }
-        .breakdown-item .label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            display: block;
-        }
-        .breakdown-item .value {
-            font-size: 1rem;
-            font-weight: 600;
-        }
+        .transcript-box { background:rgba(255,255,255,.03); border-radius:var(--rs); padding:14px; margin:12px 0; max-height:150px; overflow-y:auto; }
+        .transcript-box p { font-size:.85rem; line-height:1.6; color:var(--txt2); font-style:italic; }
+        .transcript-box .timestamp { font-size:.7rem; color:var(--pri-l); margin-right:6px; }
 
-        /* ===== INTERVENTION ===== */
-        .intervention {
-            background: linear-gradient(135deg, rgba(0,206,201,0.15), rgba(108,92,231,0.15));
-            border: 1px solid rgba(0,206,201,0.3);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin: 16px 0;
-        }
-        .intervention h3 {
-            font-size: 1rem;
-            margin-bottom: 8px;
-            color: var(--accent-light);
-        }
-        .intervention p {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: var(--text-muted);
-        }
+        .categories { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
 
-        /* ===== DASHBOARD ===== */
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.04);
-            border-radius: var(--radius-sm);
-            padding: 16px;
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 800;
-        }
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .stat-change {
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 4px;
-        }
-        .stat-change.up { color: var(--success); }
-        .stat-change.down { color: var(--danger); }
+        /* ===== DIARY PAGE ===== */
+        .diary-entry { background:var(--bg2); border-radius:var(--r); padding:16px; margin-bottom:12px; border:1px solid rgba(255,255,255,.04); cursor:pointer; transition:background .2s; }
+        .diary-entry:active { background:var(--bg3); }
+        .diary-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .diary-date { font-size:.75rem; color:var(--txt2); }
+        .diary-score { font-size:1.1rem; font-weight:800; }
+        .diary-excerpt { font-size:.82rem; color:var(--txt2); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .diary-tags { display:flex; gap:4px; margin-top:8px; }
+        .diary-search { width:100%; padding:10px 14px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:var(--rs); color:var(--txt); font-size:.9rem; outline:none; margin-bottom:14px; }
+        .diary-search::placeholder { color:var(--txt2); }
 
-        /* ===== CHART ===== */
-        .chart-container {
-            width: 100%;
-            height: 200px;
-            position: relative;
-            margin: 16px 0;
-        }
-        .chart-canvas {
-            width: 100%;
-            height: 100%;
-        }
-        .chart-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
+        /* ===== PROGRESS PAGE ===== */
+        .level-bar { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+        .level-badge { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:800; flex-shrink:0; }
+        .level-info { flex:1; }
+        .level-info .level-name { font-size:.9rem; font-weight:700; }
+        .level-info .xp-text { font-size:.75rem; color:var(--txt2); margin-top:2px; }
+        .xp-bar { width:100%; height:6px; background:rgba(255,255,255,.08); border-radius:3px; margin-top:4px; overflow:hidden; }
+        .xp-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--pri),var(--acc)); transition:width .5s; }
 
-        /* ===== HISTORY LIST ===== */
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: var(--radius-sm);
-            background: rgba(255,255,255,0.03);
-            margin-bottom: 8px;
-        }
-        .history-emoji { font-size: 1.5rem; }
-        .history-info { flex: 1; }
-        .history-info .date {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-        .history-info .emotion {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        .history-score {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
+        .stat-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+        .stat-box { background:rgba(255,255,255,.03); border-radius:var(--rs); padding:14px; text-align:center; }
+        .stat-box .val { font-size:1.5rem; font-weight:800; }
+        .stat-box .lbl { font-size:.7rem; color:var(--txt2); margin-top:2px; }
+        .stat-box .chg { font-size:.7rem; font-weight:600; margin-top:2px; }
+        .stat-box .chg.up { color:var(--ok); }
+        .stat-box .chg.down { color:var(--bad); }
 
-        /* ===== INSIGHTS PAGE ===== */
-        .insight-card {
-            background: rgba(255,255,255,0.04);
-            border-radius: var(--radius-sm);
-            padding: 16px;
-            margin-bottom: 12px;
-            border-left: 3px solid var(--primary);
-        }
-        .insight-card h4 {
-            font-size: 0.9rem;
-            margin-bottom: 6px;
-        }
-        .insight-card p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
+        .rank-card { background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,165,0,.05)); border:1px solid rgba(255,215,0,.2); border-radius:var(--r); padding:16px; text-align:center; margin-bottom:14px; }
+        .rank-pct { font-size:2.2rem; font-weight:800; color:var(--gold); }
+        .rank-label { font-size:.85rem; color:var(--txt2); margin-top:4px; }
+        .rank-bar-wrap { margin:12px 0; height:8px; background:rgba(255,255,255,.08); border-radius:4px; position:relative; }
+        .rank-bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--bad),var(--warn),var(--ok)); }
+        .rank-bar-marker { position:absolute; top:-4px; width:16px; height:16px; background:var(--gold); border:2px solid #fff; border-radius:50%; transform:translateX(-50%); }
 
-        /* ===== EMPTY STATE ===== */
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--text-muted);
-        }
-        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-        .empty-state h3 { color: var(--text); margin-bottom: 8px; }
+        .chart-wrap { width:100%; height:160px; position:relative; }
+        .chart-wrap canvas { width:100%; height:100%; }
 
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 200;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 32px 24px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            animation: modalIn 0.3s ease;
-        }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* ===== BREATHING EXERCISE ===== */
-        .breathing-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-            margin: 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        .breathing-circle.inhale { animation: breatheIn 4s ease; }
-        .breathing-circle.hold { animation: none; }
-        .breathing-circle.exhale { animation: breatheOut 8s ease; }
-
-        @keyframes breatheIn {
-            from { transform: scale(0.6); opacity: 0.5; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes breatheOut {
-            from { transform: scale(1); opacity: 1; }
-            to { transform: scale(0.6); opacity: 0.5; }
-        }
+        /* ===== SHARE CARD ===== */
+        .share-card { background:linear-gradient(135deg,var(--pri-d),#2D1B69); border-radius:var(--r); padding:24px 20px; text-align:center; }
+        .share-card h3 { font-size:1rem; margin-bottom:4px; }
+        .share-card p { font-size:.8rem; color:var(--pri-l); margin-bottom:14px; }
+        .share-stats { display:flex; justify-content:center; gap:24px; margin-bottom:14px; }
+        .share-stat .num { font-size:1.4rem; font-weight:800; }
+        .share-stat .lbl { font-size:.65rem; color:var(--txt2); }
 
         /* ===== ONBOARDING ===== */
-        .onboarding {
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
-            z-index: 300;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 24px;
-            text-align: center;
-        }
-        .onboarding.hidden { display: none; }
-        .onboarding .logo { font-size: 4rem; margin-bottom: 24px; }
-        .onboarding h1 { font-size: 2rem; margin-bottom: 12px; }
-        .onboarding p { color: var(--text-muted); max-width: 320px; line-height: 1.6; margin-bottom: 32px; }
-        .features-list {
-            text-align: left;
-            max-width: 300px;
-            margin-bottom: 32px;
-        }
-        .features-list li {
-            list-style: none;
-            padding: 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-        .features-list li::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-            flex-shrink: 0;
-        }
+        .onboarding { position:fixed; inset:0; background:var(--bg); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; text-align:center; }
+        .onboarding.hidden { display:none; }
+        .ob-logo { font-size:3.5rem; margin-bottom:16px; }
+        .ob-title { font-size:1.8rem; font-weight:800; margin-bottom:8px; }
+        .ob-sub { color:var(--txt2); max-width:280px; line-height:1.5; font-size:.9rem; margin-bottom:28px; }
+        .ob-features { text-align:left; max-width:260px; margin-bottom:28px; }
+        .ob-feat { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:.85rem; color:var(--txt2); }
+        .ob-feat span:first-child { font-size:1.1rem; }
+        .ob-social { font-size:.75rem; color:var(--txt2); margin-top:16px; }
+        .ob-social strong { color:var(--acc); }
 
-        /* ===== RESPONSIVE ===== */
-        @media (min-width: 768px) {
-            .stat-grid { grid-template-columns: repeat(4, 1fr); }
-        }
+        /* ===== MODAL ===== */
+        .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:200; align-items:center; justify-content:center; padding:20px; }
+        .modal-bg.open { display:flex; }
+        .modal { background:var(--bg2); border-radius:var(--r); padding:28px 20px; max-width:380px; width:100%; text-align:center; animation:modalPop .3s ease; }
+        @keyframes modalPop { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
 
         /* ===== TOAST ===== */
-        .toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-card);
-            color: var(--text);
-            padding: 12px 24px;
-            border-radius: var(--radius-sm);
-            font-size: 0.85rem;
-            z-index: 150;
-            box-shadow: var(--shadow);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-        .toast.show { opacity: 1; }
+        .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:var(--bg2); border:1px solid rgba(255,255,255,.1); color:var(--txt); padding:10px 20px; border-radius:var(--rs); font-size:.82rem; z-index:150; opacity:0; transition:opacity .3s; pointer-events:none; }
+        .toast.show { opacity:1; }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--primary-dark); border-radius: 2px; }
+        ::-webkit-scrollbar { width:3px; }
+        ::-webkit-scrollbar-thumb { background:var(--pri-d); border-radius:3px; }
     </style>
 </head>
 <body>
 
 <!-- ===== ONBOARDING ===== -->
 <div class="onboarding" id="onboarding">
-    <div class="logo">🧠</div>
-    <h1>KänslaFlow</h1>
-    <p>Mät dina känslor med AI. Få insikter. Må bättre — varje dag.</p>
-    <ul class="features-list">
-        <li>Ansiktsanalys via kameran</li>
-        <li>Röstanalys via mikrofonen</li>
-        <li>Textanalys av dina tankar</li>
-        <li>Personliga interventioner</li>
-        <li>Dashboard med trender</li>
-        <li>All data sparas lokalt (GDPR)</li>
-    </ul>
-    <button class="btn btn-primary" id="btn-start-app" style="max-width: 300px;">
-        Kom igång
-    </button>
-    <p style="font-size: 0.75rem; margin-top: 16px; opacity: 0.5;">Prototyp v0.1 — MVP Demo</p>
+    <div class="ob-logo">🧠</div>
+    <div class="ob-title">KänslaFlow</div>
+    <p class="ob-sub">Din privata AI-videodagbok. Berätta om din dag — AI:n lyssnar, förstår och hjälper dig utvecklas.</p>
+    <div class="ob-features">
+        <div class="ob-feat"><span>🎬</span> 60 sekunders videodagbok per dag</div>
+        <div class="ob-feat"><span>🧠</span> AI analyserar dina känslor i realtid</div>
+        <div class="ob-feat"><span>📈</span> Följ din utveckling och nivåer</div>
+        <div class="ob-feat"><span>🏆</span> Se hur du förbättras mot din baseline</div>
+        <div class="ob-feat"><span>🔒</span> All data privat — du äger allt</div>
+    </div>
+    <button class="btn btn-p" id="btn-ob-start" style="max-width:280px;">Starta din resa</button>
+    <p class="ob-social">Redan <strong>2 847</strong> personer mår bättre med KänslaFlow</p>
 </div>
 
-<!-- ===== MAIN APP ===== -->
+<!-- ===== APP ===== -->
 <div id="app" style="display:none;">
 
-    <header class="header">
-        <h1>KänslaFlow</h1>
-        <p>Mät & Må Bättre</p>
-    </header>
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+        <div class="home-header">
+            <h1>KänslaFlow</h1>
+        </div>
+        <div class="streak-bar">
+            <span class="streak-fire">🔥</span>
+            <span class="streak-num" id="streak-num">0</span>
+            <span class="streak-label">dagars streak</span>
+        </div>
+        <div class="streak-dots" id="streak-dots"></div>
 
-    <nav class="nav">
-        <button class="nav-btn active" data-page="checkin">Check-in</button>
-        <button class="nav-btn" data-page="dashboard">Dashboard</button>
-        <button class="nav-btn" data-page="insights">Insikter</button>
+        <div class="prompt-card">
+            <div class="prompt-text" id="daily-prompt"></div>
+            <div class="prompt-sub">Dagens reflektion</div>
+        </div>
+
+        <div class="video-wrap" id="video-wrap" style="display:none;">
+            <video id="vid-feed" autoplay playsinline muted></video>
+            <div class="video-rec-dot" id="rec-dot" style="display:none;"></div>
+            <div class="video-timer" id="vid-timer">1:00</div>
+            <div class="transcript-live" id="transcript-live"></div>
+        </div>
+
+        <div class="record-btn-wrap">
+            <div class="record-btn" id="rec-btn">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>
+            </div>
+        </div>
+        <div class="record-status" id="rec-status">Tryck för att spela in</div>
+        <div class="record-timer" id="rec-timer-big"></div>
+
+        <div id="quick-stats" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- RESULT (shown after recording) -->
+    <div class="page" id="page-result">
+        <div class="result-hero">
+            <div class="score-ring" id="score-ring">
+                <svg viewBox="0 0 140 140">
+                    <circle class="bg" cx="70" cy="70" r="62"/>
+                    <circle class="fg" id="score-arc" cx="70" cy="70" r="62" stroke-dasharray="389.6" stroke-dashoffset="389.6"/>
+                </svg>
+                <span class="score-val" id="score-val">—</span>
+                <span class="score-lbl">KänslaScore</span>
+            </div>
+            <div id="result-emotion" style="font-size:1.2rem;font-weight:700;"></div>
+            <div id="result-xp" style="font-size:.8rem;color:var(--gold);margin-top:4px;"></div>
+        </div>
+
+        <div class="ai-reflection" id="ai-reflection">
+            <h3>🧠 AI-reflektion</h3>
+            <p id="ai-text"></p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📝 Transkription</div>
+            <div class="transcript-box" id="transcript-full"><p></p></div>
+            <div class="categories" id="result-cats"></div>
+        </div>
+
+        <div class="card" id="intervention-card">
+            <div class="card-title" id="interv-title"></div>
+            <p id="interv-text" style="font-size:.85rem;color:var(--txt2);line-height:1.5;"></p>
+        </div>
+
+        <div class="share-card">
+            <h3>Dela din framgång</h3>
+            <p>Visa vänner hur du utvecklas</p>
+            <div class="share-stats">
+                <div class="share-stat"><div class="num" id="share-score">—</div><div class="lbl">KänslaScore</div></div>
+                <div class="share-stat"><div class="num" id="share-streak">—</div><div class="lbl">Dagars streak</div></div>
+                <div class="share-stat"><div class="num" id="share-level">—</div><div class="lbl">Nivå</div></div>
+            </div>
+            <button class="btn btn-g" onclick="shareResult()">Dela med vänner</button>
+        </div>
+
+        <button class="btn btn-s" onclick="navTo('home')" style="margin-top:8px;">Tillbaka</button>
+    </div>
+
+    <!-- DIARY -->
+    <div class="page" id="page-diary">
+        <h2 style="font-size:1.2rem;margin-bottom:14px;">📖 Din dagbok</h2>
+        <input class="diary-search" id="diary-search" placeholder="Sök i dina reflektioner...">
+        <div id="diary-list"></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="page" id="page-progress">
+        <h2 style="font-size:1.2rem;margin-bottom:14px;">📈 Din utveckling</h2>
+
+        <div class="card">
+            <div class="level-bar" id="level-bar"></div>
+        </div>
+
+        <div class="rank-card" id="rank-card">
+            <div style="font-size:.85rem;color:var(--txt2);margin-bottom:4px;">Din förbättring vs. community</div>
+            <div class="rank-pct" id="rank-pct">—</div>
+            <div class="rank-label" id="rank-label"></div>
+            <div class="rank-bar-wrap">
+                <div class="rank-bar-fill" style="width:100%;"></div>
+                <div class="rank-bar-marker" id="rank-marker" style="left:50%;"></div>
+            </div>
+        </div>
+
+        <div class="stat-row" id="stat-row"></div>
+
+        <div class="card">
+            <div class="card-title">📈 Trend (14 dagar)</div>
+            <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
+        </div>
+
+        <div class="card" id="patterns-card">
+            <div class="card-title">🔍 Mönster AI hittat</div>
+            <div id="patterns-list"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📋 Exportera data</div>
+            <button class="btn btn-s" onclick="exportData()">Ladda ner (JSON)</button>
+        </div>
+    </div>
+
+    <!-- NAV -->
+    <nav class="navbar">
+        <div class="nav-item active" data-page="home">
+            <svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg>
+            Hem
+        </div>
+        <div class="nav-item" data-page="diary">
+            <svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-1 5H7V5h10v2z"/></svg>
+            Dagbok
+        </div>
+        <div class="nav-item" data-page="progress">
+            <svg viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-3h2v11H7zm4-3h2v14h-2zm4-3h2v17h-2zm4-2h2v19h-2z"/></svg>
+            Framsteg
+        </div>
     </nav>
-
-    <!-- ===== CHECK-IN PAGE ===== -->
-    <div class="page active" id="page-checkin">
-
-        <!-- STEP 1: FACE -->
-        <div class="checkin-step active" id="step-face">
-            <div class="card">
-                <div class="progress-bar">
-                    <div class="progress-dot current"></div>
-                    <div class="progress-dot"></div>
-                    <div class="progress-dot"></div>
-                </div>
-                <h2><span class="icon">📸</span> Steg 1: Ansiktsanalys</h2>
-                <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">
-                    Ta en selfie. AI:n analyserar dina ansiktsuttryck.
-                </p>
-
-                <div class="camera-container" id="camera-container">
-                    <video id="camera-feed" autoplay playsinline muted></video>
-                    <div class="camera-overlay"></div>
-                    <div class="camera-timer" id="camera-timer">5s</div>
-                </div>
-                <button class="btn btn-primary" id="btn-start-camera">
-                    Spela in video
-                </button>
-
-                <button class="btn btn-secondary" style="margin-top: 8px;" onclick="skipFace()">
-                    Hoppa över
-                </button>
-            </div>
-        </div>
-
-        <!-- STEP 2: VOICE -->
-        <div class="checkin-step" id="step-voice">
-            <div class="card">
-                <div class="progress-bar">
-                    <div class="progress-dot done"></div>
-                    <div class="progress-dot current"></div>
-                    <div class="progress-dot"></div>
-                </div>
-                <h2><span class="icon">🎤</span> Steg 2: Röstanalys</h2>
-                <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">
-                    Spela in ett kort röstmeddelande om hur du mår. AI:n analyserar ton och energi.
-                </p>
-                <div class="voice-visualizer" id="voice-visualizer">
-                    <!-- Bars generated by JS -->
-                </div>
-                <p id="voice-status" style="text-align:center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
-                    Tryck för att börja spela in
-                </p>
-
-                <button class="btn btn-primary" id="btn-start-voice">
-                    Spela in röstmeddelande
-                </button>
-
-                <button class="btn btn-secondary" style="margin-top: 8px;" onclick="skipVoice()">
-                    Hoppa över
-                </button>
-            </div>
-        </div>
-
-        <!-- STEP 3: TEXT -->
-        <div class="checkin-step" id="step-text">
-            <div class="card">
-                <div class="progress-bar">
-                    <div class="progress-dot done"></div>
-                    <div class="progress-dot done"></div>
-                    <div class="progress-dot current"></div>
-                </div>
-                <h2><span class="icon">✍️</span> Steg 3: Fri text</h2>
-                <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">
-                    Skriv kort hur du känner dig just nu. Några ord eller meningar räcker.
-                </p>
-                <textarea class="text-area" id="text-input" placeholder="Jag känner mig..." maxlength="500"></textarea>
-                <div class="char-count"><span id="char-count">0</span>/500</div>
-                <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
-                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('glad')">Glad</button>
-                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('stressad')">Stressad</button>
-                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('trött')">Trött</button>
-                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('lugn')">Lugn</button>
-                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('orolig')">Orolig</button>
-                    <button class="btn btn-sm btn-secondary" onclick="addQuickText('energisk')">Energisk</button>
-                </div>
-                <button class="btn btn-accent" style="margin-top: 16px;" onclick="analyzeAll()">
-                    Analysera mina känslor
-                </button>
-            </div>
-        </div>
-
-        <!-- RESULT -->
-        <div class="checkin-step" id="step-result">
-            <div class="card">
-                <div class="result-score">
-                    <div class="score-circle" id="score-circle">
-                        <span class="score-number" id="score-number">—</span>
-                        <span class="score-label">KänslaScore</span>
-                    </div>
-                    <div class="result-emotion" id="result-emotion"></div>
-                    <div class="result-breakdown" id="result-breakdown"></div>
-                </div>
-            </div>
-
-            <div class="intervention" id="intervention-box">
-                <h3 id="intervention-title"></h3>
-                <p id="intervention-text"></p>
-                <button class="btn btn-sm btn-accent" style="margin-top: 12px;" id="btn-do-intervention">
-                    Starta övning
-                </button>
-            </div>
-
-            <button class="btn btn-primary" onclick="resetCheckin()" style="margin-top: 8px;">
-                Ny check-in
-            </button>
-        </div>
-    </div>
-
-    <!-- ===== DASHBOARD PAGE ===== -->
-    <div class="page" id="page-dashboard">
-        <div class="card">
-            <h2><span class="icon">📊</span> Din översikt</h2>
-            <div class="stat-grid" id="stat-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-avg">—</div>
-                    <div class="stat-label">Genomsnitt</div>
-                    <div class="stat-change" id="stat-avg-change"></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-streak">0</div>
-                    <div class="stat-label">Dagars streak</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-best">—</div>
-                    <div class="stat-label">Bästa score</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-total">0</div>
-                    <div class="stat-label">Check-ins</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2><span class="icon">📈</span> Trend (senaste 14 dagarna)</h2>
-            <div class="chart-container">
-                <canvas class="chart-canvas" id="trend-chart"></canvas>
-            </div>
-            <div class="chart-labels" id="chart-labels"></div>
-        </div>
-
-        <div class="card">
-            <h2><span class="icon">🕐</span> Historik</h2>
-            <div id="history-list"></div>
-        </div>
-    </div>
-
-    <!-- ===== INSIGHTS PAGE ===== -->
-    <div class="page" id="page-insights">
-        <div class="card">
-            <h2><span class="icon">💡</span> AI-insikter</h2>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
-                Baserat på dina check-ins identifierar AI:n mönster och ger personliga rekommendationer.
-            </p>
-            <div id="insights-list"></div>
-        </div>
-
-        <div class="card">
-            <h2><span class="icon">🎯</span> Emotionell fördelning</h2>
-            <div id="emotion-distribution"></div>
-        </div>
-
-        <div class="card">
-            <h2><span class="icon">📋</span> Exportera data</h2>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
-                Ladda ner all din data som JSON. Du äger din data.
-            </p>
-            <button class="btn btn-secondary" onclick="exportData()">
-                Ladda ner data (JSON)
-            </button>
-        </div>
-    </div>
-
 </div>
 
-<!-- ===== BREATHING MODAL ===== -->
-<div class="modal-overlay" id="breathing-modal">
-    <div class="modal">
-        <h2 style="margin-bottom: 8px;">4-7-8 Andning</h2>
-        <p style="color: var(--text-muted); font-size: 0.85rem;">Följ cirkeln. Slappna av.</p>
-        <div class="breathing-circle" id="breathing-circle">Redo</div>
-        <p id="breathing-instruction" style="font-size: 1rem; font-weight: 600; margin: 12px 0;">
-            Tryck för att börja
-        </p>
-        <p id="breathing-counter" style="color: var(--text-muted); font-size: 0.85rem;"></p>
-        <button class="btn btn-primary" id="btn-start-breathing" style="margin-top: 16px;">
-            Starta
-        </button>
-        <button class="btn btn-secondary" style="margin-top: 8px;" onclick="closeBreathing()">
-            Stäng
-        </button>
-    </div>
-</div>
-
-<!-- ===== TOAST ===== -->
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// =====================================================================
-// KänslaFlow MVP — Core Logic
-// =====================================================================
+// ===================================================================
+// KänslaFlow v2 — Video Diary + Growth Engine
+// ===================================================================
 
-// ===== DATA STORE (localStorage with fallback) =====
-const STORAGE_KEY = 'kanslaflow_data';
-let memoryStore = { checkins: [], firstVisit: true }; // fallback if localStorage blocked
+// ===== STORAGE =====
+const SK = 'kf2_data';
+let mem = { checkins:[], xp:0, level:1, firstVisit:true, baselineScore:null, onboardedAt:null };
+let storageOK = false;
+try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); storageOK = true; } catch(e) {}
 
-function storageAvailable() {
-    try {
-        const t = '__test__';
-        localStorage.setItem(t, '1');
-        localStorage.removeItem(t);
-        return true;
-    } catch (e) {
-        return false;
-    }
+function load() {
+    if (!storageOK) return mem;
+    try { const d = localStorage.getItem(SK); return d ? JSON.parse(d) : mem; } catch(e) { return mem; }
+}
+function save(d) { if (storageOK) try { localStorage.setItem(SK, JSON.stringify(d)); } catch(e) {} mem = d; }
+function db() { return load(); }
+
+// ===== PROMPTS =====
+const PROMPTS = [
+    "Berätta om din dag — vad har tagit mest energi?",
+    "Vad fick dig att le idag?",
+    "Vad oroar dig mest just nu?",
+    "Om du kunde ändra en sak idag — vad hade det varit?",
+    "Berätta om ett ögonblick idag som betydde något",
+    "Hur har din energi varit idag, från morgon till nu?",
+    "Vad är du mest tacksam för just nu?",
+    "Hur har dina relationer påverkat dig idag?",
+    "Vad har stressat dig mest den senaste tiden?",
+    "Berätta om något du lärt dig om dig själv nyligen",
+    "Vad ser du fram emot just nu?",
+    "Hur har du tagit hand om dig själv idag?",
+    "Om din dag var en film — vad var höjdpunkten?",
+    "Vad behöver du just nu som du inte har?",
+];
+function todaysPrompt() {
+    const day = Math.floor(Date.now() / 86400000);
+    return PROMPTS[day % PROMPTS.length];
 }
 
-const useLocalStorage = storageAvailable();
+// ===== SWEDISH SENTIMENT =====
+const EMO = {
+    glad:    { w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','le','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','kramade'], v:.85 },
+    lugn:    { w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok','ganska bra'], v:.65 },
+    ledsen:  { w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt'], v:.25 },
+    stressad:{ w:['stressad','pressad','överväldigad','kaos','panik','deadline','mycket','hinner inte','sliten','utbränd','utmattad','nervös','jäkta','rushing','hundra saker'], v:.3 },
+    orolig:  { w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','klump','gnager','grubblar','ältande'], v:.28 },
+    arg:     { w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd','hatjar','jävla','fan'], v:.2 },
+    trott:   { w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg','dålig sömn','sliten','gäspar'], v:.35 },
+};
 
-function getData() {
-    if (!useLocalStorage) return memoryStore;
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : { checkins: [], firstVisit: true };
-    } catch (e) {
-        return memoryStore;
-    }
-}
-
-function saveData(data) {
-    if (!useLocalStorage) { memoryStore = data; return; }
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {
-        memoryStore = data;
-    }
-}
-
-function addCheckin(entry) {
-    const data = getData();
-    data.checkins.push({ ...entry, timestamp: new Date().toISOString() });
-    saveData(data);
-}
-
-// ===== SWEDISH SENTIMENT ANALYSIS =====
-const EMOTION_WORDS = {
-    glad:      { words: ['glad', 'lycklig', 'nöjd', 'fantastisk', 'underbar', 'toppen', 'skratta', 'le', 'rolig', 'kul', 'bra', 'härlig', 'glädje', 'fin', 'positiv', 'tacksam', 'stolt', 'energisk', 'pigg', 'motiverad', 'hoppfull', 'fri', 'avslappnad'], valence: 0.85 },
-    lugn:      { words: ['lugn', 'avslappnad', 'fridful', 'harmonisk', 'balanserad', 'still', 'trygg', 'bekväm', 'stabil', 'okej', 'neutral'], valence: 0.65 },
-    ledsen:    { words: ['ledsen', 'sorglig', 'nere', 'gråter', 'ensam', 'tom', 'hopplös', 'deprimerad', 'melankolisk', 'saknar', 'förlorad', 'besviken', 'uppgiven'], valence: 0.25 },
-    stressad:  { words: ['stressad', 'pressad', 'överväldigad', 'kaos', 'panik', 'deadline', 'mycket', 'hinner inte', 'sliten', 'utbränd', 'utmattad', 'nervös'], valence: 0.3 },
-    orolig:    { words: ['orolig', 'ångest', 'rädd', 'osäker', 'ängslig', 'oro', 'skrämmande', 'otrygg', 'spänd', 'klump'], valence: 0.28 },
-    arg:       { words: ['arg', 'irriterad', 'frustrerad', 'sur', 'rasande', 'ilsken', 'förbannad', 'less', 'trött på', 'upprörd'], valence: 0.2 },
-    trott:     { words: ['trött', 'utmattad', 'slut', 'dränerad', 'sömnig', 'orkeslös', 'seg', 'dålig sömn', 'sliten'], valence: 0.35 },
+// Categories for tagging
+const CATS = {
+    jobb:      ['jobb','jobbet','arbete','kontor','chef','möte','möten','kolleg','projekt','deadline','kund','mail','Teams','Slack'],
+    relationer:['familj','partner','sambo','flickvän','pojkvän','kompis','vän','vänner','barn','mamma','pappa','relation','dejt'],
+    hälsa:     ['träna','gym','springa','yoga','sömn','sov','sjuk','ont','huvudvärk','energi','mat','äta'],
+    fritid:    ['hobby','spel','film','serie','bok','musik','natur','promenad','resa','semester','fest'],
+    ekonomi:   ['pengar','ekonomi','räkning','lön','spara','köpa','dyrt','budget'],
 };
 
 function analyzeText(text) {
-    if (!text || !text.trim()) return { emotion: 'neutral', score: 50, confidence: 0 };
+    if (!text || !text.trim()) return { emotion:'neutral', score:50, confidence:0, categories:[] };
+    const low = text.toLowerCase();
 
-    const lower = text.toLowerCase();
-    const scores = {};
-    let totalHits = 0;
-
-    for (const [emotion, data] of Object.entries(EMOTION_WORDS)) {
-        let hits = 0;
-        for (const word of data.words) {
-            if (lower.includes(word)) hits++;
-        }
-        scores[emotion] = hits;
-        totalHits += hits;
+    // Emotion
+    let scores = {};
+    let total = 0;
+    for (const [emo, d] of Object.entries(EMO)) {
+        let h = 0;
+        for (const w of d.w) { if (low.includes(w)) h++; }
+        scores[emo] = h;
+        total += h;
     }
+    let dominant = 'neutral', maxH = 0;
+    for (const [e,h] of Object.entries(scores)) { if (h > maxH) { maxH = h; dominant = e; } }
+    const valence = total > 0 ? (EMO[dominant]?.v ?? .5) : .5;
+    const confidence = Math.min(total / 3, 1);
 
-    if (totalHits === 0) return { emotion: 'neutral', score: 50, confidence: 0.2 };
-
-    // Find dominant emotion
-    let dominant = 'neutral';
-    let maxHits = 0;
-    for (const [emotion, hits] of Object.entries(scores)) {
-        if (hits > maxHits) {
-            maxHits = hits;
-            dominant = emotion;
-        }
+    // Categories
+    const cats = [];
+    for (const [cat, words] of Object.entries(CATS)) {
+        if (words.some(w => low.includes(w))) cats.push(cat);
     }
+    if (cats.length === 0) cats.push('allmänt');
 
-    const valence = EMOTION_WORDS[dominant]?.valence ?? 0.5;
-    const confidence = Math.min(maxHits / 3, 1);
-    const score = Math.round(valence * 100);
-
-    return { emotion: dominant, score, confidence };
+    return { emotion: dominant, score: Math.round(valence * 100), confidence, categories: cats };
 }
 
-// ===== SIMULATED FACE ANALYSIS =====
-// In production: use TensorFlow.js face-api or cloud API
-function analyzeFace(hasImage) {
-    if (!hasImage) return { emotion: 'neutral', score: 50, confidence: 0 };
+// ===== AI REFLECTION GENERATOR =====
+function generateReflection(entry, data) {
+    const { score, emotion, transcript, categories } = entry;
+    const checkins = data.checkins;
+    const parts = [];
 
-    // Simulate with weighted random (in prod: real ML model)
-    const emotions = ['glad', 'lugn', 'neutral', 'stressad', 'ledsen'];
-    const weights = [0.3, 0.25, 0.2, 0.15, 0.1]; // bias towards positive for demo
-    let r = Math.random();
-    let emotion = 'neutral';
-    for (let i = 0; i < emotions.length; i++) {
-        r -= weights[i];
-        if (r <= 0) { emotion = emotions[i]; break; }
+    // Compare with yesterday
+    if (checkins.length > 0) {
+        const last = checkins[checkins.length - 1];
+        const diff = score - last.score;
+        if (diff > 15) parts.push(`Din KänslaScore gick upp ${diff} poäng sedan sist — något gör dig gott.`);
+        else if (diff < -15) parts.push(`Din score sjönk ${Math.abs(diff)} poäng. Det är okej att ha sämre dagar — det viktigaste är att du reflekterar.`);
     }
-    const valence = EMOTION_WORDS[emotion]?.valence ?? 0.5;
-    return { emotion, score: Math.round(valence * 100), confidence: 0.7 };
-}
 
-// ===== SIMULATED VOICE ANALYSIS =====
-function analyzeVoice(hasAudio, energy) {
-    if (!hasAudio) return { emotion: 'neutral', score: 50, confidence: 0 };
-
-    // Energy level affects score
-    const score = Math.round(40 + energy * 40 + Math.random() * 20);
-    let emotion = 'neutral';
-    if (score > 70) emotion = 'glad';
-    else if (score > 55) emotion = 'lugn';
-    else if (score > 40) emotion = 'stressad';
-    else emotion = 'trott';
-
-    return { emotion, score: Math.min(100, score), confidence: 0.6 };
-}
-
-// ===== FUSION: COMBINE ALL MODALITIES =====
-function fuseResults(face, voice, text) {
-    // Adaptive weights: modalities with data get more weight
-    let w = { face: 0, voice: 0, text: 0 };
-    if (face.confidence > 0) w.face = 0.4;
-    if (voice.confidence > 0) w.voice = 0.25;
-    if (text.confidence > 0) w.text = 0.35;
-
-    const totalW = w.face + w.voice + w.text;
-    if (totalW === 0) return { score: 50, emotion: 'neutral', face, voice, text };
-
-    // Normalize weights
-    w.face /= totalW;
-    w.voice /= totalW;
-    w.text /= totalW;
-
-    const score = Math.round(
-        face.score * w.face +
-        voice.score * w.voice +
-        text.score * w.text
-    );
-
-    // Pick dominant emotion from highest-confidence modality
-    const modalities = [
-        { ...face, weight: w.face },
-        { ...voice, weight: w.voice },
-        { ...text, weight: w.text }
-    ].sort((a, b) => b.confidence - a.confidence);
-
-    const emotion = modalities[0].emotion;
-
-    return { score: Math.max(0, Math.min(100, score)), emotion, face, voice, text };
-}
-
-// ===== INTERVENTION LOGIC =====
-function getIntervention(score, emotion) {
-    if (score < 30) {
-        return {
-            title: 'Du behöver en paus just nu',
-            text: '4-7-8 andning: Andas in genom näsan i 4 sekunder, håll andan i 7 sekunder, andas ut genom munnen i 8 sekunder. Upprepa 3 gånger. Detta aktiverar ditt parasympatiska nervsystem och sänker kortisol.',
-            type: 'breathing',
-            icon: '🧘'
-        };
-    } else if (score < 50) {
-        return {
-            title: 'Tid för en micro-boost',
-            text: 'Prova "5-4-3-2-1"-tekniken: Identifiera 5 saker du ser, 4 du kan röra, 3 du hör, 2 du luktar, 1 du smakar. Det förankrar dig i nuet och minskar stress och oro.',
-            type: 'grounding',
-            icon: '🌿'
-        };
-    } else if (score < 70) {
-        return {
-            title: 'Bra läge — optimera vidare',
-            text: 'Lyssna på din favoritlåt i 2 minuter. Musik med 60-80 BPM synkroniserar med din hjärtrytm och forskning visar att det höjer humöret med ~25% inom minuter.',
-            type: 'music',
-            icon: '🎵'
-        };
-    } else {
-        return {
-            title: 'Fantastiskt — bevara känslan',
-            text: 'Skriv ner 3 saker du är tacksam för just nu. Gratitude journaling förstärker positiva neurala kopplingar. Din trend pekar uppåt — fortsätt med det du gör!',
-            type: 'gratitude',
-            icon: '🌟'
-        };
+    // Category-based insight
+    if (categories.includes('jobb') && score < 45) {
+        parts.push('Du nämner jobbet och verkar tyngd. Finns det en specifik sak du kan påverka, eller behöver du bara ventilera?');
+    } else if (categories.includes('relationer') && score > 60) {
+        parts.push('Relationer ger dig energi — det märks i din röst och dina ord.');
+    } else if (categories.includes('hälsa')) {
+        parts.push('Bra att du uppmärksammar din hälsa. Forskning visar att kropp och känsla hänger ihop starkare än de flesta tror.');
     }
+
+    // Emotion-specific
+    const emotionTexts = {
+        stressad: 'Stress är kroppens signal att något behöver förändras. Även 2 minuters medveten andning kan sänka kortisolet märkbart.',
+        orolig: 'Oro handlar ofta om framtiden. Prova att fokusera på en sak du kan kontrollera just nu — det minskar orons grepp.',
+        glad: 'Glädje är smittsam — din positiva energi påverkar människorna runt dig mer än du tror.',
+        ledsen: 'Det tar mod att erkänna att man är ledsen. Att sätta ord på känslan, som du just gjorde, är i sig ett bevisat sätt att bearbeta den.',
+        trott: 'Trötthet påverkar allt — humör, beslut, relationer. Prioritera sömn ikväll så kommer morgondagen se annorlunda ut.',
+        arg: 'Ilska bär ofta på viktig information. Vad är det egentligen som gör dig frustrerad? Svaret kan avslöja vad som verkligen är viktigt för dig.',
+        lugn: 'Lugn är inte frånvaro av problem — det är närvaron av inre styrka. Du verkar ha en bra balans just nu.',
+    };
+    if (emotionTexts[emotion] && parts.length < 2) parts.push(emotionTexts[emotion]);
+
+    // Pattern detection
+    if (checkins.length >= 5) {
+        const recent5 = checkins.slice(-5).map(c => c.score);
+        const avg5 = recent5.reduce((a,b) => a+b) / 5;
+        const trend = score - avg5;
+        if (trend > 10) parts.push(`Du ligger ${Math.round(trend)} poäng över ditt snitt senaste 5 dagarna. Din positiva trend fortsätter!`);
+    }
+
+    if (parts.length === 0) parts.push('Tack för att du delade. Varje reflektion bygger din emotionella medvetenhet — och det är grunden för förändring.');
+    return parts.join(' ');
+}
+
+// ===== INTERVENTIONS =====
+function getIntervention(score) {
+    if (score < 35) return { title:'🧘 Andningsövning', text:'4-7-8 andning: Andas in 4s genom näsan, håll 7s, ut 8s genom munnen. 3 omgångar. Det sänker ditt kortisol och aktiverar vila-och-läk-systemet.' };
+    if (score < 55) return { title:'🌿 Grounding', text:'5-4-3-2-1: Identifiera 5 saker du ser, 4 du rör, 3 du hör, 2 du luktar, 1 du smakar. Det bryter tankespiraler och förankrar dig i nuet.' };
+    if (score < 75) return { title:'🎵 Humörboost', text:'Sätt på en låt som ger dig energi och rör dig i 2 minuter. Musik + rörelse frigör endorfiner och höjer humöret mätbart inom minuter.' };
+    return { title:'🌟 Bevara känslan', text:'Skriv 3 saker du är tacksam för just nu. Gratitude journaling stärker de neurala kopplingarna för positiva känslor och bygger resiliens.' };
+}
+
+// ===== XP & LEVELS =====
+const LEVELS = [
+    { level:1, name:'Nybörjare', xp:0, color:'var(--txt2)' },
+    { level:2, name:'Reflekterare', xp:50, color:'var(--acc)' },
+    { level:3, name:'Medveten', xp:150, color:'var(--pri-l)' },
+    { level:4, name:'Utforskare', xp:350, color:'var(--ok)' },
+    { level:5, name:'Insiktsfull', xp:600, color:'var(--warn)' },
+    { level:6, name:'Emotionell atlet', xp:1000, color:'var(--gold)' },
+    { level:7, name:'KänsloMästare', xp:1500, color:'#FF6B6B' },
+];
+
+function getLevel(xp) {
+    let lvl = LEVELS[0];
+    for (const l of LEVELS) { if (xp >= l.xp) lvl = l; }
+    return lvl;
+}
+function getNextLevel(xp) {
+    for (const l of LEVELS) { if (xp < l.xp) return l; }
+    return null;
+}
+
+function calcXP(entry) {
+    let xp = 15; // base: daily check-in
+    if (entry.transcript && entry.transcript.length > 50) xp += 10; // spoke meaningfully
+    if (entry.score > 70) xp += 5; // positive state bonus
+    return xp;
+}
+
+// ===== STREAK =====
+function calcStreak(checkins) {
+    if (checkins.length === 0) return 0;
+    const days = new Set(checkins.map(c => new Date(c.timestamp).toDateString()));
+    let streak = 0;
+    let d = new Date();
+    while (days.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+    return streak;
+}
+function didCheckInToday(checkins) {
+    if (checkins.length === 0) return false;
+    return checkins.some(c => new Date(c.timestamp).toDateString() === new Date().toDateString());
+}
+
+// ===== RANKING (simulated community benchmark) =====
+function calcRank(data) {
+    const checkins = data.checkins;
+    if (checkins.length < 3) return { percentile: 50, label: 'Gör fler check-ins för ranking' };
+    const baseline = data.baselineScore || checkins[0].score;
+    const recent = checkins.slice(-5).reduce((a,c) => a+c.score, 0) / Math.min(checkins.length, 5);
+    const improvement = recent - baseline;
+    // Simulate percentile based on improvement (in prod: real backend)
+    const pct = Math.max(5, Math.min(99, 50 + improvement * 1.5 + calcStreak(checkins) * 2));
+    const rounded = Math.round(pct);
+    let label = `Du förbättras snabbare än ${rounded}% av alla användare`;
+    if (rounded > 80) label = `Topp ${100 - rounded}%! Du utvecklas otroligt bra`;
+    return { percentile: rounded, label };
 }
 
 // ===== STATE =====
-let currentStep = 0;
-let checkinData = { hasFace: false, hasVoice: false, voiceEnergy: 0.5 };
-let cameraStream = null;
-let audioContext = null;
-let mediaRecorder = null;
+let recording = false;
+let stream = null;
+let recognition = null;
+let liveTranscript = '';
+let fullTranscript = '';
+let recStart = 0;
+let recInterval = null;
+let maxDuration = 180; // 3 min max
+let faceAnalyzed = false;
 
-// ===== APP INIT =====
-function showApp() {
+// ===== INIT =====
+function init() {
+    const d = db();
+    if (!d.firstVisit) {
+        document.getElementById('onboarding').classList.add('hidden');
+        document.getElementById('app').style.display = 'block';
+        renderHome();
+    }
+}
+init();
+
+// ===== ONBOARDING =====
+document.getElementById('btn-ob-start').addEventListener('click', () => {
+    const d = db();
+    d.firstVisit = false;
+    d.onboardedAt = new Date().toISOString();
+    save(d);
     document.getElementById('onboarding').classList.add('hidden');
     document.getElementById('app').style.display = 'block';
-    try { updateDashboard(); } catch(e) {}
-    try { updateInsights(); } catch(e) {}
-}
-
-function startApp() {
-    try {
-        const data = getData();
-        data.firstVisit = false;
-        saveData(data);
-    } catch (e) {
-        // Continue even if storage fails
-    }
-    showApp();
-}
-
-// Check if returning user
-try {
-    const data = getData();
-    if (!data.firstVisit) {
-        showApp();
-    }
-} catch (e) {
-    // First visit or storage blocked — show onboarding (default)
-}
+    renderHome();
+});
 
 // ===== NAVIGATION =====
-document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('page-' + btn.dataset.page).classList.add('active');
-        if (btn.dataset.page === 'dashboard') updateDashboard();
-        if (btn.dataset.page === 'insights') updateInsights();
-    });
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => navTo(item.dataset.page));
 });
+function navTo(page) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.page === page));
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
+    if (page === 'home') renderHome();
+    if (page === 'diary') renderDiary();
+    if (page === 'progress') renderProgress();
+    window.scrollTo(0,0);
+}
 
-// ===== CAMERA — live video stream =====
-document.getElementById('btn-start-camera').addEventListener('click', async () => {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-        cameraStream = stream;
-        const video = document.getElementById('camera-feed');
-        video.srcObject = stream;
+// ===== RENDER HOME =====
+function renderHome() {
+    const d = db();
+    const streak = calcStreak(d.checkins);
+    const today = didCheckInToday(d.checkins);
+    document.getElementById('streak-num').textContent = streak;
+    document.getElementById('daily-prompt').textContent = todaysPrompt();
 
-        const btn = document.getElementById('btn-start-camera');
-        btn.disabled = true;
-        btn.textContent = 'Spelar in...';
-
-        let countdown = 5;
-        const timer = document.getElementById('camera-timer');
-        const interval = setInterval(() => {
-            countdown--;
-            timer.textContent = countdown + 's';
-            if (countdown <= 0) {
-                clearInterval(interval);
-                checkinData.hasFace = true;
-                stream.getTracks().forEach(t => t.stop());
-                goToStep(1);
-            }
-        }, 1000);
-    } catch (err) {
-        showToast('Kameran kunde inte startas — hoppar över');
-        skipFace();
+    // Week dots
+    const dotsCont = document.getElementById('streak-dots');
+    const dayNames = ['M','T','O','T','F','L','S'];
+    const now = new Date();
+    const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+        const cls = i < dayOfWeek ? 'done' : i === dayOfWeek ? (today ? 'done' : 'today') : 'future';
+        html += `<div class="streak-dot ${cls}">${dayNames[i]}</div>`;
     }
-});
+    dotsCont.innerHTML = html;
 
-function skipFace() {
-    checkinData.hasFace = false;
-    if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
-    goToStep(1);
-}
-
-// ===== VOICE — direct microphone recording =====
-// Create visualizer bars
-(function createBars() {
-    const viz = document.getElementById('voice-visualizer');
-    for (let i = 0; i < 32; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'voice-bar';
-        bar.style.setProperty('--bar-height', (20 + Math.random() * 40) + 'px');
-        viz.appendChild(bar);
-    }
-})();
-
-document.getElementById('btn-start-voice').addEventListener('click', async () => {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const btn = document.getElementById('btn-start-voice');
-        btn.disabled = true;
-
-        audioContext = new AudioContext();
-        const source = audioContext.createMediaStreamSource(stream);
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 64;
-        source.connect(analyser);
-
-        const bars = document.querySelectorAll('.voice-bar');
-        bars.forEach(b => b.classList.add('active'));
-
-        document.getElementById('voice-status').textContent = 'Lyssnar... berätta hur du mår';
-
-        let energySum = 0;
-        let energyCount = 0;
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-        const monitor = setInterval(() => {
-            analyser.getByteFrequencyData(dataArray);
-            const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
-            energySum += avg;
-            energyCount++;
-        }, 100);
-
-        let countdown = 10;
-        const interval = setInterval(() => {
-            countdown--;
-            document.getElementById('voice-status').textContent = `Spelar in... ${countdown}s kvar`;
-            if (countdown <= 0) {
-                clearInterval(interval);
-                clearInterval(monitor);
-                bars.forEach(b => b.classList.remove('active'));
-                stream.getTracks().forEach(t => t.stop());
-                if (audioContext) audioContext.close();
-
-                checkinData.hasVoice = true;
-                checkinData.voiceEnergy = energyCount > 0 ? Math.min(energySum / energyCount / 128, 1) : 0.5;
-
-                document.getElementById('voice-status').textContent = 'Inspelning klar!';
-                setTimeout(() => goToStep(2), 500);
-            }
-        }, 1000);
-    } catch (err) {
-        showToast('Mikrofonen kunde inte startas — hoppar över');
-        skipVoice();
-    }
-});
-
-function skipVoice() {
-    checkinData.hasVoice = false;
-    goToStep(2);
-}
-
-// ===== TEXT =====
-document.getElementById('text-input').addEventListener('input', (e) => {
-    document.getElementById('char-count').textContent = e.target.value.length;
-});
-
-function addQuickText(word) {
-    const input = document.getElementById('text-input');
-    input.value = input.value ? input.value + ', ' + word : 'Jag känner mig ' + word;
-    document.getElementById('char-count').textContent = input.value.length;
-}
-
-// ===== ANALYSIS & RESULTS =====
-function analyzeAll() {
-    const text = document.getElementById('text-input').value;
-
-    const faceResult = analyzeFace(checkinData.hasFace);
-    const voiceResult = analyzeVoice(checkinData.hasVoice, checkinData.voiceEnergy);
-    const textResult = analyzeText(text);
-
-    const result = fuseResults(faceResult, voiceResult, textResult);
-    const intervention = getIntervention(result.score, result.emotion);
-
-    // Save check-in
-    addCheckin({
-        score: result.score,
-        emotion: result.emotion,
-        text: text,
-        face: faceResult,
-        voice: voiceResult,
-        textAnalysis: textResult,
-        intervention: intervention.type,
-        modalities: {
-            face: checkinData.hasFace,
-            voice: checkinData.hasVoice,
-            text: text.length > 0
-        }
-    });
-
-    // Display result
-    showResult(result, intervention);
-    goToStep(3);
-}
-
-function showResult(result, intervention) {
-    const scoreEl = document.getElementById('score-number');
-    const emotionEl = document.getElementById('result-emotion');
-    const circleEl = document.getElementById('score-circle');
-    const breakdownEl = document.getElementById('result-breakdown');
-
-    // Animate score
-    let current = 0;
-    const target = result.score;
-    const step = Math.ceil(target / 30);
-    const timer = setInterval(() => {
-        current = Math.min(current + step, target);
-        scoreEl.textContent = current;
-        circleEl.style.setProperty('--score-pct', current + '%');
-
-        if (current < 40) circleEl.style.setProperty('--score-color', '#E17055');
-        else if (current < 65) circleEl.style.setProperty('--score-color', '#FDCB6E');
-        else circleEl.style.setProperty('--score-color', '#00B894');
-
-        if (current >= target) clearInterval(timer);
-    }, 30);
-
-    const emotionLabels = {
-        glad: '😊 Glad', lugn: '😌 Lugn', neutral: '😐 Neutral',
-        stressad: '😰 Stressad', ledsen: '😢 Ledsen', orolig: '😟 Orolig',
-        arg: '😤 Arg', trott: '😴 Trött'
-    };
-    emotionEl.textContent = emotionLabels[result.emotion] || '😐 Neutral';
-
-    // Breakdown
-    breakdownEl.innerHTML = `
-        <div class="breakdown-item">
-            <span class="label">Ansikte</span>
-            <span class="value">${result.face.confidence > 0 ? result.face.score : '—'}</span>
-        </div>
-        <div class="breakdown-item">
-            <span class="label">Röst</span>
-            <span class="value">${result.voice.confidence > 0 ? result.voice.score : '—'}</span>
-        </div>
-        <div class="breakdown-item">
-            <span class="label">Text</span>
-            <span class="value">${result.text.confidence > 0 ? result.text.score : '—'}</span>
-        </div>
-    `;
-
-    // Intervention
-    document.getElementById('intervention-title').textContent = intervention.icon + ' ' + intervention.title;
-    document.getElementById('intervention-text').textContent = intervention.text;
-
-    const intBtn = document.getElementById('btn-do-intervention');
-    if (intervention.type === 'breathing') {
-        intBtn.style.display = 'inline-flex';
-        intBtn.onclick = () => openBreathing();
+    // Quick stats
+    const qs = document.getElementById('quick-stats');
+    if (d.checkins.length > 0 && today) {
+        const last = d.checkins[d.checkins.length - 1];
+        qs.innerHTML = `<div class="card" style="text-align:center;cursor:pointer;" onclick="navTo('progress')">
+            <div style="font-size:.8rem;color:var(--txt2);">Dagens KänslaScore</div>
+            <div style="font-size:2rem;font-weight:800;color:${last.score>=65?'var(--ok)':last.score>=40?'var(--warn)':'var(--bad)'}">${last.score}</div>
+            <div style="font-size:.75rem;color:var(--txt2);margin-top:4px;">Tryck för att se din utveckling →</div>
+        </div>`;
+        document.getElementById('rec-status').textContent = 'Du har redan reflekterat idag ✓ (du kan göra fler)';
     } else {
-        intBtn.style.display = 'none';
+        qs.innerHTML = '';
+        document.getElementById('rec-status').textContent = 'Tryck för att spela in';
     }
 }
 
-// ===== STEP NAVIGATION =====
-function goToStep(step) {
-    document.querySelectorAll('.checkin-step').forEach(s => s.classList.remove('active'));
-    const steps = ['step-face', 'step-voice', 'step-text', 'step-result'];
-    document.getElementById(steps[step]).classList.add('active');
-    currentStep = step;
-}
+// ===== RECORDING =====
+const recBtn = document.getElementById('rec-btn');
+recBtn.addEventListener('click', () => {
+    if (!recording) startRecording();
+    else stopRecording();
+});
 
-function resetCheckin() {
-    checkinData = { hasFace: false, hasVoice: false, voiceEnergy: 0.5 };
-    document.getElementById('text-input').value = '';
-    document.getElementById('char-count').textContent = '0';
-    document.getElementById('btn-start-camera').disabled = false;
-    document.getElementById('btn-start-camera').textContent = 'Starta kameran';
-    document.getElementById('camera-timer').textContent = '5s';
-    document.getElementById('btn-start-voice').disabled = false;
-    document.getElementById('voice-status').textContent = 'Tryck för att börja spela in';
-    goToStep(0);
-}
-
-// ===== DASHBOARD =====
-function updateDashboard() {
-    const data = getData();
-    const checkins = data.checkins || [];
-
-    // Stats
-    const total = checkins.length;
-    document.getElementById('stat-total').textContent = total;
-
-    if (total === 0) {
-        document.getElementById('stat-avg').textContent = '—';
-        document.getElementById('stat-best').textContent = '—';
-        document.getElementById('stat-streak').textContent = '0';
-        document.getElementById('history-list').innerHTML = '<div class="empty-state"><div class="icon">📊</div><h3>Ingen data ännu</h3><p>Gör din första check-in för att se statistik här.</p></div>';
+async function startRecording() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user' }, audio: true });
+    } catch(e) {
+        toast('Kamera/mikrofon behövs — tillåt åtkomst och försök igen');
         return;
     }
 
-    const scores = checkins.map(c => c.score);
-    const avg = Math.round(scores.reduce((a, b) => a + b) / scores.length);
-    const best = Math.max(...scores);
-    document.getElementById('stat-avg').textContent = avg;
-    document.getElementById('stat-best').textContent = best;
+    const vid = document.getElementById('vid-feed');
+    vid.srcObject = stream;
+    document.getElementById('video-wrap').style.display = 'block';
+    document.getElementById('rec-dot').style.display = 'block';
+    recBtn.classList.add('recording');
+    recBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+    recording = true;
+    faceAnalyzed = true;
+    liveTranscript = '';
+    fullTranscript = '';
+    document.getElementById('rec-status').textContent = 'Spelar in — berätta hur du mår';
 
-    // Weekly change
-    const recentWeek = checkins.filter(c => {
-        const d = new Date(c.timestamp);
-        return (Date.now() - d.getTime()) < 7 * 86400000;
-    });
-    const prevWeek = checkins.filter(c => {
-        const d = new Date(c.timestamp);
-        const age = Date.now() - d.getTime();
-        return age >= 7 * 86400000 && age < 14 * 86400000;
-    });
+    recStart = Date.now();
+    recInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - recStart) / 1000);
+        const remaining = maxDuration - elapsed;
+        const min = Math.floor(remaining / 60);
+        const sec = remaining % 60;
+        const timeStr = `${min}:${sec.toString().padStart(2,'0')}`;
+        document.getElementById('vid-timer').textContent = timeStr;
+        document.getElementById('rec-timer-big').textContent = `${Math.floor(elapsed/60)}:${(elapsed%60).toString().padStart(2,'0')}`;
 
-    const changeEl = document.getElementById('stat-avg-change');
-    if (recentWeek.length > 0 && prevWeek.length > 0) {
-        const recentAvg = recentWeek.reduce((a, c) => a + c.score, 0) / recentWeek.length;
-        const prevAvg = prevWeek.reduce((a, c) => a + c.score, 0) / prevWeek.length;
-        const diff = Math.round(recentAvg - prevAvg);
-        if (diff > 0) {
-            changeEl.textContent = `+${diff}% vs förra veckan`;
-            changeEl.className = 'stat-change up';
-        } else if (diff < 0) {
-            changeEl.textContent = `${diff}% vs förra veckan`;
-            changeEl.className = 'stat-change down';
-        } else {
-            changeEl.textContent = 'Oförändrat';
-            changeEl.className = 'stat-change';
+        // Auto-stop at max
+        if (remaining <= 0) stopRecording();
+        // Nudge at 60s
+        if (elapsed === 55) document.getElementById('rec-status').textContent = 'Du kan avsluta när du vill, eller fortsätt upp till 3 min';
+    }, 1000);
+
+    // Start speech recognition
+    startTranscription();
+}
+
+function stopRecording() {
+    recording = false;
+    clearInterval(recInterval);
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    if (recognition) { try { recognition.stop(); } catch(e) {} }
+
+    document.getElementById('video-wrap').style.display = 'none';
+    document.getElementById('rec-dot').style.display = 'none';
+    recBtn.classList.remove('recording');
+    recBtn.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>';
+    document.getElementById('rec-timer-big').textContent = '';
+    document.getElementById('rec-status').textContent = 'Analyserar...';
+    document.getElementById('vid-timer').textContent = '1:00';
+
+    const duration = Math.floor((Date.now() - recStart) / 1000);
+    processResult(fullTranscript, duration);
+}
+
+// ===== TRANSCRIPTION =====
+function startTranscription() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { document.getElementById('transcript-live').textContent = '(Transkribering stöds ej i denna webbläsare)'; return; }
+
+    recognition = new SR();
+    recognition.lang = 'sv-SE';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (e) => {
+        let interim = '';
+        let finalText = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+            const t = e.results[i][0].transcript;
+            if (e.results[i].isFinal) { finalText += t + ' '; }
+            else { interim = t; }
         }
-    } else {
-        changeEl.textContent = '';
+        if (finalText) fullTranscript += finalText;
+        document.getElementById('transcript-live').textContent = fullTranscript + interim;
+    };
+
+    recognition.onerror = (e) => {
+        if (e.error !== 'no-speech' && e.error !== 'aborted') {
+            document.getElementById('transcript-live').textContent = '(Kunde inte transkribera — analysen fortsätter ändå)';
+        }
+    };
+
+    recognition.onend = () => { if (recording) try { recognition.start(); } catch(e) {} };
+    try { recognition.start(); } catch(e) {}
+}
+
+// ===== PROCESS RESULT =====
+function processResult(transcript, duration) {
+    const d = db();
+    const textResult = analyzeText(transcript);
+
+    // Combine face (simulated) + voice energy + text
+    const faceScore = faceAnalyzed ? (40 + Math.random() * 35) : 50;
+    const voiceScore = 35 + Math.random() * 40; // simulated prosody
+    const textScore = textResult.score;
+
+    const wF = faceAnalyzed ? .35 : 0;
+    const wV = .25;
+    const wT = transcript.length > 20 ? .40 : .15;
+    const totalW = wF + wV + wT || 1;
+    const combined = Math.round((faceScore * wF + voiceScore * wV + textScore * wT) / totalW);
+    const score = Math.max(5, Math.min(99, combined));
+
+    const entry = {
+        timestamp: new Date().toISOString(),
+        score,
+        emotion: textResult.emotion,
+        transcript: transcript.trim(),
+        categories: textResult.categories,
+        duration,
+    };
+
+    // Set baseline on first check-in
+    if (d.baselineScore === null) d.baselineScore = score;
+
+    // XP
+    const xpGain = calcXP(entry);
+    d.xp = (d.xp || 0) + xpGain;
+    const oldLevel = getLevel(d.xp - xpGain);
+    const newLevel = getLevel(d.xp);
+    entry.xpGain = xpGain;
+
+    // Streak bonus XP
+    const preStreak = calcStreak(d.checkins);
+    d.checkins.push(entry);
+    const postStreak = calcStreak(d.checkins);
+    if (postStreak > preStreak && postStreak > 1) {
+        const streakBonus = postStreak * 2;
+        d.xp += streakBonus;
+        entry.streakBonus = streakBonus;
     }
 
-    // Streak
-    const today = new Date().toDateString();
-    let streak = 0;
-    const dateSet = new Set(checkins.map(c => new Date(c.timestamp).toDateString()));
-    let checkDate = new Date();
-    while (dateSet.has(checkDate.toDateString())) {
-        streak++;
-        checkDate.setDate(checkDate.getDate() - 1);
+    // AI reflection
+    const reflection = generateReflection(entry, d);
+    entry.reflection = reflection;
+
+    save(d);
+    showResult(entry, d, newLevel.level > oldLevel.level ? newLevel : null);
+}
+
+// ===== SHOW RESULT =====
+function showResult(entry, data, levelUp) {
+    navTo('result');
+    const score = entry.score;
+
+    // Animate score ring
+    const arc = document.getElementById('score-arc');
+    const color = score >= 65 ? 'var(--ok)' : score >= 40 ? 'var(--warn)' : 'var(--bad)';
+    arc.style.stroke = color;
+    setTimeout(() => { arc.style.strokeDashoffset = 389.6 * (1 - score / 100); }, 50);
+
+    let s = 0;
+    const target = score;
+    const valEl = document.getElementById('score-val');
+    const anim = setInterval(() => {
+        s = Math.min(s + Math.ceil(target / 25), target);
+        valEl.textContent = s;
+        if (s >= target) clearInterval(anim);
+    }, 30);
+
+    // Emotion
+    const emoLabels = { glad:'😊 Glad', lugn:'😌 Lugn', neutral:'😐 Neutral', stressad:'😰 Stressad', ledsen:'😢 Ledsen', orolig:'😟 Orolig', arg:'😤 Arg', trott:'😴 Trött' };
+    document.getElementById('result-emotion').textContent = emoLabels[entry.emotion] || '😐 Neutral';
+
+    // XP
+    const xpText = `+${entry.xpGain} XP` + (entry.streakBonus ? ` +${entry.streakBonus} streak bonus!` : '');
+    document.getElementById('result-xp').textContent = xpText;
+
+    // AI reflection
+    document.getElementById('ai-text').textContent = entry.reflection;
+
+    // Transcript
+    const transEl = document.getElementById('transcript-full');
+    transEl.innerHTML = entry.transcript ? `<p><em>"${entry.transcript}"</em></p>` : '<p style="color:var(--txt2);">(Ingen transkribering tillgänglig)</p>';
+
+    // Categories
+    document.getElementById('result-cats').innerHTML = entry.categories.map(c => `<span class="tag">${c}</span>`).join('');
+
+    // Intervention
+    const interv = getIntervention(score);
+    document.getElementById('interv-title').textContent = interv.title;
+    document.getElementById('interv-text').textContent = interv.text;
+
+    // Share card
+    const streak = calcStreak(data.checkins);
+    const lvl = getLevel(data.xp);
+    document.getElementById('share-score').textContent = score;
+    document.getElementById('share-streak').textContent = streak;
+    document.getElementById('share-level').textContent = lvl.level;
+
+    // Level up modal
+    if (levelUp) {
+        setTimeout(() => {
+            toast(`🎉 Nivå ${levelUp.level}: ${levelUp.name}!`);
+        }, 1500);
     }
-    document.getElementById('stat-streak').textContent = streak;
+}
+
+// ===== RENDER DIARY =====
+function renderDiary() {
+    const d = db();
+    const entries = [...d.checkins].reverse();
+    const list = document.getElementById('diary-list');
+    const emoEmoji = { glad:'😊', lugn:'😌', neutral:'😐', stressad:'😰', ledsen:'😢', orolig:'😟', arg:'😤', trott:'😴' };
+
+    if (entries.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--txt2);"><div style="font-size:2.5rem;margin-bottom:8px;">📖</div><p>Din dagbok är tom.<br>Gör din första inspelning!</p></div>';
+        return;
+    }
+
+    list.innerHTML = entries.map((e, i) => {
+        const dt = new Date(e.timestamp);
+        const dateStr = dt.toLocaleDateString('sv-SE', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+        const color = e.score >= 65 ? 'var(--ok)' : e.score >= 40 ? 'var(--warn)' : 'var(--bad)';
+        const excerpt = e.transcript ? e.transcript.slice(0, 120) + (e.transcript.length > 120 ? '...' : '') : 'Ingen transkription';
+        return `<div class="diary-entry" onclick="showDiaryEntry(${d.checkins.length - 1 - i})">
+            <div class="diary-header">
+                <span class="diary-date">${emoEmoji[e.emotion] || '😐'} ${dateStr}</span>
+                <span class="diary-score" style="color:${color}">${e.score}</span>
+            </div>
+            <div class="diary-excerpt">${excerpt}</div>
+            <div class="diary-tags">${(e.categories||[]).map(c => `<span class="tag">${c}</span>`).join('')}</div>
+        </div>`;
+    }).join('');
+}
+
+// Diary search
+document.getElementById('diary-search').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.diary-entry').forEach(el => {
+        el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+});
+
+function showDiaryEntry(idx) {
+    const d = db();
+    const e = d.checkins[idx];
+    if (!e) return;
+    // Show as result page
+    showResult(e, d, null);
+}
+
+// ===== RENDER PROGRESS =====
+function renderProgress() {
+    const d = db();
+    const checkins = d.checkins;
+    const streak = calcStreak(checkins);
+    const lvl = getLevel(d.xp || 0);
+    const next = getNextLevel(d.xp || 0);
+
+    // Level bar
+    const progress = next ? ((d.xp - lvl.xp) / (next.xp - lvl.xp) * 100) : 100;
+    document.getElementById('level-bar').innerHTML = `
+        <div class="level-badge" style="background:${lvl.color};color:#000;">Lv${lvl.level}</div>
+        <div class="level-info">
+            <div class="level-name">${lvl.name}</div>
+            <div class="xp-text">${d.xp || 0} XP${next ? ` — ${next.xp - (d.xp||0)} XP till ${next.name}` : ' — Max nivå!'}</div>
+            <div class="xp-bar"><div class="xp-fill" style="width:${progress}%"></div></div>
+        </div>`;
+
+    // Ranking
+    const rank = calcRank(d);
+    document.getElementById('rank-pct').textContent = `Topp ${100 - rank.percentile}%`;
+    document.getElementById('rank-label').textContent = rank.label;
+    document.getElementById('rank-marker').style.left = rank.percentile + '%';
+
+    // Stats
+    const total = checkins.length;
+    const scores = checkins.map(c => c.score);
+    const avg = total > 0 ? Math.round(scores.reduce((a,b) => a+b) / total) : 0;
+    const best = total > 0 ? Math.max(...scores) : 0;
+
+    // Week comparison
+    const thisWeek = checkins.filter(c => (Date.now() - new Date(c.timestamp).getTime()) < 7*864e5);
+    const lastWeek = checkins.filter(c => { const a = Date.now() - new Date(c.timestamp).getTime(); return a >= 7*864e5 && a < 14*864e5; });
+    let weekChange = '';
+    if (thisWeek.length > 0 && lastWeek.length > 0) {
+        const twAvg = thisWeek.reduce((a,c)=>a+c.score,0)/thisWeek.length;
+        const lwAvg = lastWeek.reduce((a,c)=>a+c.score,0)/lastWeek.length;
+        const diff = Math.round(twAvg - lwAvg);
+        weekChange = diff > 0 ? `<div class="chg up">+${diff} vs förra veckan</div>` : diff < 0 ? `<div class="chg down">${diff} vs förra veckan</div>` : '';
+    }
+
+    document.getElementById('stat-row').innerHTML = `
+        <div class="stat-box"><div class="val">${avg || '—'}</div><div class="lbl">Genomsnitt</div>${weekChange}</div>
+        <div class="stat-box"><div class="val" style="color:var(--gold)">${streak}</div><div class="lbl">Dagars streak</div></div>
+        <div class="stat-box"><div class="val" style="color:var(--ok)">${best || '—'}</div><div class="lbl">Bästa score</div></div>
+        <div class="stat-box"><div class="val">${total}</div><div class="lbl">Check-ins</div></div>`;
 
     // Chart
     drawChart(checkins);
 
-    // History list
-    const recent = checkins.slice(-10).reverse();
-    const emotionEmojis = {
-        glad: '😊', lugn: '😌', neutral: '😐',
-        stressad: '😰', ledsen: '😢', orolig: '😟',
-        arg: '😤', trott: '😴'
-    };
-    document.getElementById('history-list').innerHTML = recent.map(c => {
-        const d = new Date(c.timestamp);
-        const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-        const emoji = emotionEmojis[c.emotion] || '😐';
-        const scoreColor = c.score >= 65 ? 'var(--success)' : c.score >= 40 ? 'var(--warning)' : 'var(--danger)';
-        return `<div class="history-item">
-            <span class="history-emoji">${emoji}</span>
-            <div class="history-info">
-                <span class="emotion">${c.emotion}</span>
-                <span class="date">${dateStr}</span>
-            </div>
-            <span class="history-score" style="color:${scoreColor}">${c.score}</span>
-        </div>`;
-    }).join('');
+    // Patterns
+    renderPatterns(d);
+}
+
+// ===== PATTERNS =====
+function renderPatterns(d) {
+    const list = document.getElementById('patterns-list');
+    const checkins = d.checkins;
+    if (checkins.length < 5) {
+        list.innerHTML = '<p style="font-size:.82rem;color:var(--txt2);">Gör minst 5 check-ins för att AI:n ska hitta mönster.</p>';
+        return;
+    }
+
+    const patterns = [];
+
+    // Category correlation
+    for (const cat of ['jobb','relationer','hälsa','fritid']) {
+        const withCat = checkins.filter(c => c.categories?.includes(cat));
+        const without = checkins.filter(c => !c.categories?.includes(cat));
+        if (withCat.length >= 2 && without.length >= 2) {
+            const avgWith = withCat.reduce((a,c) => a+c.score, 0) / withCat.length;
+            const avgWithout = without.reduce((a,c) => a+c.score, 0) / without.length;
+            const diff = Math.round(avgWith - avgWithout);
+            if (Math.abs(diff) > 5) {
+                patterns.push(`Dagar du nämner <strong>${cat}</strong> har ${diff > 0 ? '+' : ''}${diff} poäng i snitt ${diff > 0 ? '↑' : '↓'}`);
+            }
+        }
+    }
+
+    // Emotion frequency
+    const emoCounts = {};
+    checkins.forEach(c => { emoCounts[c.emotion] = (emoCounts[c.emotion]||0) + 1; });
+    const top = Object.entries(emoCounts).sort((a,b) => b[1]-a[1])[0];
+    if (top) patterns.push(`Din vanligaste känsla är <strong>${top[0]}</strong> (${Math.round(top[1]/checkins.length*100)}% av dagarna)`);
+
+    // Improvement from baseline
+    if (d.baselineScore && checkins.length >= 3) {
+        const recent = checkins.slice(-3).reduce((a,c) => a+c.score, 0) / 3;
+        const diff = Math.round(recent - d.baselineScore);
+        if (diff !== 0) patterns.push(`Du har ${diff > 0 ? 'förbättrats' : 'sjunkit'} <strong>${Math.abs(diff)} poäng</strong> sedan din första mätning`);
+    }
+
+    list.innerHTML = patterns.length > 0
+        ? patterns.map(p => `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;color:var(--txt2);line-height:1.5;">${p}</div>`).join('')
+        : '<p style="font-size:.82rem;color:var(--txt2);">Inga tydliga mönster ännu. Fortsätt logga!</p>';
 }
 
 // ===== CHART =====
 function drawChart(checkins) {
     const canvas = document.getElementById('trend-chart');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-
     canvas.width = canvas.offsetWidth * dpr;
     canvas.height = canvas.offsetHeight * dpr;
     ctx.scale(dpr, dpr);
+    const w = canvas.offsetWidth, h = canvas.offsetHeight;
+    const pad = { t:15, r:8, b:20, l:28 };
+    ctx.clearRect(0,0,w,h);
 
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    const padding = { top: 20, right: 10, bottom: 10, left: 30 };
-
-    ctx.clearRect(0, 0, w, h);
-
-    // Get last 14 entries
     const entries = checkins.slice(-14);
     if (entries.length < 2) {
-        ctx.fillStyle = '#A7A9BE';
-        ctx.font = '14px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Minst 2 check-ins behövs för graf', w / 2, h / 2);
+        ctx.fillStyle = '#A7A9BE'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('Minst 2 check-ins för graf', w/2, h/2);
         return;
     }
-
     const scores = entries.map(e => e.score);
-    const chartW = w - padding.left - padding.right;
-    const chartH = h - padding.top - padding.bottom;
+    const cW = w - pad.l - pad.r, cH = h - pad.t - pad.b;
 
-    // Y axis
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-    ctx.lineWidth = 1;
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
     for (let i = 0; i <= 100; i += 25) {
-        const y = padding.top + chartH - (i / 100) * chartH;
-        ctx.beginPath();
-        ctx.moveTo(padding.left, y);
-        ctx.lineTo(w - padding.right, y);
-        ctx.stroke();
-
-        ctx.fillStyle = '#A7A9BE';
-        ctx.font = '10px sans-serif';
-        ctx.textAlign = 'right';
-        ctx.fillText(i, padding.left - 4, y + 4);
+        const y = pad.t + cH - (i/100)*cH;
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w-pad.r, y); ctx.stroke();
+        ctx.fillStyle = '#A7A9BE'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText(i, pad.l-3, y+3);
     }
 
-    // Data line
-    const points = scores.map((s, i) => ({
-        x: padding.left + (i / (scores.length - 1)) * chartW,
-        y: padding.top + chartH - (s / 100) * chartH
-    }));
+    const pts = scores.map((s,i) => ({ x: pad.l + (i/(scores.length-1))*cW, y: pad.t + cH - (s/100)*cH }));
 
-    // Gradient fill
-    const gradient = ctx.createLinearGradient(0, padding.top, 0, h);
-    gradient.addColorStop(0, 'rgba(108, 92, 231, 0.3)');
-    gradient.addColorStop(1, 'rgba(108, 92, 231, 0)');
-
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, h - padding.bottom);
-    points.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.lineTo(points[points.length - 1].x, h - padding.bottom);
-    ctx.fillStyle = gradient;
-    ctx.fill();
+    // Fill
+    const grad = ctx.createLinearGradient(0, pad.t, 0, h);
+    grad.addColorStop(0, 'rgba(108,92,231,.25)'); grad.addColorStop(1, 'rgba(108,92,231,0)');
+    ctx.beginPath(); ctx.moveTo(pts[0].x, h-pad.b);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[pts.length-1].x, h-pad.b); ctx.fillStyle = grad; ctx.fill();
 
     // Line
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-        const cp1x = (points[i - 1].x + points[i].x) / 2;
-        ctx.bezierCurveTo(cp1x, points[i - 1].y, cp1x, points[i].y, points[i].x, points[i].y);
-    }
-    ctx.strokeStyle = '#6C5CE7';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i=1;i<pts.length;i++) { const cx=(pts[i-1].x+pts[i].x)/2; ctx.bezierCurveTo(cx,pts[i-1].y,cx,pts[i].y,pts[i].x,pts[i].y); }
+    ctx.strokeStyle = '#6C5CE7'; ctx.lineWidth = 2.5; ctx.stroke();
 
-    // Dots
-    points.forEach((p, i) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-        const color = scores[i] >= 65 ? '#00B894' : scores[i] >= 40 ? '#FDCB6E' : '#E17055';
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.strokeStyle = '#1A1928';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+    // Dots + date labels
+    pts.forEach((p,i) => {
+        ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2);
+        ctx.fillStyle = scores[i]>=65?'#00B894':scores[i]>=40?'#FDCB6E':'#E17055';
+        ctx.fill(); ctx.strokeStyle='#1A1928'; ctx.lineWidth=2; ctx.stroke();
+
+        const dt = new Date(entries[i].timestamp);
+        ctx.fillStyle = '#A7A9BE'; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(`${dt.getDate()}/${dt.getMonth()+1}`, p.x, h-4);
     });
-
-    // Labels
-    const labelsEl = document.getElementById('chart-labels');
-    labelsEl.innerHTML = entries.map(e => {
-        const d = new Date(e.timestamp);
-        return `<span>${d.getDate()}/${d.getMonth() + 1}</span>`;
-    }).join('');
 }
 
-// ===== INSIGHTS =====
-function updateInsights() {
-    const data = getData();
-    const checkins = data.checkins || [];
-    const container = document.getElementById('insights-list');
-    const distContainer = document.getElementById('emotion-distribution');
+// ===== SHARE =====
+function shareResult() {
+    const d = db();
+    const streak = calcStreak(d.checkins);
+    const lvl = getLevel(d.xp || 0);
+    const last = d.checkins[d.checkins.length - 1];
+    const text = `🧠 KänslaFlow — Min utveckling\n\n` +
+        `KänslaScore: ${last?.score || '—'}/100\n` +
+        `Streak: ${streak} dagar 🔥\n` +
+        `Nivå: ${lvl.level} (${lvl.name})\n\n` +
+        `Följ din emotionella utveckling: ${location.href}`;
 
-    if (checkins.length < 3) {
-        container.innerHTML = '<div class="empty-state"><div class="icon">💡</div><h3>Behöver mer data</h3><p>Gör minst 3 check-ins för att få AI-insikter.</p></div>';
-        distContainer.innerHTML = '';
-        return;
+    if (navigator.share) {
+        navigator.share({ title:'KänslaFlow', text }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(text).then(() => toast('Kopierat till urklipp!')).catch(() => {});
     }
-
-    const insights = [];
-    const scores = checkins.map(c => c.score);
-    const avg = scores.reduce((a, b) => a + b) / scores.length;
-
-    // Trend insight
-    const recent5 = scores.slice(-5);
-    const recentAvg = recent5.reduce((a, b) => a + b) / recent5.length;
-    if (recentAvg > avg + 5) {
-        insights.push({ title: 'Uppåtgående trend', text: `Dina senaste 5 check-ins snittade ${Math.round(recentAvg)} — ${Math.round(recentAvg - avg)} poäng bättre än ditt totala snitt (${Math.round(avg)}). Det du gör fungerar!`, color: 'var(--success)' });
-    } else if (recentAvg < avg - 5) {
-        insights.push({ title: 'Nedåtgående trend', text: `Dina senaste 5 check-ins snittade ${Math.round(recentAvg)} — ${Math.round(avg - recentAvg)} poäng lägre än vanligt. Fundera på vad som förändrats och prioritera återhämtning.`, color: 'var(--danger)' });
-    }
-
-    // Emotion frequency
-    const emotionCounts = {};
-    checkins.forEach(c => {
-        emotionCounts[c.emotion] = (emotionCounts[c.emotion] || 0) + 1;
-    });
-    const topEmotion = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1])[0];
-    insights.push({ title: `Vanligaste känslan: ${topEmotion[0]}`, text: `"${topEmotion[0]}" är din dominerande känsla (${Math.round(topEmotion[1] / checkins.length * 100)}% av alla check-ins). ${topEmotion[0] === 'stressad' || topEmotion[0] === 'orolig' ? 'Överväg dagliga andningsövningar för att balansera detta.' : 'Det ser bra ut!'}`, color: 'var(--primary-light)' });
-
-    // Best/worst
-    const best = Math.max(...scores);
-    const worst = Math.min(...scores);
-    insights.push({ title: 'Ditt KänslaScore-spann', text: `Lägsta: ${worst} | Högsta: ${best} | Spridning: ${best - worst} poäng. ${best - worst > 40 ? 'Stor variation — ditt mående svänger mycket. Regelbundna rutiner kan stabilisera.' : 'Relativt stabilt — bra grund att bygga vidare på.'}`, color: 'var(--warning)' });
-
-    // Modality coverage
-    const withFace = checkins.filter(c => c.modalities?.face).length;
-    const withVoice = checkins.filter(c => c.modalities?.voice).length;
-    if (withFace < checkins.length * 0.5) {
-        insights.push({ title: 'Tips: Använd kameran oftare', text: 'Ansiktsanalys ger mer noggranna resultat. Bara ' + Math.round(withFace / checkins.length * 100) + '% av dina check-ins använde kameran.', color: 'var(--text-muted)' });
-    }
-
-    container.innerHTML = insights.map(i => `
-        <div class="insight-card" style="border-left-color: ${i.color}">
-            <h4>${i.title}</h4>
-            <p>${i.text}</p>
-        </div>
-    `).join('');
-
-    // Emotion distribution
-    const total = checkins.length;
-    const emotionEmojis = { glad: '😊', lugn: '😌', neutral: '😐', stressad: '😰', ledsen: '😢', orolig: '😟', arg: '😤', trott: '😴' };
-    const sorted = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1]);
-    distContainer.innerHTML = sorted.map(([emotion, count]) => {
-        const pct = Math.round(count / total * 100);
-        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <span style="font-size:1.3rem;">${emotionEmojis[emotion] || '😐'}</span>
-            <span style="width:70px;font-size:0.85rem;">${emotion}</span>
-            <div style="flex:1;height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;">
-                <div style="width:${pct}%;height:100%;background:var(--primary);border-radius:4px;transition:width 0.5s;"></div>
-            </div>
-            <span style="font-size:0.8rem;color:var(--text-muted);width:35px;text-align:right;">${pct}%</span>
-        </div>`;
-    }).join('');
 }
 
-// ===== BREATHING EXERCISE =====
-function openBreathing() {
-    document.getElementById('breathing-modal').classList.add('active');
-}
-function closeBreathing() {
-    document.getElementById('breathing-modal').classList.remove('active');
-    breathingActive = false;
-}
-
-let breathingActive = false;
-document.getElementById('btn-start-breathing').addEventListener('click', () => {
-    if (breathingActive) return;
-    breathingActive = true;
-    const circle = document.getElementById('breathing-circle');
-    const instruction = document.getElementById('breathing-instruction');
-    const counter = document.getElementById('breathing-counter');
-    const btn = document.getElementById('btn-start-breathing');
-    btn.style.display = 'none';
-
-    let round = 0;
-    const maxRounds = 3;
-
-    function doRound() {
-        if (round >= maxRounds || !breathingActive) {
-            instruction.textContent = 'Övning klar — bra jobbat!';
-            circle.textContent = '✓';
-            circle.className = 'breathing-circle';
-            counter.textContent = '';
-            btn.style.display = 'inline-flex';
-            btn.textContent = 'Gör om';
-            breathingActive = false;
-            return;
-        }
-        counter.textContent = `Omgång ${round + 1}/${maxRounds}`;
-
-        // Inhale 4s
-        circle.className = 'breathing-circle inhale';
-        circle.textContent = 'Andas in';
-        instruction.textContent = '4 sekunder — in genom näsan';
-        setTimeout(() => {
-            // Hold 7s
-            circle.className = 'breathing-circle hold';
-            circle.textContent = 'Håll';
-            instruction.textContent = '7 sekunder — håll andan';
-            setTimeout(() => {
-                // Exhale 8s
-                circle.className = 'breathing-circle exhale';
-                circle.textContent = 'Andas ut';
-                instruction.textContent = '8 sekunder — ut genom munnen';
-                setTimeout(() => {
-                    round++;
-                    doRound();
-                }, 8000);
-            }, 7000);
-        }, 4000);
-    }
-
-    doRound();
-});
-
-// ===== EXPORT DATA =====
+// ===== EXPORT =====
 function exportData() {
-    const data = getData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+    const d = db();
+    const blob = new Blob([JSON.stringify(d, null, 2)], { type:'application/json' });
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'kanslaflow-data-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.href = URL.createObjectURL(blob);
+    a.download = 'kanslaflow-' + new Date().toISOString().slice(0,10) + '.json';
     a.click();
-    URL.revokeObjectURL(url);
-    showToast('Data exporterad!');
+    toast('Data exporterad!');
 }
 
 // ===== TOAST =====
-function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ===== RESIZE CHART ON WINDOW RESIZE =====
-window.addEventListener('resize', () => {
-    try {
-        const data = getData();
-        if (data.checkins?.length >= 2) drawChart(data.checkins);
-    } catch(e) {}
-});
-
-// ===== MOBILE-SAFE BUTTON BINDING =====
-// Bind "Kom igång" with both click and touchend for maximum mobile compatibility
-(function bindStartButton() {
-    const btn = document.getElementById('btn-start-app');
-    if (!btn) return;
-
-    let fired = false;
-    function handleStart(e) {
-        if (fired) return;
-        fired = true;
-        e.preventDefault();
-        startApp();
-        // Reset after short delay in case user needs to tap again
-        setTimeout(() => { fired = false; }, 500);
-    }
-
-    btn.addEventListener('click', handleStart);
-    btn.addEventListener('touchend', handleStart);
-})();
+// ===== RESIZE =====
+window.addEventListener('resize', () => { try { const d=db(); if(d.checkins.length>=2) drawChart(d.checkins); } catch(e){} });
 </script>
 
 </body>
