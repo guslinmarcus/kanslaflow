@@ -467,7 +467,10 @@ async function searchNominatim(query,dropdown,input,addrId){
 
         dropdown.innerHTML=results.map((r,i)=>{
             const name=r.display_name.split(',')[0];
-            const addr=r.display_name.split(',').slice(1,3).join(',').trim();
+            const a=r.address||{};
+            const town=a.city||a.town||a.village||a.municipality||'';
+            const road=a.road||a.neighbourhood||a.suburb||'';
+            const addr=[road,town].filter(Boolean).join(', ')||r.display_name.split(',').slice(1,3).join(',').trim();
             const tag=typeLabels[r.type]||(r.class==='amenity'?'Plats':'');
             return`<div class="ac-item" data-idx="${i}"><div class="ac-name">${name}${tag?` <span class="ac-tag">${tag}</span>`:''}</div><div class="ac-addr">${addr}</div></div>`;
         }).join('');
