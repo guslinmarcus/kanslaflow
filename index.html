@@ -11,7 +11,7 @@
         :root{--p:#6C5CE7;--pl:#A29BFE;--pd:#5A4BD1;--a:#00CEC9;--al:#81ECEC;--bg:#0F0E17;--c1:#1A1928;--c2:#232240;--t:#FFFFFE;--t2:#A7A9BE;--ok:#00B894;--w:#FDCB6E;--bad:#E17055;--g:#FFD700;--r:16px;--rs:10px}
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t);min-height:100dvh;overflow-x:hidden}
-        button,label,input{font-family:inherit}
+        button,label,input,select{font-family:inherit}
 
         /* NAV */
         .nav{position:fixed;bottom:0;left:0;right:0;background:var(--c1);border-top:1px solid rgba(255,255,255,.05);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
@@ -39,45 +39,85 @@
         .sb{background:rgba(255,255,255,.03);border-radius:var(--rs);padding:13px;text-align:center}
         .sb .v{font-size:1.5rem;font-weight:800}
         .sb .l{font-size:.68rem;color:var(--t2);margin-top:2px}
-        .sb .c{font-size:.68rem;font-weight:600;margin-top:2px}
-        .sb .c.up{color:var(--ok)}.sb .c.dn{color:var(--bad)}
 
         /* ONBOARDING */
         .ob{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;text-align:center}
         .ob.h{display:none}
-        .ob-step{display:none;flex-direction:column;align-items:center;width:100%;max-width:320px;animation:fu .3s ease}
+        .ob-step{display:none;flex-direction:column;align-items:center;width:100%;max-width:340px;animation:fu .3s ease}
         .ob-step.on{display:flex}
         .ob h1{font-size:1.7rem;font-weight:800;margin-bottom:6px}
         .ob p{color:var(--t2);line-height:1.5;font-size:.88rem;margin-bottom:20px}
         .ob input[type=text]{width:100%;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:1.1rem;text-align:center;outline:none;margin-bottom:16px}
         .ob input::placeholder{color:var(--t2)}
-        .personality-grid{display:flex;flex-direction:column;gap:8px;width:100%;margin-bottom:20px}
-        .pers-btn{padding:14px;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.08);border-radius:var(--rs);color:var(--t);text-align:left;cursor:pointer;transition:all .2s}
-        .pers-btn.sel{border-color:var(--p);background:rgba(108,92,231,.15)}
-        .pers-btn strong{display:block;font-size:.9rem;margin-bottom:2px}
-        .pers-btn span{font-size:.75rem;color:var(--t2)}
 
-        /* AVATAR */
-        .avatar-wrap{position:relative;width:140px;height:140px;margin:0 auto}
-        .avatar-orb{width:140px;height:140px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;transition:all .5s}
-        .avatar-orb .glow{position:absolute;inset:-20px;border-radius:50%;filter:blur(25px);opacity:.4;transition:all .5s}
-        .avatar-orb .core{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;transition:all .5s}
-        .avatar-orb .eyes{display:flex;gap:18px;margin-bottom:6px}
-        .avatar-orb .eye{width:8px;height:8px;border-radius:50%;background:#fff;transition:all .3s}
-        .avatar-orb .mouth{width:20px;height:3px;border-radius:3px;background:rgba(255,255,255,.6);transition:all .3s}
-        /* States */
-        .avatar-orb.idle .core{animation:breathe 4s ease-in-out infinite}
-        .avatar-orb.listening .core{animation:listen-pulse 1.5s ease-in-out infinite}
-        .avatar-orb.speaking .core{animation:speak-pulse .6s ease-in-out infinite}
-        .avatar-orb.happy .mouth{width:24px;height:10px;border-bottom-left-radius:12px;border-bottom-right-radius:12px;border-top-left-radius:0;border-top-right-radius:0}
-        .avatar-orb.concerned .eye{height:6px}
-        .avatar-orb.thinking .eye:nth-child(1){transform:translateY(-2px)}
+        /* PLACE TYPE GRID */
+        .pt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;width:100%}
+        .pt-btn{padding:14px 6px;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.08);border-radius:var(--rs);color:var(--t);text-align:center;cursor:pointer;transition:all .2s}
+        .pt-btn:active{transform:scale(.95)}
+        .pt-btn.sel{border-color:var(--p);background:rgba(108,92,231,.15)}
+        .pt-btn .ico{font-size:1.4rem;display:block;margin-bottom:4px}
+        .pt-btn .lbl{font-size:.72rem;font-weight:600}
 
-        @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
-        @keyframes listen-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.9}}
-        @keyframes speak-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+        /* PLACE CARD (daily check-in) */
+        .place-card{background:var(--c1);border-radius:var(--r);padding:16px;margin-bottom:10px;border:1px solid rgba(255,255,255,.04)}
+        .place-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+        .place-icon{font-size:1.2rem;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;flex-shrink:0}
+        .place-name{font-weight:700;font-size:.88rem}
+        .place-type-label{font-size:.68rem;color:var(--t2)}
+        .emoji-row{display:flex;gap:6px}
+        .emoji-btn{flex:1;padding:8px 2px;border:2px solid rgba(255,255,255,.08);border-radius:var(--rs);background:rgba(255,255,255,.03);cursor:pointer;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px}
+        .emoji-btn:active{transform:scale(.93)}
+        .emoji-btn.sel{border-color:var(--p);background:rgba(108,92,231,.18);transform:scale(1.08)}
+        .emoji-btn .em{font-size:1.4rem}
+        .emoji-btn .el{font-size:.55rem;color:var(--t2);font-weight:600}
+        .place-done{font-size:.72rem;color:var(--ok);text-align:center;margin-top:6px;font-weight:600}
+        .add-place{background:var(--c1);border-radius:var(--r);padding:18px;margin-bottom:10px;border:2px dashed rgba(255,255,255,.1);cursor:pointer;text-align:center;color:var(--t2);font-size:.84rem;transition:all .2s}
+        .add-place:active{border-color:var(--p);color:var(--pl)}
 
-        /* CONVERSATION VIEW — Chat Interface */
+        /* TODAY SUMMARY */
+        .today-summary{background:linear-gradient(135deg,rgba(0,184,148,.1),rgba(108,92,231,.1));border:1px solid rgba(0,184,148,.15);border-radius:var(--r);padding:16px;margin-bottom:14px;text-align:center}
+        .today-summary .big{font-size:1.1rem;font-weight:700;line-height:1.5}
+        .today-summary .sub{font-size:.78rem;color:var(--t2);margin-top:4px}
+
+        /* STREAK */
+        .streak-row{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px 0}
+        .streak-row .fire{font-size:1.3rem}
+        .streak-row .num{font-size:1.4rem;font-weight:800;color:var(--g)}
+        .streak-row .lbl{font-size:.78rem;color:var(--t2)}
+
+        /* INSIGHT CARDS */
+        .ins-card{background:var(--c1);border-radius:var(--r);padding:16px;margin-bottom:10px;border:1px solid rgba(255,255,255,.04)}
+        .ins-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+        .ins-place{display:flex;align-items:center;gap:8px}
+        .ins-place .ico{font-size:1.1rem}
+        .ins-place .nm{font-weight:700;font-size:.88rem}
+        .ins-avg{font-size:1.6rem;font-weight:800}
+        .ins-trend{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:12px;display:inline-block}
+        .ins-trend.up{background:rgba(0,184,148,.15);color:var(--ok)}
+        .ins-trend.dn{background:rgba(225,112,85,.15);color:var(--bad)}
+        .ins-trend.flat{background:rgba(255,255,255,.06);color:var(--t2)}
+        .ins-bars{display:flex;gap:3px;align-items:flex-end;height:40px;margin-top:8px}
+        .ins-bar{flex:1;border-radius:3px 3px 0 0;min-width:0;transition:height .3s}
+        .ins-meta{font-size:.68rem;color:var(--t2);margin-top:6px;display:flex;justify-content:space-between}
+        .ins-summary{background:linear-gradient(135deg,rgba(0,184,148,.12),rgba(108,92,231,.12));border:1px solid rgba(0,184,148,.2);border-radius:var(--r);padding:18px;margin-bottom:14px}
+        .ins-summary .title{font-size:.92rem;font-weight:700;margin-bottom:8px}
+        .ins-summary .row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.82rem}
+        .ins-summary .best{color:var(--ok);font-weight:700}
+        .ins-summary .worst{color:var(--bad);font-weight:700}
+
+        /* ALERTS */
+        .alert-card{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--r);margin-bottom:10px;animation:fu .3s ease}
+        .alert-card.warn{background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.18)}
+        .alert-card.bad{background:rgba(225,112,85,.08);border:1px solid rgba(225,112,85,.18)}
+        .alert-card.good{background:rgba(0,184,148,.08);border:1px solid rgba(0,184,148,.18)}
+        .alert-card.insight{background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.18)}
+        .alert-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+        .alert-body{flex:1;min-width:0}
+        .alert-title{font-size:.84rem;font-weight:700}
+        .alert-desc{font-size:.76rem;color:var(--t2);margin-top:2px;line-height:1.4}
+        .alert-dismiss{background:none;border:none;color:var(--t2);font-size:1.1rem;cursor:pointer;padding:2px 6px;flex-shrink:0;opacity:.6}
+
+        /* CONVERSATION VIEW */
         .conv-view{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column}
         .conv-view.on{display:flex}
         .conv-top{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)}
@@ -85,9 +125,7 @@
         .conv-top .name .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blink 1.5s infinite}
         .conv-top .timer{font-size:.78rem;color:var(--t2);font-variant-numeric:tabular-nums}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-        .conv-camera{position:absolute;top:56px;right:12px;width:72px;height:54px;border-radius:8px;overflow:hidden;border:2px solid rgba(255,255,255,.12);z-index:2}
-        .conv-camera video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
-        .chat-area{flex:1;overflow-y:auto;padding:16px;padding-top:16px;display:flex;flex-direction:column;gap:10px;position:relative}
+        .chat-area{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
         .chat-msg{max-width:82%;padding:12px 16px;border-radius:18px;font-size:.88rem;line-height:1.5;animation:fu .3s ease}
         .chat-msg.ai{align-self:flex-start;background:var(--c2);color:var(--t);border-bottom-left-radius:4px}
         .chat-msg.user{align-self:flex-end;background:var(--p);color:#fff;border-bottom-right-radius:4px}
@@ -113,105 +151,31 @@
         .end-btn:active{transform:scale(.95)}
         .listening-indicator{font-size:.72rem;color:var(--t2);text-align:center;margin-bottom:6px;min-height:16px}
 
-        /* HOME */
-        .home-top{text-align:center;padding:20px 0 8px}
-        .home-top h1{font-size:1.3rem;font-weight:800}
-        .home-top .sub{font-size:.8rem;color:var(--t2);margin-top:2px}
-        .value-proof{background:linear-gradient(135deg,rgba(0,184,148,.12),rgba(108,92,231,.12));border:1px solid rgba(0,184,148,.2);border-radius:var(--r);padding:16px;margin:14px 0;text-align:center}
-        .value-proof .big{font-size:1.6rem;font-weight:800;color:var(--ok)}
-        .value-proof .desc{font-size:.82rem;color:var(--t2);margin-top:4px;line-height:1.4}
-        .streak-row{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px 0}
-        .streak-row .fire{font-size:1.3rem}
-        .streak-row .num{font-size:1.4rem;font-weight:800;color:var(--g)}
-        .streak-row .lbl{font-size:.78rem;color:var(--t2)}
-        .week-dots{display:flex;gap:4px;justify-content:center;margin:4px 0 14px}
-        .wd{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700}
-        .wd.done{background:var(--ok);color:#fff}
-        .wd.now{background:var(--p);color:#fff;border:2px solid var(--pl)}
-        .wd.fut{background:rgba(255,255,255,.05);color:var(--t2)}
-
+        /* CHAT PAGE */
+        .avatar-wrap{position:relative;width:120px;height:120px;margin:0 auto}
+        .avatar-orb{width:120px;height:120px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;transition:all .5s}
+        .avatar-orb .glow{position:absolute;inset:-20px;border-radius:50%;filter:blur(25px);opacity:.4;transition:all .5s}
+        .avatar-orb .core{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;transition:all .5s}
+        .avatar-orb .eyes{display:flex;gap:16px;margin-bottom:5px}
+        .avatar-orb .eye{width:7px;height:7px;border-radius:50%;background:#fff;transition:all .3s}
+        .avatar-orb .mouth{width:18px;height:3px;border-radius:3px;background:rgba(255,255,255,.6);transition:all .3s}
+        .avatar-orb.idle .core{animation:breathe 4s ease-in-out infinite}
+        @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
         .start-conv-btn{width:100%;padding:18px;border:none;border-radius:var(--r);background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-size:1.05rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin:16px 0}
         .start-conv-btn:active{transform:scale(.97)}
-        .start-conv-btn .orb-mini{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle,var(--pl),var(--p));display:flex;align-items:center;justify-content:center}
-        .start-conv-btn .orb-mini .dot{width:5px;height:5px;border-radius:50%;background:#fff;margin:0 2px}
-
-        /* ALERTS */
-        .alert-card{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--r);margin-bottom:10px;animation:fu .3s ease}
-        .alert-card.warn{background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.18)}
-        .alert-card.bad{background:rgba(225,112,85,.08);border:1px solid rgba(225,112,85,.18)}
-        .alert-card.good{background:rgba(0,184,148,.08);border:1px solid rgba(0,184,148,.18)}
-        .alert-card.insight{background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.18)}
-        .alert-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
-        .alert-body{flex:1;min-width:0}
-        .alert-title{font-size:.84rem;font-weight:700}
-        .alert-desc{font-size:.76rem;color:var(--t2);margin-top:2px;line-height:1.4}
-        .alert-dismiss{background:none;border:none;color:var(--t2);font-size:1.1rem;cursor:pointer;padding:2px 6px;flex-shrink:0;opacity:.6}
-
-        /* QUICK THOUGHT */
-        .qt-card{background:var(--c1);border-radius:var(--r);padding:16px;margin-bottom:12px;border:1px solid rgba(255,255,255,.04)}
-        .qt-row{display:flex;gap:8px;align-items:center}
-        .qt-input{flex:1;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:24px;color:var(--t);font-size:.86rem;outline:none}
-        .qt-input::placeholder{color:var(--t2)}
-        .qt-send{width:38px;height:38px;border-radius:50%;border:none;background:var(--a);color:var(--bg);font-size:1.1rem;font-weight:700;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-        .qt-send:active{transform:scale(.93)}
-        .qt-send svg{width:18px;height:18px;fill:var(--bg)}
-        .qt-feedback{margin-top:12px;padding:12px;border-radius:var(--rs);background:rgba(255,255,255,.04);animation:fu .3s ease}
-        .qt-emo{font-size:.84rem;font-weight:600;display:flex;align-items:center;gap:6px}
-        .qt-comment{font-size:.76rem;color:var(--t2);margin-top:4px;line-height:1.4}
-        .qt-bar{height:4px;border-radius:2px;margin-top:8px;background:rgba(255,255,255,.07);overflow:hidden}
-        .qt-fill{height:100%;border-radius:2px;transition:width .6s ease}
 
         /* RESULT */
         .res-hero{text-align:center;padding:16px 0}
         .score-ring{width:130px;height:130px;border-radius:50%;margin:0 auto 14px;position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column}
         .score-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
         .score-ring circle{fill:none;stroke-width:5;stroke-linecap:round}
-        .score-ring .bg{stroke:rgba(255,255,255,.06)}
+        .score-ring .bg-c{stroke:rgba(255,255,255,.06)}
         .score-ring .fg{transition:stroke-dashoffset 1.2s ease}
         .score-ring .sv{font-size:2.5rem;font-weight:800;z-index:1}
         .score-ring .sl{font-size:.72rem;color:var(--t2);z-index:1}
         .ai-ref{background:linear-gradient(135deg,rgba(0,206,201,.1),rgba(108,92,231,.1));border:1px solid rgba(0,206,201,.18);border-radius:var(--r);padding:15px;margin:14px 0}
         .ai-ref h3{font-size:.88rem;color:var(--al);margin-bottom:5px}
         .ai-ref p{font-size:.82rem;color:var(--t2);line-height:1.55}
-        .ts-box{background:rgba(255,255,255,.03);border-radius:var(--rs);padding:12px;margin:10px 0;max-height:140px;overflow-y:auto}
-        .ts-box p{font-size:.82rem;line-height:1.55;color:var(--t2);font-style:italic}
-        .cats{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
-        .share-cd{background:linear-gradient(135deg,var(--pd),#2D1B69);border-radius:var(--r);padding:20px;text-align:center;margin:12px 0}
-        .share-cd h3{font-size:.95rem;margin-bottom:10px}
-        .share-row{display:flex;justify-content:center;gap:20px;margin-bottom:12px}
-        .share-i .n{font-size:1.3rem;font-weight:800}
-        .share-i .l{font-size:.62rem;color:var(--t2)}
-
-        /* DIARY */
-        .de{background:var(--c1);border-radius:var(--r);padding:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,.04);cursor:pointer}
-        .de:active{background:var(--c2)}
-        .de-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-        .de-d{font-size:.72rem;color:var(--t2)}
-        .de-s{font-size:1.05rem;font-weight:800}
-        .de-x{font-size:.8rem;color:var(--t2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-        .de-t{display:flex;gap:4px;margin-top:6px}
-        .d-search{width:100%;padding:10px 13px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:var(--rs);color:var(--t);font-size:.88rem;outline:none;margin-bottom:12px}
-        .d-search::placeholder{color:var(--t2)}
-
-        /* PROGRESS */
-        .lvl-bar{display:flex;align-items:center;gap:11px;margin-bottom:14px}
-        .lvl-b{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;flex-shrink:0}
-        .lvl-i{flex:1}
-        .lvl-i .n{font-size:.88rem;font-weight:700}
-        .lvl-i .x{font-size:.72rem;color:var(--t2);margin-top:2px}
-        .xp-bar{width:100%;height:5px;background:rgba(255,255,255,.07);border-radius:3px;margin-top:4px;overflow:hidden}
-        .xp-f{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--p),var(--a));transition:width .5s}
-        .rank-cd{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,165,0,.04));border:1px solid rgba(255,215,0,.18);border-radius:var(--r);padding:15px;text-align:center;margin-bottom:12px}
-        .rank-p{font-size:2rem;font-weight:800;color:var(--g)}
-        .rank-l{font-size:.82rem;color:var(--t2);margin-top:3px}
-        .rank-bw{margin:10px 0;height:7px;background:rgba(255,255,255,.07);border-radius:4px;position:relative}
-        .rank-bf{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--bad),var(--w),var(--ok))}
-        .rank-m{position:absolute;top:-4px;width:14px;height:14px;background:var(--g);border:2px solid #fff;border-radius:50%;transform:translateX(-50%)}
-        .ch-w{width:100%;height:150px;position:relative}
-        .ch-w canvas{width:100%;height:100%}
-        .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:var(--c1);border:1px solid rgba(255,255,255,.1);color:var(--t);padding:10px 20px;border-radius:var(--rs);font-size:.8rem;z-index:150;opacity:0;transition:opacity .3s;pointer-events:none}
-        .toast.show{opacity:1}
-        ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--pd);border-radius:3px}
 
         /* SETTINGS */
         .sett-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem}
@@ -219,6 +183,10 @@
         .sett-input{width:130px;padding:8px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--rs);color:var(--t);font-size:.84rem;outline:none;text-align:right}
         .sett-input::placeholder{color:var(--t2)}
         select{padding:8px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--rs);color:var(--t);font-size:.84rem;outline:none}
+        .sett-place{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+        .sett-place .info{flex:1;min-width:0}
+        .sett-place .nm{font-size:.84rem;font-weight:600}
+        .sett-place .tp{font-size:.68rem;color:var(--t2)}
 
         /* FAMILY */
         .fam-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;padding:16px 16px 32px;max-width:500px;margin:0 auto;display:none}
@@ -232,11 +200,27 @@
         .fam-score .trend{font-size:.7rem;font-weight:600}
         .profile-banner{position:fixed;top:0;left:0;right:0;background:var(--p);color:#fff;text-align:center;padding:8px 16px;font-size:.78rem;font-weight:600;z-index:99;display:none;align-items:center;justify-content:center;gap:8px}
         .profile-banner .back-btn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 12px;border-radius:12px;font-size:.72rem;cursor:pointer}
+
+        /* CHART */
+        .ch-w{width:100%;height:150px;position:relative}
+        .ch-w canvas{width:100%;height:100%}
+
+        .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:var(--c1);border:1px solid rgba(255,255,255,.1);color:var(--t);padding:10px 20px;border-radius:var(--rs);font-size:.8rem;z-index:150;opacity:0;transition:opacity .3s;pointer-events:none}
+        .toast.show{opacity:1}
+        ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--pd);border-radius:3px}
+
+        /* ADD-PLACE MODAL */
+        .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:250;display:none;align-items:center;justify-content:center;padding:24px}
+        .modal.on{display:flex}
+        .modal-box{background:var(--c1);border-radius:var(--r);padding:24px;width:100%;max-width:340px;animation:fu .2s ease}
+        .modal-box h2{font-size:1.1rem;margin-bottom:14px;text-align:center}
+        .modal-box input{width:100%;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:.95rem;outline:none;margin-bottom:12px}
+        .modal-box input::placeholder{color:var(--t2)}
     </style>
 </head>
 <body>
 
-<!-- PROFILE BANNER (child profile viewing) -->
+<!-- PROFILE BANNER -->
 <div class="profile-banner" id="profile-banner">
     <span id="profile-banner-text"></span>
     <button class="back-btn" onclick="switchToParent()">Tillbaka</button>
@@ -247,65 +231,65 @@
     <div id="fam-overlay-content"></div>
 </div>
 
+<!-- ADD PLACE MODAL -->
+<div class="modal" id="add-place-modal">
+    <div class="modal-box">
+        <h2>Lägg till plats</h2>
+        <input type="text" id="new-place-name" placeholder="Namn (t.ex. Ytterbyskolan)" maxlength="40">
+        <div class="pt-grid" id="new-place-types"></div>
+        <button class="btn ba" onclick="saveNewPlace()">Lägg till</button>
+        <button class="btn bs" onclick="closeModal()" style="margin-top:8px">Avbryt</button>
+    </div>
+</div>
+
 <!-- ONBOARDING -->
 <div class="ob" id="ob">
     <div class="ob-step on" id="ob1">
         <div style="font-size:3.2rem;margin-bottom:14px">🧠</div>
         <h1>Moodly</h1>
-        <p>Din personliga AI-kompis som hjälper dig förstå och förbättra ditt välmående — genom riktiga samtal.</p>
-        <div style="text-align:left;max-width:260px;margin-bottom:24px">
-            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>💬</span> Prata naturligt — AI:n lyssnar och ställer frågor</div>
-            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📈</span> Bevisad förbättring av ditt välmående</div>
-            <div class="ob-feat" style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔒</span> Privat och GDPR-säkert</div>
+        <p>Mät ditt välmående kopplat till dina platser — skola, jobb, hem, fritid. Förstå var du mår bäst.</p>
+        <div style="text-align:left;max-width:280px;margin-bottom:24px">
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📊</span> Daglig emoji-checkin per plats</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📈</span> Se trender och insikter per verksamhet</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>💬</span> Prata med AI när du behöver stöd</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔒</span> Privat och GDPR-säkert</div>
         </div>
-        <button class="btn bp" onclick="obNext(2)" style="max-width:280px">Kom igång — 30 sekunder</button>
-        <p style="font-size:.72rem;color:var(--t2);margin-top:14px">Redan <strong style="color:var(--a)">2 847</strong> personer mår bättre med Moodly</p>
+        <button class="btn bp" onclick="obNext(2)" style="max-width:280px">Kom igång</button>
     </div>
 
     <div class="ob-step" id="ob2">
         <div style="font-size:2.5rem;margin-bottom:10px">👋</div>
         <h1>Vad heter du?</h1>
-        <p>Så att din AI kan tilltala dig med namn.</p>
+        <p>Så att vi kan personalisera din upplevelse.</p>
         <input type="text" id="user-name-input" placeholder="Ditt namn..." maxlength="30">
         <button class="btn bp" onclick="obNext(3)">Nästa</button>
     </div>
 
     <div class="ob-step" id="ob3">
-        <div style="font-size:2.5rem;margin-bottom:10px">✨</div>
-        <h1>Namnge din AI</h1>
-        <p>Din AI lär känna dig, minns era samtal, och hjälper dig utvecklas. Vad vill du kalla den?</p>
-        <input type="text" id="ai-name-input" placeholder="t.ex. Luna, Nova, Eli..." maxlength="20">
-        <button class="btn bp" onclick="obNext(4)">Nästa</button>
+        <div style="font-size:2.5rem;margin-bottom:10px">📍</div>
+        <h1>Lägg till dina platser</h1>
+        <p>Vilka platser vill du mäta ditt mående på? Lägg till minst en.</p>
+        <div id="ob-places-list" style="width:100%;margin-bottom:12px"></div>
+        <input type="text" id="ob-place-name" placeholder="Namn (t.ex. Ytterbyskolan)" maxlength="40" style="margin-bottom:8px">
+        <div class="pt-grid" id="ob-place-types" style="margin-bottom:12px"></div>
+        <button class="btn ba" onclick="obAddPlace()" style="margin-bottom:12px">+ Lägg till plats</button>
+        <button class="btn bp" onclick="obNext(4)" id="ob3-next" disabled>Nästa</button>
     </div>
 
     <div class="ob-step" id="ob4">
-        <h1>Välj personlighet</h1>
-        <p>Hur vill du att <span id="ob-name-preview">din AI</span> ska vara?</p>
-        <div class="personality-grid">
-            <div class="pers-btn sel" data-pers="warm" onclick="selectPers(this)">
-                <strong>🤗 Varm & empatisk</strong>
-                <span>Lyssnar, validerar och stöttar. Som en nära vän.</span>
-            </div>
-            <div class="pers-btn" data-pers="direct" onclick="selectPers(this)">
-                <strong>💪 Direkt & ärlig</strong>
-                <span>Rakt på sak. Utmanar dig att växa.</span>
-            </div>
-            <div class="pers-btn" data-pers="coach" onclick="selectPers(this)">
-                <strong>🎯 Coachande & motiverande</strong>
-                <span>Målfokuserad. Hjälper dig nå din potential.</span>
-            </div>
-        </div>
-        <button class="btn ba" onclick="finishOnboarding()">Starta din resa</button>
+        <div style="font-size:2.5rem;margin-bottom:10px">✨</div>
+        <h1>Klart!</h1>
+        <p>Du kan börja checka in ditt mående direkt. Ju mer du loggar, desto bättre insikter.</p>
+        <button class="btn ba" onclick="finishOnboarding()">Starta Moodly</button>
     </div>
 </div>
 
-<!-- CONVERSATION VIEW — Chat Interface -->
+<!-- CONVERSATION VIEW -->
 <div class="conv-view" id="conv-view">
     <div class="conv-top">
         <span class="name" id="conv-name"><span class="dot"></span></span>
         <span class="timer" id="conv-timer">0:00</span>
     </div>
-    <div class="conv-camera" id="conv-camera"><video id="conv-vid" autoplay playsinline muted></video></div>
     <div class="chat-area" id="chat-area"></div>
     <div class="conv-bottom">
         <div class="listening-indicator" id="listen-ind"></div>
@@ -323,41 +307,39 @@
 <!-- APP -->
 <div id="app" style="display:none">
 
-    <!-- HOME -->
+    <!-- IDAG (Home) -->
     <div class="pg on" id="pg-home">
-        <div class="home-top">
-            <h1 id="home-greeting"></h1>
-            <div class="sub" id="home-sub"></div>
+        <div style="text-align:center;padding:16px 0 6px">
+            <h1 id="home-greeting" style="font-size:1.3rem;font-weight:800"></h1>
+            <div id="home-sub" style="font-size:.8rem;color:var(--t2);margin-top:2px"></div>
         </div>
-
-        <div class="value-proof" id="value-proof" style="display:none">
-            <div class="big" id="vp-big"></div>
-            <div class="desc" id="vp-desc"></div>
-        </div>
-
         <div class="streak-row">
             <span class="fire">🔥</span>
             <span class="num" id="s-num">0</span>
             <span class="lbl">dagars streak</span>
         </div>
-        <div class="week-dots" id="w-dots"></div>
-
+        <div id="home-summary"></div>
         <div id="home-alerts"></div>
+        <div id="home-places"></div>
+    </div>
 
-        <div class="qt-card">
-            <div class="ct">💭 Snabb tanke</div>
-            <div class="qt-row">
-                <input type="text" class="qt-input" id="qt-input" placeholder="Hur känner du dig just nu?" enterkeyhint="send">
-                <button class="qt-send" id="qt-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
-            </div>
-            <div id="qt-feedback" style="display:none"></div>
+    <!-- INSIKTER -->
+    <div class="pg" id="pg-insights">
+        <h2 style="font-size:1.15rem;margin-bottom:12px">📈 Insikter</h2>
+        <div id="insights-content"></div>
+    </div>
+
+    <!-- SAMTAL -->
+    <div class="pg" id="pg-chat">
+        <div style="text-align:center;padding:20px 0 8px">
+            <h2 style="font-size:1.15rem;margin-bottom:12px">💬 Samtal</h2>
+            <p style="font-size:.82rem;color:var(--t2);margin-bottom:16px">Prata med din AI-kompis om hur du mår</p>
         </div>
-
-        <div id="home-avatar" style="margin:16px 0">
+        <div style="margin:16px 0">
             <div class="avatar-wrap">
                 <div class="avatar-orb idle" id="home-orb">
-                    <div class="glow" id="home-glow"></div>
-                    <div class="core">
+                    <div class="glow" id="home-glow" style="background:radial-gradient(circle,#A29BFE,#6C5CE7)"></div>
+                    <div class="core" style="background:radial-gradient(circle,#A29BFE 0%,#6C5CE7 100%)">
                         <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
                         <div class="mouth"></div>
                     </div>
@@ -365,58 +347,32 @@
             </div>
             <div style="text-align:center;margin-top:8px;font-size:.82rem;color:var(--t2)" id="home-ai-msg"></div>
         </div>
-
         <button class="start-conv-btn" id="start-conv-btn">
-            <div class="orb-mini"><div class="dot"></div><div class="dot"></div></div>
             <span>Starta samtal</span>
         </button>
-
-        <div id="home-today" style="margin-top:12px"></div>
+        <div id="chat-history"></div>
     </div>
 
-    <!-- RESULT -->
+    <!-- RESULT (shown after conversation) -->
     <div class="pg" id="pg-result">
         <div class="res-hero">
-            <div class="score-ring"><svg viewBox="0 0 130 130"><circle class="bg" cx="65" cy="65" r="58"/><circle class="fg" id="s-arc" cx="65" cy="65" r="58" stroke-dasharray="364.4" stroke-dashoffset="364.4"/></svg><span class="sv" id="s-val">—</span><span class="sl">MoodScore</span></div>
+            <div class="score-ring"><svg viewBox="0 0 130 130"><circle class="bg-c" cx="65" cy="65" r="58"/><circle class="fg" id="s-arc" cx="65" cy="65" r="58" stroke-dasharray="364.4" stroke-dashoffset="364.4"/></svg><span class="sv" id="s-val">—</span><span class="sl">MoodScore</span></div>
             <div id="r-emo" style="font-size:1.1rem;font-weight:700"></div>
-            <div id="r-xp" style="font-size:.78rem;color:var(--g);margin-top:3px"></div>
         </div>
         <div class="ai-ref"><h3 id="r-ref-title"></h3><p id="r-ref-text"></p></div>
-        <div class="cd"><div class="ct">📝 Sammanfattning</div><div class="ts-box"><p id="r-summary"></p></div><div class="cats" id="r-cats"></div></div>
-        <div class="cd" id="r-interv"><div class="ct" id="r-interv-t"></div><p id="r-interv-p" style="font-size:.82rem;color:var(--t2);line-height:1.5"></p></div>
-        <div class="cd" id="r-vproof" style="display:none"><div class="ct">📈 Din utveckling</div><p id="r-vp-text" style="font-size:.82rem;color:var(--t2);line-height:1.5"></p></div>
-        <div class="share-cd"><h3>Dela din framgång</h3><div class="share-row"><div class="share-i"><div class="n" id="sh-s">—</div><div class="l">Score</div></div><div class="share-i"><div class="n" id="sh-st">—</div><div class="l">Streak</div></div><div class="share-i"><div class="n" id="sh-l">—</div><div class="l">Nivå</div></div></div><button class="btn bg" onclick="doShare()">Dela med vänner</button></div>
         <button class="btn bs" onclick="go('home')" style="margin-top:6px">Tillbaka</button>
-    </div>
-
-    <!-- DIARY -->
-    <div class="pg" id="pg-diary">
-        <h2 style="font-size:1.15rem;margin-bottom:12px">📖 Din dagbok</h2>
-        <input class="d-search" id="d-search" placeholder="Sök i dina reflektioner...">
-        <div id="d-list"></div>
-    </div>
-
-    <!-- PROGRESS -->
-    <div class="pg" id="pg-progress">
-        <h2 style="font-size:1.15rem;margin-bottom:12px">📈 Din utveckling</h2>
-        <div class="cd"><div class="lvl-bar" id="lvl-bar"></div></div>
-        <div class="rank-cd" id="rank-cd"><div style="font-size:.82rem;color:var(--t2);margin-bottom:3px">Din förbättring vs. community</div><div class="rank-p" id="rk-p">—</div><div class="rank-l" id="rk-l"></div><div class="rank-bw"><div class="rank-bf" style="width:100%"></div><div class="rank-m" id="rk-m" style="left:50%"></div></div></div>
-        <div class="sr" id="st-row"></div>
-        <div class="cd"><div class="ct">📈 Trend</div><div class="ch-w"><canvas id="t-chart"></canvas></div></div>
-        <div class="cd"><div class="ct">🔍 Mönster</div><div id="pat-list"></div></div>
-        <div class="cd"><button class="btn bs" onclick="exportData()">📋 Exportera data (JSON)</button></div>
     </div>
 
     <!-- SETTINGS -->
     <div class="pg" id="pg-settings">
-        <h2 style="font-size:1.15rem;margin-bottom:12px">⚙️ Inställningar</h2>
+        <h2 style="font-size:1.15rem;margin-bottom:12px">Inställningar</h2>
         <div id="settings-content"></div>
     </div>
 
     <nav class="nav">
-        <div class="ni on" data-p="home"><svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg>Hem</div>
-        <div class="ni" data-p="diary"><svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-1 5H7V5h10v2z"/></svg>Dagbok</div>
-        <div class="ni" data-p="progress"><svg viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-3h2v11H7zm4-3h2v14h-2zm4-3h2v17h-2zm4-2h2v19h-2z"/></svg>Framsteg</div>
+        <div class="ni on" data-p="home"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>Idag</div>
+        <div class="ni" data-p="insights"><svg viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-3h2v11H7zm4-3h2v14h-2zm4-3h2v17h-2zm4-2h2v19h-2z"/></svg>Insikter</div>
+        <div class="ni" data-p="chat"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>Samtal</div>
         <div class="ni" data-p="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58c-.05.3-.07.63-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>Inst.</div>
     </nav>
 </div>
@@ -425,24 +381,614 @@
 
 <script>
 // ===================================================================
-// Moodly v4 — AI Conversation Companion + Family
+// Moodly v5 — Place-Based Wellbeing Tracker
 // ===================================================================
 
 const PARENT_KEY='moodly';
-let APK=PARENT_KEY; // Active Profile Key
-let D={checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:''};
+let APK=PARENT_KEY;
+let D={places:[],placeCheckins:[],checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:''};
 let sok=false;try{localStorage.setItem('_','1');localStorage.removeItem('_');sok=true}catch(e){}
 
-// Migrate old kf3 data to moodly
+// Migrate old data
 (function(){if(!sok)return;try{const old=localStorage.getItem('kf3');const nw=localStorage.getItem('moodly');if(old&&!nw)localStorage.setItem('moodly',old)}catch(e){}})();
 
-function ld(){if(!sok)return{...D};try{const r=localStorage.getItem(APK);if(!r)return{...D};const d=JSON.parse(r);if(!d.micro)d.micro=[];if(!d.alertsSeen)d.alertsSeen=[];if(!d.familyProfiles)d.familyProfiles=[];if(!d.familyId)d.familyId='';if(!d.role)d.role='self';if(!d.parentKey)d.parentKey='';return d}catch(e){return{...D}}}
-function getAllDataPoints(d){const f=(d.checkins||[]).map(c=>({...c,type:'full'}));const m=(d.micro||[]).map(c=>({...c,type:'micro'}));return[...f,...m].sort((a,b)=>new Date(a.ts)-new Date(b.ts))}
+function ld(){if(!sok)return{...D};try{const r=localStorage.getItem(APK);if(!r)return{...D};const d=JSON.parse(r);if(!d.places)d.places=[];if(!d.placeCheckins)d.placeCheckins=[];if(!d.micro)d.micro=[];if(!d.checkins)d.checkins=[];if(!d.alertsSeen)d.alertsSeen=[];if(!d.familyProfiles)d.familyProfiles=[];return d}catch(e){return{...D}}}
 function sv(d){D=d;if(sok)try{localStorage.setItem(APK,JSON.stringify(d))}catch(e){}}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
-// ===== SENTIMENT =====
-const EMO={glad:{w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','awesome','nice','stark','kraftfull','lättad','superbra','jättebra','perfekt','duktig','grym','levande','mäktig','taggad','peppad','inspirerad','fokuserad','nöjda'],v:.85},lugn:{w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok','chill','stillsam','tillfreds'],v:.65},ledsen:{w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt','deppig','trist','elände','knäckt','trasig','värdelös','maktlös'],v:.25},stressad:{w:['stressad','pressad','överväldigad','kaos','panik','deadline','mycket','hinner inte','sliten','utbränd','utmattad','nervös','hektisk','jäktad','pressande','överbelastad'],v:.3},orolig:{w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','grubblar','bekymrad','skrämd','panikslagen'],v:.28},arg:{w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd','lack','triggered','fly förbannad'],v:.2},trott:{w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg','matt','slutkörd','körd'],v:.35}};
-const CATS={jobb:['jobb','jobbet','arbete','kontor','chef','möte','möten','kolleg','projekt','deadline','kund','presentation','lön','befordran','uppsagd','intervju','karriär','företag'],relationer:['familj','partner','sambo','kompis','vän','vänner','barn','mamma','pappa','relation','konflikt','konflikter','bråk','gräl','separation','dejt','kärlek','svartsjuk','otrogen','gifta','skild'],hälsa:['träna','gym','springa','yoga','sömn','sov','sjuk','ont','energi','mat','ångest','panik','stress','depression','terapi','psykolog','medicinering','smärta','huvudvärk','utbränd'],fritid:['hobby','spel','film','serie','bok','musik','natur','promenad','resa','semester','fest','konsert','sport','träning']};
+// ===== PLACE TYPES =====
+const PT={
+    school:{icon:'🏫',label:'Skola',bg:'rgba(108,92,231,.15)'},
+    work:{icon:'💼',label:'Arbetsplats',bg:'rgba(0,206,201,.15)'},
+    home:{icon:'🏠',label:'Hem',bg:'rgba(253,203,110,.15)'},
+    sport:{icon:'⚽',label:'Idrott',bg:'rgba(0,184,148,.15)'},
+    hobby:{icon:'🎨',label:'Hobby',bg:'rgba(162,155,254,.15)'},
+    other:{icon:'📍',label:'Annat',bg:'rgba(167,169,190,.15)'}
+};
+const MOODS=[
+    {score:1,emoji:'😢',label:'Dåligt'},
+    {score:2,emoji:'😕',label:'Inte bra'},
+    {score:3,emoji:'😐',label:'Okej'},
+    {score:4,emoji:'🙂',label:'Bra'},
+    {score:5,emoji:'😄',label:'Jättebra'}
+];
+
+// ===== PLACE CHECK-IN =====
+function checkInPlace(placeId,score){
+    const d=ld();
+    const today=new Date().toDateString();
+    const idx=d.placeCheckins.findIndex(c=>c.placeId===placeId&&new Date(c.ts).toDateString()===today);
+    if(idx>=0){
+        d.placeCheckins[idx].score=score;
+        d.placeCheckins[idx].ts=new Date().toISOString();
+    }else{
+        d.placeCheckins.push({ts:new Date().toISOString(),placeId,score});
+        d.xp=(d.xp||0)+5;
+    }
+    if(d.placeCheckins.length>5000)d.placeCheckins=d.placeCheckins.slice(-5000);
+    sv(d);
+    renderHome();
+}
+
+function getTodayCheckins(d){
+    const today=new Date().toDateString();
+    return(d.placeCheckins||[]).filter(c=>new Date(c.ts).toDateString()===today);
+}
+
+function getPlaceCheckins(d,placeId,days){
+    const cutoff=Date.now()-days*864e5;
+    return(d.placeCheckins||[]).filter(c=>c.placeId===placeId&&new Date(c.ts).getTime()>cutoff);
+}
+
+function calcPlaceStreak(d){
+    if(!d.places||!d.places.length)return 0;
+    let streak=0;
+    const day=new Date();
+    while(true){
+        const ds=day.toDateString();
+        const checks=(d.placeCheckins||[]).filter(c=>new Date(c.ts).toDateString()===ds);
+        if(checks.length>0){streak++;day.setDate(day.getDate()-1)}
+        else break;
+    }
+    return streak;
+}
+
+// ===== ADD/REMOVE PLACE =====
+function addPlace(name,type){
+    const d=ld();
+    d.places.push({id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name,type});
+    sv(d);
+}
+function removePlace(id){
+    const d=ld();
+    d.places=d.places.filter(p=>p.id!==id);
+    d.placeCheckins=d.placeCheckins.filter(c=>c.placeId!==id);
+    sv(d);
+}
+
+// ===== RENDER HOME (Idag) =====
+function renderHome(){
+    const d=ld();
+    const hr=new Date().getHours();
+    const greet=hr<10?'God morgon':hr<17?'Hej':hr<21?'God kväll':'God natt';
+    document.getElementById('home-greeting').textContent=`${greet}, ${d.userName||'du'}!`;
+
+    const todayChecks=getTodayCheckins(d);
+    const totalPlaces=d.places.length;
+    const checkedCount=todayChecks.length;
+    const allDone=totalPlaces>0&&checkedCount>=totalPlaces;
+
+    document.getElementById('home-sub').textContent=totalPlaces===0?'Lägg till dina platser för att börja':allDone?`Alla ${totalPlaces} platser checkade idag!`:`${checkedCount}/${totalPlaces} platser checkade idag`;
+
+    // Streak
+    document.getElementById('s-num').textContent=calcPlaceStreak(d);
+
+    // Summary if all done
+    const summaryEl=document.getElementById('home-summary');
+    if(allDone&&totalPlaces>0){
+        const scores=todayChecks.map(c=>c.score);
+        const avg=(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1);
+        const bestCI=todayChecks.reduce((a,b)=>b.score>a.score?b:a);
+        const worstCI=todayChecks.reduce((a,b)=>b.score<a.score?b:a);
+        const bestPlace=d.places.find(p=>p.id===bestCI.placeId);
+        const worstPlace=d.places.find(p=>p.id===worstCI.placeId);
+        let txt=`Dagens snitt: ${avg}/5`;
+        if(bestPlace&&worstPlace&&bestPlace.id!==worstPlace.id){
+            txt+=` — Bäst: ${bestPlace.name} ${MOODS[bestCI.score-1]?.emoji||''}, Sämst: ${worstPlace.name} ${MOODS[worstCI.score-1]?.emoji||''}`;
+        }
+        summaryEl.innerHTML=`<div class="today-summary"><div class="big">${txt}</div></div>`;
+    }else{
+        summaryEl.innerHTML='';
+    }
+
+    // Place cards
+    const placesEl=document.getElementById('home-places');
+    if(!d.places.length){
+        placesEl.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--t2)">
+            <div style="font-size:2.5rem;margin-bottom:10px">📍</div>
+            <p style="margin-bottom:16px">Inga platser tillagda ännu.<br>Lägg till skola, jobb, hem eller fritid!</p>
+            <button class="btn ba" onclick="openAddPlace()" style="max-width:240px;margin:0 auto">+ Lägg till plats</button></div>`;
+        return;
+    }
+
+    let html='';
+    d.places.forEach(place=>{
+        const pt=PT[place.type]||PT.other;
+        const todayCheck=todayChecks.find(c=>c.placeId===place.id);
+        const currentScore=todayCheck?todayCheck.score:0;
+
+        html+=`<div class="place-card">
+            <div class="place-header">
+                <div class="place-icon" style="background:${pt.bg}">${pt.icon}</div>
+                <div><div class="place-name">${place.name}</div><div class="place-type-label">${pt.label}</div></div>
+            </div>
+            <div class="emoji-row">`;
+        MOODS.forEach(m=>{
+            const sel=currentScore===m.score?'sel':'';
+            html+=`<div class="emoji-btn ${sel}" onclick="checkInPlace('${place.id}',${m.score})">
+                <span class="em">${m.emoji}</span><span class="el">${m.label}</span></div>`;
+        });
+        html+=`</div>`;
+        if(todayCheck)html+=`<div class="place-done">Checkad idag</div>`;
+        html+=`</div>`;
+    });
+
+    html+=`<div class="add-place" onclick="openAddPlace()">+ Lägg till plats</div>`;
+    placesEl.innerHTML=html;
+
+    renderAlerts();
+}
+
+// ===== RENDER INSIGHTS =====
+function renderInsights(){
+    const d=ld();
+    const el=document.getElementById('insights-content');
+
+    if(!d.places.length||!d.placeCheckins.length){
+        el.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--t2)">
+            <div style="font-size:2.5rem;margin-bottom:10px">📈</div>
+            <p>Checka in ditt mående på dina platser för att se insikter här.</p></div>`;
+        return;
+    }
+
+    let html='';
+
+    // Summary: best & worst places (last 30 days)
+    const placeStats=d.places.map(p=>{
+        const checks=getPlaceCheckins(d,p.id,30);
+        if(!checks.length)return{...p,avg:0,count:0,trend:'flat'};
+        const scores=checks.map(c=>c.score);
+        const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+
+        // Trend: last 7 vs previous 7
+        const last7=getPlaceCheckins(d,p.id,7).map(c=>c.score);
+        const prev7=(d.placeCheckins||[]).filter(c=>{
+            const age=Date.now()-new Date(c.ts).getTime();
+            return c.placeId===p.id&&age>=7*864e5&&age<14*864e5;
+        }).map(c=>c.score);
+
+        let trend='flat';
+        if(last7.length>=2&&prev7.length>=2){
+            const l=last7.reduce((a,b)=>a+b,0)/last7.length;
+            const p2=prev7.reduce((a,b)=>a+b,0)/prev7.length;
+            if(l-p2>0.3)trend='up';else if(p2-l>0.3)trend='dn';
+        }
+        return{...p,avg:Math.round(avg*10)/10,count:checks.length,trend,last7Scores:last7};
+    }).filter(p=>p.count>0).sort((a,b)=>b.avg-a.avg);
+
+    if(placeStats.length>=2){
+        const best=placeStats[0];
+        const worst=placeStats[placeStats.length-1];
+        html+=`<div class="ins-summary">
+            <div class="title">Senaste 30 dagarna</div>
+            <div class="ins-summary row"><span>Mår bäst</span><span class="best">${PT[best.type]?.icon||'📍'} ${best.name} (${best.avg}/5)</span></div>
+            <div class="ins-summary row"><span>Mår sämst</span><span class="worst">${PT[worst.type]?.icon||'📍'} ${worst.name} (${worst.avg}/5)</span></div>
+        </div>`;
+    }
+
+    // Per-place cards
+    placeStats.forEach(ps=>{
+        const pt=PT[ps.type]||PT.other;
+        const col=ps.avg>=4?'var(--ok)':ps.avg>=3?'var(--w)':'var(--bad)';
+        const trendLabel=ps.trend==='up'?'Uppåt':ps.trend==='dn'?'Nedåt':'Stabil';
+        const trendClass=ps.trend;
+
+        // Mini bar chart (last 7 entries)
+        const last7=getPlaceCheckins(d,ps.id,7).slice(-7);
+        let bars='';
+        for(let i=0;i<7;i++){
+            const entry=last7[i];
+            if(entry){
+                const h=Math.round((entry.score/5)*100);
+                const bc=entry.score>=4?'var(--ok)':entry.score>=3?'var(--w)':'var(--bad)';
+                bars+=`<div class="ins-bar" style="height:${h}%;background:${bc}"></div>`;
+            }else{
+                bars+=`<div class="ins-bar" style="height:10%;background:rgba(255,255,255,.06)"></div>`;
+            }
+        }
+
+        html+=`<div class="ins-card">
+            <div class="ins-header">
+                <div class="ins-place"><span class="ico">${pt.icon}</span><span class="nm">${ps.name}</span></div>
+                <div class="ins-avg" style="color:${col}">${ps.avg}</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="ins-trend ${trendClass}">${ps.trend==='up'?'↑':ps.trend==='dn'?'↓':'→'} ${trendLabel}</span>
+                <span style="font-size:.68rem;color:var(--t2)">${ps.count} checkins</span>
+            </div>
+            <div class="ins-bars">${bars}</div>
+            <div class="ins-meta"><span>7 dagar sedan</span><span>Idag</span></div>
+        </div>`;
+    });
+
+    // Patterns
+    if(placeStats.length>=2){
+        html+=`<div class="cd"><div class="ct">🔍 Mönster</div><div id="pattern-list">`;
+        const pats=[];
+
+        // Best/worst day of week per place
+        placeStats.forEach(ps=>{
+            const checks=getPlaceCheckins(d,ps.id,30);
+            if(checks.length<7)return;
+            const byDay=[0,0,0,0,0,0,0];
+            const byDayCount=[0,0,0,0,0,0,0];
+            checks.forEach(c=>{const dow=(new Date(c.ts).getDay()+6)%7;byDay[dow]+=c.score;byDayCount[dow]++});
+            const dayNames=['mån','tis','ons','tor','fre','lör','sön'];
+            let bestDay=0,worstDay=0,bestAvg=0,worstAvg=99;
+            for(let i=0;i<7;i++){
+                if(byDayCount[i]>=2){
+                    const a=byDay[i]/byDayCount[i];
+                    if(a>bestAvg){bestAvg=a;bestDay=i}
+                    if(a<worstAvg){worstAvg=a;worstDay=i}
+                }
+            }
+            if(bestAvg-worstAvg>0.5){
+                pats.push(`<strong>${ps.name}</strong>: Bäst på ${dayNames[bestDay]}ar (${bestAvg.toFixed(1)}), sämst på ${dayNames[worstDay]}ar (${worstAvg.toFixed(1)})`);
+            }
+        });
+
+        // Overall avg trend
+        const allChecks=[...d.placeCheckins].sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+        if(allChecks.length>=10){
+            const first5=allChecks.slice(0,5).reduce((a,c)=>a+c.score,0)/5;
+            const last5=allChecks.slice(-5).reduce((a,c)=>a+c.score,0)/5;
+            const diff=last5-first5;
+            if(Math.abs(diff)>0.3){
+                pats.push(`Ditt övergripande mående har ${diff>0?'förbättrats':'försämrats'} med <strong>${Math.abs(diff).toFixed(1)}</strong> poäng sedan du började.`);
+            }
+        }
+
+        if(pats.length){
+            html+=pats.map(p=>`<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;color:var(--t2);line-height:1.45">${p}</div>`).join('');
+        }else{
+            html+=`<p style="font-size:.8rem;color:var(--t2)">Fler checkins behövs för mönster.</p>`;
+        }
+        html+=`</div></div>`;
+    }
+
+    el.innerHTML=html;
+}
+
+// ===== ALERTS =====
+function detectAlerts(d){
+    const alerts=[];
+    const today=new Date().toDateString();
+
+    // Low score on a place 3+ days in a row
+    d.places.forEach(p=>{
+        const recent=getPlaceCheckins(d,p.id,5).slice(-3);
+        if(recent.length>=3&&recent.every(c=>c.score<=2)){
+            alerts.push({id:'low-'+p.id+'-'+today,sev:'bad',ico:'📉',title:`Lågt mående: ${p.name}`,desc:`Du har rapporterat lågt mående på ${p.name} 3 dagar i rad.`});
+        }
+    });
+
+    // Improving place
+    d.places.forEach(p=>{
+        const checks=getPlaceCheckins(d,p.id,14);
+        if(checks.length<6)return;
+        const first3=checks.slice(0,3).reduce((a,c)=>a+c.score,0)/3;
+        const last3=checks.slice(-3).reduce((a,c)=>a+c.score,0)/3;
+        if(last3-first3>=1){
+            alerts.push({id:'improve-'+p.id,sev:'good',ico:'🎉',title:`${p.name} förbättras!`,desc:`Ditt snitt har ökat från ${first3.toFixed(1)} till ${last3.toFixed(1)} de senaste 2 veckorna.`});
+        }
+    });
+
+    // Inactivity
+    if(d.placeCheckins.length>0){
+        const lastTs=new Date(d.placeCheckins[d.placeCheckins.length-1].ts);
+        const daysSince=Math.floor((Date.now()-lastTs.getTime())/864e5);
+        if(daysSince>=2){
+            alerts.push({id:'inactive-'+Math.floor(Date.now()/864e5),sev:'warn',ico:'👋',title:`${daysSince} dagar sedan sist`,desc:'En snabb checkin tar bara sekunder!'});
+        }
+    }
+
+    return alerts;
+}
+
+function renderAlerts(){
+    const d=ld();
+    const el=document.getElementById('home-alerts');
+    if(!el)return;
+    const alerts=detectAlerts(d).filter(a=>!(d.alertsSeen||[]).includes(a.id));
+    const show=alerts.slice(0,2);
+    el.innerHTML=show.map(a=>`<div class="alert-card ${a.sev}"><div class="alert-icon">${a.ico}</div><div class="alert-body"><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div><button class="alert-dismiss" onclick="dismissAlert('${a.id}')">×</button></div>`).join('');
+}
+
+function dismissAlert(id){
+    const d=ld();if(!d.alertsSeen)d.alertsSeen=[];
+    d.alertsSeen.push(id);
+    if(d.alertsSeen.length>100)d.alertsSeen=d.alertsSeen.slice(-50);
+    sv(d);renderAlerts();
+}
+
+// ===== ADD PLACE MODAL =====
+let selectedPlaceType='school';
+function renderPlaceTypeGrid(containerId){
+    const el=document.getElementById(containerId);
+    el.innerHTML=Object.entries(PT).map(([k,v])=>
+        `<div class="pt-btn${k===selectedPlaceType?' sel':''}" onclick="selectPlaceType('${k}','${containerId}')"><span class="ico">${v.icon}</span><span class="lbl">${v.label}</span></div>`
+    ).join('');
+}
+
+function selectPlaceType(type,containerId){
+    selectedPlaceType=type;
+    renderPlaceTypeGrid(containerId);
+}
+
+function openAddPlace(){
+    selectedPlaceType='school';
+    document.getElementById('new-place-name').value='';
+    renderPlaceTypeGrid('new-place-types');
+    document.getElementById('add-place-modal').classList.add('on');
+}
+
+function closeModal(){
+    document.getElementById('add-place-modal').classList.remove('on');
+}
+
+function saveNewPlace(){
+    const name=document.getElementById('new-place-name').value.trim();
+    if(!name){toast('Ange ett namn');return}
+    addPlace(name,selectedPlaceType);
+    closeModal();
+    renderHome();
+    toast(`${name} tillagd!`);
+}
+
+// ===== ONBOARDING =====
+let obPlaces=[];
+function obNext(step){
+    document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('on'));
+    document.getElementById('ob'+step).classList.add('on');
+    if(step===3){
+        selectedPlaceType='school';
+        renderPlaceTypeGrid('ob-place-types');
+        renderObPlaces();
+    }
+}
+
+function renderObPlaces(){
+    const el=document.getElementById('ob-places-list');
+    if(!obPlaces.length){el.innerHTML='';return}
+    el.innerHTML=obPlaces.map((p,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--c2);border-radius:8px;margin-bottom:6px;font-size:.84rem">
+        <span>${PT[p.type]?.icon||'📍'}</span><span style="flex:1">${p.name}</span>
+        <button style="background:none;border:none;color:var(--bad);font-size:1rem;cursor:pointer" onclick="obRemovePlace(${i})">×</button></div>`).join('');
+    document.getElementById('ob3-next').disabled=obPlaces.length===0;
+}
+
+function obAddPlace(){
+    const name=document.getElementById('ob-place-name').value.trim();
+    if(!name){toast('Ange ett namn');return}
+    obPlaces.push({name,type:selectedPlaceType});
+    document.getElementById('ob-place-name').value='';
+    renderObPlaces();
+}
+
+function obRemovePlace(i){obPlaces.splice(i,1);renderObPlaces()}
+
+function finishOnboarding(){
+    const userName=document.getElementById('user-name-input').value.trim();
+    const d=ld();
+    d.firstVisit=false;
+    d.userName=userName;
+    d.onboarded=new Date().toISOString();
+    obPlaces.forEach(p=>d.places.push({id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name:p.name,type:p.type}));
+    sv(d);
+    document.getElementById('ob').classList.add('h');
+    document.getElementById('app').style.display='';
+    renderHome();
+}
+
+// ===== NAV =====
+document.querySelectorAll('.ni').forEach(i=>{i.addEventListener('click',()=>go(i.dataset.p))});
+function go(p){
+    document.querySelectorAll('.ni').forEach(i=>i.classList.toggle('on',i.dataset.p===p));
+    document.querySelectorAll('.pg').forEach(pg=>pg.classList.toggle('on',pg.id==='pg-'+p));
+    if(p==='home')renderHome();
+    if(p==='insights')renderInsights();
+    if(p==='chat')renderChat();
+    if(p==='settings')renderSettings();
+    window.scrollTo(0,0);
+}
+
+// ===== RENDER CHAT PAGE =====
+function renderChat(){
+    const d=ld();
+    const msgs=['Jag är redo när du är — tryck för att prata','Hur har din dag varit? Jag lyssnar','Ta en stund för dig själv'];
+    document.getElementById('home-ai-msg').textContent=pick(msgs);
+
+    // Show recent conversations
+    const el=document.getElementById('chat-history');
+    if(!d.checkins.length){el.innerHTML='';return}
+    const recent=d.checkins.slice(-5).reverse();
+    el.innerHTML=`<div class="cd"><div class="ct">Senaste samtal</div>${recent.map(c=>{
+        const dt=new Date(c.ts).toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short'});
+        const col=c.score>=65?'var(--ok)':c.score>=40?'var(--w)':'var(--bad)';
+        return`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem"><span style="color:var(--t2)">${dt}</span><span style="font-weight:700;color:${col}">${c.score}</span></div>`;
+    }).join('')}</div>`;
+}
+
+// ===== SETTINGS =====
+function renderSettings(){
+    const d=ld();
+    let html='';
+
+    // Places
+    html+=`<div class="cd"><div class="ct">📍 Dina platser</div>`;
+    if(d.places.length){
+        d.places.forEach(p=>{
+            const pt=PT[p.type]||PT.other;
+            html+=`<div class="sett-place"><span style="font-size:1.1rem">${pt.icon}</span><div class="info"><div class="nm">${p.name}</div><div class="tp">${pt.label}</div></div><button class="alert-dismiss" onclick="if(confirm('Ta bort ${p.name}?')){removePlace('${p.id}');renderSettings()}" title="Ta bort">×</button></div>`;
+        });
+    }
+    html+=`<button class="btn ba" onclick="openAddPlace()" style="margin-top:10px">+ Lägg till plats</button></div>`;
+
+    // Profile
+    html+=`<div class="cd"><div class="ct">👤 Profil</div>
+        <div class="sett-row"><span>Ditt namn</span><input class="sett-input" id="sett-username" value="${d.userName||''}"></div>
+        <div class="sett-row"><span>AI-namn</span><input class="sett-input" id="sett-ainame" value="${d.aiName||'Luna'}"></div>
+        <div class="sett-row"><span>Personlighet</span><select id="sett-pers">
+            <option value="warm"${d.personality==='warm'?' selected':''}>Varm</option>
+            <option value="direct"${d.personality==='direct'?' selected':''}>Direkt</option>
+            <option value="coach"${d.personality==='coach'?' selected':''}>Coach</option>
+        </select></div>
+        <button class="btn bp" onclick="saveProfile()" style="margin-top:10px">Spara</button></div>`;
+
+    // Family
+    html+=`<div class="cd"><div class="ct">👨‍👩‍👧‍👦 Familj</div>`;
+    if(APK!==PARENT_KEY){
+        html+=`<p style="font-size:.82rem;color:var(--t2)">Gå tillbaka till föräldern för att hantera familjen.</p>`;
+    }else if(!d.familyId){
+        html+=`<p style="font-size:.82rem;color:var(--t2);margin-bottom:10px">Skapa en familj för att följa dina barns mående.</p>
+            <button class="btn ba" onclick="createFamily()">Skapa familj</button>`;
+    }else{
+        html+=`<button class="btn bp" onclick="showFamilyDashboard()" style="margin-bottom:12px">📊 Familje-dashboard</button>`;
+        if(d.familyProfiles&&d.familyProfiles.length>0){
+            d.familyProfiles.forEach(function(fp,i){
+                html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup}</div></div><button class="btn bs" style="width:auto;padding:6px 12px;font-size:.72rem" onclick="switchToProfile('${fp.storageKey}','${fp.name}')">Visa</button><button class="alert-dismiss" onclick="removeChild(${i})" title="Ta bort">×</button></div>`;
+            });
+        }
+        html+=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)">
+            <div class="sett-row"><span>Barnets namn</span><input class="sett-input" id="new-child-name" placeholder=""></div>
+            <div class="sett-row"><span>Åldersgrupp</span><select id="new-child-age">
+                <option value="6-9">6-9 år</option><option value="10-13">10-13 år</option><option value="14-17">14-17 år</option>
+            </select></div>
+            <button class="btn ba" onclick="addChild()" style="margin-top:8px">+ Lägg till barn</button></div>`;
+    }
+    html+=`</div>`;
+
+    // Data
+    html+=`<div class="cd"><div class="ct">💾 Data</div>
+        <button class="btn bs" onclick="exportData()" style="margin-bottom:8px">Exportera data</button>
+        <button class="btn bs" onclick="confirmDeleteAll()" style="background:rgba(225,112,85,.1);color:var(--bad)">Radera all data</button></div>`;
+
+    html+=`<div class="cd"><div class="ct">ℹ️ Om</div><p style="font-size:.76rem;color:var(--t2);line-height:1.5">Moodly v5.0 — All data lagras lokalt. Inget skickas till servrar.</p></div>`;
+
+    document.getElementById('settings-content').innerHTML=html;
+}
+
+function saveProfile(){
+    const d=ld();
+    d.userName=document.getElementById('sett-username').value.trim();
+    d.aiName=document.getElementById('sett-ainame').value.trim()||'Luna';
+    d.personality=document.getElementById('sett-pers').value;
+    sv(d);toast('Sparat!');
+}
+
+function exportData(){
+    const d=ld();const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='moodly-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exporterad!');
+}
+
+function confirmDeleteAll(){
+    if(!confirm('Är du säker? All data raderas permanent.'))return;
+    if(sok){const d=ld();if(d.familyProfiles)d.familyProfiles.forEach(fp=>localStorage.removeItem(fp.storageKey));localStorage.removeItem(APK)}
+    D={places:[],placeCheckins:[],checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:''};
+    if(sok)localStorage.setItem(APK,JSON.stringify(D));
+    toast('All data raderad.');renderSettings();renderHome();
+}
+
+// ===== FAMILY =====
+function createFamily(){
+    const d=ld();d.familyId='fam_'+Date.now();d.role='parent';d.familyProfiles=[];sv(d);renderSettings();toast('Familj skapad!');
+}
+
+function addChild(){
+    const nameEl=document.getElementById('new-child-name');
+    const name=nameEl.value.trim();if(!name)return;
+    const ageGroup=document.getElementById('new-child-age').value;
+    const id='child_'+Date.now();const storageKey='moodly_child_'+id;
+    const d=ld();
+    d.familyProfiles.push({id,name,ageGroup,storageKey});sv(d);
+    const childData={places:[...d.places],placeCheckins:[],checkins:[],micro:[],xp:0,level:1,firstVisit:false,baseline:null,userName:name,aiName:d.aiName||'Luna',personality:'warm',onboarded:new Date().toISOString(),alertsSeen:[],familyId:d.familyId,role:'child',familyProfiles:[],parentKey:PARENT_KEY};
+    if(sok)localStorage.setItem(storageKey,JSON.stringify(childData));
+    renderSettings();toast(name+' tillagd!');
+}
+
+function removeChild(idx){
+    const d=ld();if(!d.familyProfiles[idx])return;
+    if(sok)localStorage.removeItem(d.familyProfiles[idx].storageKey);
+    d.familyProfiles.splice(idx,1);sv(d);renderSettings();
+}
+
+function switchToProfile(storageKey,name){
+    APK=storageKey;
+    document.getElementById('profile-banner').style.display='flex';
+    document.getElementById('profile-banner-text').textContent='Visar: '+name;
+    document.querySelectorAll('.pg').forEach(pg=>{pg.style.paddingTop='48px'});
+    go('home');
+}
+
+function switchToParent(){
+    APK=PARENT_KEY;
+    document.getElementById('profile-banner').style.display='none';
+    document.querySelectorAll('.pg').forEach(pg=>{pg.style.paddingTop='16px'});
+    go('home');
+}
+
+function getChildSafeData(storageKey){
+    if(!sok)return null;
+    try{
+        const raw=localStorage.getItem(storageKey);if(!raw)return null;
+        const d=JSON.parse(raw);
+        const checks=d.placeCheckins||[];
+        const scores=checks.map(c=>c.score);
+        const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10:0;
+        const recent=checks.slice(-3).map(c=>c.score);
+        let trend='→';
+        if(recent.length>=2){const diff=recent[recent.length-1]-recent[0];trend=diff>0.5?'↑':diff<-0.5?'↓':'→'}
+        return{avg,lastTs:checks.length?checks[checks.length-1].ts:null,trend,count:checks.length};
+    }catch(e){return null}
+}
+
+function showFamilyDashboard(){
+    const d=ld();
+    const overlay=document.getElementById('fam-overlay');
+    overlay.style.display='block';
+    let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:1.15rem">📊 Familje-dashboard</h2><button class="btn bs" style="width:auto;padding:8px 16px" onclick="closeFamilyDashboard()">Stäng</button></div>';
+
+    if(!d.familyProfiles||!d.familyProfiles.length){
+        html+='<p style="color:var(--t2);text-align:center;padding:20px">Inga barn tillagda.</p>';
+    }else{
+        d.familyProfiles.forEach(fp=>{
+            const safe=getChildSafeData(fp.storageKey);
+            if(!safe){
+                html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup} — Ingen data</div></div></div>`;
+                return;
+            }
+            const col=safe.avg>=4?'var(--ok)':safe.avg>=3?'var(--w)':'var(--bad)';
+            const tCol=safe.trend==='↑'?'color:var(--ok)':safe.trend==='↓'?'color:var(--bad)':'color:var(--t2)';
+            html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup} — ${safe.count} checkins</div></div><div class="fam-score"><div class="v" style="color:${col}">${safe.avg||'—'}</div><div class="trend" style="${tCol}">${safe.trend}</div></div></div>`;
+        });
+    }
+    document.getElementById('fam-overlay-content').innerHTML=html;
+}
+
+function closeFamilyDashboard(){document.getElementById('fam-overlay').style.display='none'}
+
+// ===== SENTIMENT (for chat) =====
+const EMO={glad:{w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','awesome','nice','stark','kraftfull','lättad','superbra','jättebra','perfekt','duktig','grym','levande','taggad','peppad','inspirerad','fokuserad'],v:.85},lugn:{w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok','chill','tillfreds'],v:.65},ledsen:{w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt','deppig','trist','knäckt','trasig','värdelös'],v:.25},stressad:{w:['stressad','pressad','överväldigad','kaos','panik','deadline','hinner inte','sliten','utbränd','utmattad','nervös','hektisk','jäktad','överbelastad'],v:.3},orolig:{w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','grubblar','bekymrad'],v:.28},arg:{w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd','lack'],v:.2},trott:{w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg','slutkörd'],v:.35}};
 
 function analyze(txt){
     if(!txt||!txt.trim())return{emotion:'neutral',score:50,conf:0,cats:['allmänt']};
@@ -450,360 +996,86 @@ function analyze(txt){
     for(const[e,d]of Object.entries(EMO)){let h=0;for(const w of d.w)if(l.includes(w))h++;sc[e]=h;tot+=h}
     let dom='neutral',mx=0;for(const[e,h]of Object.entries(sc))if(h>mx){mx=h;dom=e}
     const v=tot>0?(EMO[dom]?.v??.5):.5;
-    const cats=[];for(const[c,ws]of Object.entries(CATS))if(ws.some(w=>l.includes(w)))cats.push(c);
-    if(!cats.length)cats.push('allmänt');
-    return{emotion:dom,score:Math.round(v*100),conf:Math.min(tot/3,1),cats};
+    return{emotion:dom,score:Math.round(v*100),conf:Math.min(tot/3,1),cats:['allmänt']};
 }
-
-// ===== LEVELS =====
-const LVLS=[{l:1,n:'Nybörjare',xp:0,c:'var(--t2)'},{l:2,n:'Reflekterare',xp:50,c:'var(--a)'},{l:3,n:'Medveten',xp:150,c:'var(--pl)'},{l:4,n:'Utforskare',xp:350,c:'var(--ok)'},{l:5,n:'Insiktsfull',xp:600,c:'var(--w)'},{l:6,n:'Emotionell atlet',xp:1000,c:'var(--g)'},{l:7,n:'KänsloMästare',xp:1500,c:'#FF6B6B'}];
-function getLvl(xp){let r=LVLS[0];for(const l of LVLS)if(xp>=l.xp)r=l;return r}
-function getNext(xp){for(const l of LVLS)if(xp<l.xp)return l;return null}
-function calcStreak(ci){if(!ci.length)return 0;const ds=new Set(ci.map(c=>new Date(c.ts).toDateString()));let s=0,d=new Date();while(ds.has(d.toDateString())){s++;d.setDate(d.getDate()-1)}return s}
-function todayDone(ci){return ci.some(c=>new Date(c.ts).toDateString()===new Date().toDateString())}
 
 // ===== CONVERSATION ENGINE =====
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
-function tpl(s){const d=ld();return s.replace(/\{name\}/g,d.userName||'du')}
-
-// -- Topic extraction for mirroring --
-const TOPICS={
-    jobb:['chefen','chef','kollegor','kollega','mötet','möte','deadline','projekt','kunder','kund','kontoret','arbetet','jobbet','lönen','lön','presentationen','leveransen','intervjun','befordran','uppsägningen','karriären','företaget','arbetskamrat'],
-    relationer:['partner','sambon','sambo','flickvän','pojkvän','mamma','pappa','föräldrarna','barnen','barn','kompisen','kompis','vänner','familjen','systern','brodern','svärmor','konflikten','konflikter','bråket','grälet','separationen','relationen','dejten','kärleken'],
-    hälsa:['träningen','gym','sömnen','sömn','huvudvärk','ont','sjuk','energin','vikten','kosten','maten','ryggen','ångesten','paniken','stressen','depressionen','terapin','psykologen','smärtan','utbrändhet'],
-    fritid:['resan','semestern','filmen','serien','boken','musiken','promenaden','matchen','spelet','hobbyn','festen','konserten','träningen','sporten']
-};
-const STOPWORDS=new Set(['jag','mig','min','mitt','mina','du','dig','din','ditt','det','den','de','dem','är','var','har','hade','inte','och','men','att','som','för','med','kan','ska','vill','lite','mycket','ganska','bara','också','väldigt','nu','idag','igår','imorse','ikväll','vanligtvis','brukar','ibland','alltid','aldrig','kanske','nog','rätt','verkligen','faktiskt','egentligen','tycker','tror','känner','hanterar','fungerar','behöver','försöker','vet','ser','får','gör','säger','saker','något','ingenting','allt','riktigt','bättre','sämre','mer','mindre','sedan','redan','fortfarande','dock','ändå','annars','ganska','gick','går','blev','blir','skulle','kunde','ville','gjort','varit','blivit','kommit','tagit','sagt','tänkt','känt','velat','brukat','försökt']);
-
-function extractTopics(text){
-    const words=text.toLowerCase().replace(/[.,!?;:]/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOPWORDS.has(w));
-    const found=[];
-    for(const w of words){
-        for(const[cat,list]of Object.entries(TOPICS)){
-            if(list.some(t=>w.includes(t)||t.includes(w)))found.push({word:w,cat});
-        }
-    }
-    // Also extract significant non-topic words (potential subjects user cares about)
-    const subjects=words.filter(w=>w.length>3&&!found.some(f=>f.word===w)).slice(0,3);
-    return{found,subjects,raw:words};
-}
-
-// -- Mirror phrases (acknowledge what user said) --
 const MIRROR={
-    warm:{
-        pos:['Vad fint att höra!','Det låter riktigt bra!','Jag blir glad av det!','Härligt!','Vilken fin känsla.','Det värmer att höra.','Skönt att höra!','Så bra!','Åh, det gör mig glad.'],
-        neg:['Jag hör dig.','Tack för att du delar det med mig.','Det låter tungt.','Jag förstår att det är svårt.','Det är okej att känna så.','Tack för att du litar på mig med det.','Jag uppskattar din ärlighet.','Det låter verkligen jobbigt.'],
-        neut:['Jag förstår.','Tack för att du berättar.','Jag hör dig.','Jag lyssnar.','Berätta gärna mer.','Jag är här för dig.','Intressant, berätta mer.','Jag hänger med.']
-    },
-    direct:{
-        pos:['Bra.','Nice.','Starkt.','Det funkar.','Fint.','Låter bra.','Fett.'],
-        neg:['Okej, det suger.','Rak input.','Tough.','Jag hör dig.','Det låter skitjobbigt.','Tufft.'],
-        neut:['Okej.','Uppfattat.','Jag förstår.','Got it.','Jag hänger med.','Hm, okej.']
-    },
-    coach:{
-        pos:['Fantastiskt!','Starkt jobbat!','Exakt så bygger du framåt!','Bra momentum!','Du är på rätt spår!','Vilken positiv energi!','Det är en styrka!'],
-        neg:['Det tar mod att erkänna det.','Varje utmaning är en möjlighet.','Jag hör dig.','Tufft — men du hanterar det.','Att erkänna det är första steget.','Starka människor ber om hjälp.'],
-        neut:['Bra att du reflekterar.','Intressant.','Okej, låt oss utforska det.','Jag lyssnar.','Bra självinsikt.','Intressant perspektiv.']
-    }
+    warm:{pos:['Härligt att höra!','Det låter riktigt bra!','Så fint!','Vilken fin känsla.','Skönt att höra!'],neg:['Jag hör dig.','Tack för att du delar det.','Det låter tungt.','Det är okej att känna så.','Tack för att du litar på mig.'],neut:['Jag förstår.','Tack för att du berättar.','Jag hör dig.','Berätta gärna mer.','Jag är här.']},
+    direct:{pos:['Bra.','Nice.','Starkt.','Fint.','Låter bra.'],neg:['Tough.','Jag hör dig.','Det låter jobbigt.','Tufft.'],neut:['Okej.','Uppfattat.','Jag hänger med.','Jag lyssnar.']},
+    coach:{pos:['Fantastiskt!','Starkt!','Du är på rätt spår!','Bra energi!'],neg:['Det tar mod att erkänna det.','Tufft — men du hanterar det.','Starka människor ber om hjälp.'],neut:['Bra att du reflekterar.','Intressant.','Jag lyssnar.']}
 };
-
-// -- Follow-up questions per category (keyed to prevent repetition) --
-const FOLLOWUPS={
-    jobb:[
-        {k:'j1',q:'Vad är det med {t} som påverkar dig mest?'},
-        {k:'j2',q:'Hur länge har det varit så på jobbet?'},
-        {k:'j3',q:'Finns det något du kan förändra i situationen?'},
-        {k:'j4',q:'Hur påverkar det dig när du kommer hem?'},
-        {k:'j5',q:'Vad hade behövt hända för att det skulle bli bättre?'},
-        {k:'j6',q:'Hur stöttar dina kollegor dig i det?'},
-        {k:'j7',q:'Vad ger dig energi på jobbet?'},
-        {k:'j8',q:'Har du pratat med någon om det?'}
-    ],
-    relationer:[
-        {k:'r1',q:'Berätta mer om vad som hände med {t}.'},
-        {k:'r2',q:'Hur fick det dig att känna inombords?'},
-        {k:'r3',q:'Har du kunnat prata med {t} om det?'},
-        {k:'r4',q:'Vad behöver du mest från den relationen just nu?'},
-        {k:'r5',q:'Vad uppskattar du mest hos {t}?'},
-        {k:'r6',q:'Hur hanterar ni konflikter vanligtvis?'},
-        {k:'r7',q:'Vad skulle göra relationen ännu bättre?'},
-        {k:'r8',q:'Hur mår du i den relationen egentligen?'}
-    ],
-    hälsa:[
-        {k:'h1',q:'Hur har {t} påverkat ditt mående?'},
-        {k:'h2',q:'Hur länge har du känt så?'},
-        {k:'h3',q:'Vad brukar hjälpa dig med det?'},
-        {k:'h4',q:'Hur sover du just nu?'},
-        {k:'h5',q:'Gör du något aktivt för att ta hand om dig?'},
-        {k:'h6',q:'Vad behöver din kropp mest just nu?'},
-        {k:'h7',q:'Hur påverkar det din vardag?'},
-        {k:'h8',q:'Har du pratat med en läkare om det?'}
-    ],
-    fritid:[
-        {k:'f1',q:'Berätta mer om {t} — hur var det?'},
-        {k:'f2',q:'Vad var det bästa med det?'},
-        {k:'f3',q:'Hur ofta gör du det?'},
-        {k:'f4',q:'Vad ger det dig?'},
-        {k:'f5',q:'Har du hittat andra saker som ger dig samma känsla?'},
-        {k:'f6',q:'Hur prioriterar du tid för det?'}
-    ],
-    allmänt:[
-        {k:'a1',q:'Vad tar mest plats i dina tankar just nu?'},
-        {k:'a2',q:'Hur har energin varit idag?'},
-        {k:'a3',q:'Vad hade gjort dagen bättre?'},
-        {k:'a4',q:'Vad ser du fram emot?'},
-        {k:'a5',q:'Om du fick önska dig en sak just nu — vad hade det varit?'},
-        {k:'a6',q:'Hur skulle du beskriva din känsla med ett ord?'},
-        {k:'a7',q:'Vad har du gjort idag som betydde något för dig?'},
-        {k:'a8',q:'Finns det något som oroar dig som du inte pratat om?'},
-        {k:'a9',q:'Vad är du tacksam för just nu?'},
-        {k:'a10',q:'Hur mår du jämfört med igår?'}
-    ],
-    deep:[
-        {k:'d1',q:'Hur påverkar det här dig på insidan, egentligen?'},
-        {k:'d2',q:'Vad tror du ligger bakom den känslan?'},
-        {k:'d3',q:'Om du var snäll mot dig själv just nu — vad hade du sagt?'},
-        {k:'d4',q:'Vad skulle behöva förändras för att du ska må bättre?'},
-        {k:'d5',q:'Vad håller dig tillbaka?'},
-        {k:'d6',q:'Om du tänker 3 månader framåt — vad vill du ha förändrat?'},
-        {k:'d7',q:'Vad driver dig egentligen? Vad vill du känna mer av?'},
-        {k:'d8',q:'Vem i ditt liv förstår dig bäst?'}
-    ]
-};
-
-// -- Greeting templates --
+const FOLLOWUPS=[
+    {k:'a1',q:'Vad tar mest plats i dina tankar just nu?'},
+    {k:'a2',q:'Hur har energin varit idag?'},
+    {k:'a3',q:'Vad hade gjort dagen bättre?'},
+    {k:'a4',q:'Vad ser du fram emot?'},
+    {k:'a5',q:'Hur skulle du beskriva din känsla med ett ord?'},
+    {k:'a6',q:'Vad har du gjort idag som betydde något?'},
+    {k:'a7',q:'Finns det något som oroar dig?'},
+    {k:'a8',q:'Vad är du tacksam för just nu?'},
+    {k:'a9',q:'Hur mår du jämfört med igår?'},
+    {k:'a10',q:'Vad driver dig egentligen?'}
+];
 const GREETS={
-    warm:['Hej {name}! Vad fint att du tar dig tid. Hur har din dag varit?','Hej {name}! Jag är här för dig. Berätta, hur mår du just nu?','Välkommen tillbaka {name}! Hur känns det idag?'],
-    direct:['Hej {name}. Rakt på — hur har dagen varit?','Ge mig en snabb statusuppdatering på hur du mår.','Okej {name}, ny dag. Hur ligger du till känslomässigt?'],
-    coach:['Hej {name}! Redo att reflektera och växa? Hur har dagen sett ut?','Välkommen {name}! Varje samtal är ett steg framåt. Hur mår du?','Hej {name}! Hur har du presterat idag, känslomässigt?']
+    warm:['Hej {name}! Hur har din dag varit?','Hej {name}! Berätta, hur mår du?','Välkommen {name}! Hur känns det idag?'],
+    direct:['Hej {name}. Hur har dagen varit?','Okej {name}, hur ligger du till?'],
+    coach:['Hej {name}! Redo att reflektera? Hur mår du?','Hej {name}! Hur har du presterat idag?']
 };
 const CLOSES={
-    warm:['Tack för att du pratade med mig {name}. Jag finns här imorgon också. Ta hand om dig. ❤️','Det var fint att höra om din dag {name}. Varje dag du reflekterar gör skillnad. Vi ses!','Tack {name}. Du gör framsteg genom att prata om dina känslor. Sov gott!'],
-    direct:['Bra pratat {name}. En dag i taget. Ses imorgon.','Du vet var jag finns {name}. Keep going.','Stark session. Kom ihåg vad du sa idag — det var viktigt.'],
-    coach:['Bra session {name}! Du tar ansvar för ditt välmående — modigt. Ses imorgon!','Starkt jobbat {name}. Varje reflektion stärker din emotionella intelligens!','Du är starkare än du tror {name}. Bra att du investerar i dig själv. 🏆']
+    warm:['Tack för pratstunden {name}. Ta hand om dig!','Fint att höra om din dag. Vi ses!'],
+    direct:['Bra pratat {name}. Ses.','Keep going {name}.'],
+    coach:['Bra session {name}! Ses imorgon!','Starkt jobbat {name}!']
 };
 
-// -- Smart contextual response patterns (checked before generic mirror+followup) --
+// Smart patterns
 const PATTERNS=[
-    // === FEELINGS: "Känner mig [X]" ===
     {r:/känner mig\s+(stark|bra|glad|lycklig|nöjd|fantastisk|energisk|motiverad|pigg|fri|trygg|hoppfull|kraftfull|lättad|duktig|stolt|levande|grym|taggad|peppad|inspirerad|fokuserad)/i,
-     fn:m=>{const w=m[1].toLowerCase();return pick([
-        `Härligt att du känner dig ${w}! Vad tror du det beror på?`,
-        `Vilken fin känsla att vara ${w}. Har det hänt något speciellt idag?`,
-        `Så fint! Vad har bidragit till att du känner dig ${w}?`,
-        `Att känna sig ${w} är underbart. Vad har din dag sett ut hittills?`])}},
-    {r:/känner mig\s+(ledsen|nere|deppig|dålig|tom|ensam|stressad|orolig|arg|irriterad|trött|utmattad|svag|hopplös|överväldigad|ångestfull|rädd|otrygg|låg|värdelös|trasig|maktlös|knäckt)/i,
-     fn:m=>{const w=m[1].toLowerCase();return pick([
-        `Tack för att du berättar att du känner dig ${w}. Vad tror du ligger bakom den känslan?`,
-        `Jag hör dig. Att vara ${w} är tufft. Hur länge har du känt så?`,
-        `Det är helt okej att känna sig ${w}. Vill du berätta mer om vad som hänt?`,
-        `Jag förstår att det är jobbigt. Finns det något som brukar hjälpa dig när du känner dig ${w}?`])}},
-
-    // === "Mår bra/dåligt" ===
-    {r:/mår\s+(bra|fantastiskt|underbart|toppen|jättebra|superbra|kanon|utmärkt|fint)/i,
-     fn:m=>pick([
-        `Vad härligt att du mår ${m[1]}! Vad har gjort att du mår så bra?`,
-        `Så fint att höra! Vad har du gjort idag som bidragit till det?`,
-        `Det gör mig glad! Berätta gärna mer om din dag.`])},
-    {r:/mår\s*(dåligt|inte bra|skit|kasst|uruselt|inte så bra|ganska dåligt|inte alls bra)/i,
-     fn:()=>pick([
-        `Jag är ledsen att höra det. Vill du prata om vad som känns svårt?`,
-        `Tack för att du berättar. Vad tror du påverkar dig mest just nu?`,
-        `Det är okej att ha dåliga dagar. Jag är här — berätta när du är redo.`])},
-
-    // === "Har haft en bra/dålig dag" ===
-    {r:/(bra|fin|härlig|fantastisk|grym|perfekt|underbar)\w*\s*(dag|morgon|kväll|helg|vecka)/i,
-     fn:m=>pick([
-        `Vad kul att du haft en ${m[1]} ${m[2]}! Vad var det bästa med den?`,
-        `Härligt att höra! Vad har gjort ${m[2]}en så bra?`,
-        `Vilken fin känsla! Berätta, vad sticker ut mest från din ${m[2]}?`])},
-    {r:/(dålig|tuff|svår|jobbig|hemsk|kass|seg|lång)\w*\s*(dag|morgon|kväll|helg|vecka)/i,
-     fn:m=>pick([
-        `Ledsen att höra att det varit en ${m[1]} ${m[2]}. Vad hände?`,
-        `Tuffa dagar händer alla. Vill du berätta vad som gick snett?`,
-        `Jag hör dig. Vad var det som gjorde ${m[2]}en så ${m[1]}?`])},
-
-    // === "Hanterar/klarar X bra" ===
-    {r:/(hanterar|klarar|fixar|handskas med)\s+.{2,40}\s+(bra|okej|fine|ganska bra)/i,
-     fn:()=>pick([
-        `Skönt att du känner att du hanterar det bra! Vad är din strategi?`,
-        `Det är en styrka! Har det alltid varit så, eller har du lärt dig det med tiden?`,
-        `Bra att höra! Vad tror du gör att du klarar det så bra?`])},
-
-    // === Ångest/panik ===
-    {r:/(ångest|panik|panikkänsla|panikångest)/i,
-     fn:()=>pick([
-        `Ångest kan vara så överväldigande. Kommer det i perioder eller är det mer konstant?`,
-        `Tack för att du berättar om det. Vet du vad som brukar trigga det?`,
-        `Det krävs styrka att prata om ångest. Hur brukar du hantera det?`])},
-
-    // === Sömnproblem ===
-    {r:/(sover?\s*(dåligt|lite|inte)|sömnproblem|sömnlös|inte\s*sov|vaknar\s*(ofta|mitt))/i,
-     fn:()=>pick([
-        `Sömnen påverkar verkligen allt annat. Hur länge har det varit så?`,
-        `Sömnproblem är tufft. Är det svårt att somna, eller vaknar du mitt i natten?`,
-        `Dålig sömn gör allt annat tyngre. Finns det något som oroar dig på nätterna?`])},
-
-    // === Trött/utmattad ===
-    {r:/(jätte\s*)?trött|utmattad|slutkörd|orkeslös|dränerad|helt slut/i,
-     fn:()=>pick([
-        `Att vara trött är kroppens sätt att säga ifrån. Vad tror du det beror på?`,
-        `Jag hör dig. Är det fysisk trötthet eller mer mental utmattning?`,
-        `Det låter som att du behöver vara extra snäll mot dig själv just nu. Vad hade hjälpt?`])},
-
-    // === Ensam/isolerad ===
-    {r:/(ensam|isolerad|utanför|ensamhet)/i,
-     fn:()=>pick([
-        `Ensamhet kan vara tung. Saknar du någon specifik person, eller är det en allmän känsla?`,
-        `Att känna sig ensam är vanligare än man tror. Hur länge har du känt så?`,
-        `Jag hör dig. Finns det någon du kan nå ut till, eller vill du berätta mer?`])},
-
-    // === Konflikter/bråk ===
-    {r:/(bråka|gräla|konflikt|tjafs|bråk|gräl)\w*/i,
-     fn:()=>pick([
-        `Konflikter tar verkligen energi. Vill du berätta vad det handlade om?`,
-        `Det låter som en jobbig situation. Hur kände du dig efteråt?`,
-        `Bråk kan verkligen sitta kvar i kroppen. Har ni kunnat prata om det?`])},
-
-    // === Jobb + stress ===
-    {r:/(jobb|arbete|kontor)\w*.{0,25}(stressig|tuff|svår|jobbig|kaos|mycket|hemskt|slitsam)/i,
-     fn:()=>pick([
-        `Jobbet tar verkligen energi ibland. Vad är det som tynger dig mest just nu?`,
-        `Det låter som en tuff period. Hur påverkar det dig efter arbetstid?`,
-        `Jobbstress är vanligare än man tror. Vad hade behövt förändras för att det ska bli bättre?`])},
-    {r:/(stressig|tuff|svår|jobbig|kaos|hemskt|slitsam).{0,25}(jobb|arbete|kontor)\w*/i,
-     fn:()=>pick([
-        `Jobbet tar verkligen energi ibland. Vad är det som tynger dig mest just nu?`,
-        `Det låter som en tuff period. Hur påverkar det dig efter arbetstid?`,
-        `Jobbstress är vanligare än man tror. Vad hade behövt förändras för att det ska bli bättre?`])},
-
-    // === Tacksam ===
-    {r:/(tacksam|uppskatt|grateful)/i,
-     fn:()=>pick([
-        `Tacksamhet är en vacker känsla. Vad är du mest tacksam för just nu?`,
-        `Att uppskatta det man har gör verkligen skillnad. Berätta gärna mer!`,
-        `Vad fint! Vad fick dig att tänka på det idag?`])},
-
-    // === "Vet inte" / osäker ===
-    {r:/(vet inte|vet ej|osäker|ingen aning|svårt att säga|kan inte förklara|vet faktiskt inte)/i,
-     fn:()=>pick([
-        `Det är helt okej att inte veta. Ibland hjälper det att bara prata fritt. Vad tänker du på just nu?`,
-        `Inga krav — vi tar det i din takt. Hur har dagen varit hittills?`,
-        `Osäkerhet hör livet till. Vad var det senaste som fick dig att känna något starkt?`])},
-
-    // === Relationsord: "min mamma/partner/kompis..." ===
-    {r:/(min|mitt|mina)\s+(mamma|pappa|partner|sambo|flickvän|pojkvän|kompis|bror|syster|chef|familj)\w*/i,
-     fn:m=>{const p=m[2];return pick([
-        `Berätta gärna mer om vad som hänt med din ${p}.`,
-        `Hur påverkar det med din ${p} dig?`,
-        `Jag hör att du tänker på din ${p}. Vad känner du kring det?`])}},
-
-    // === Korta positiva svar ===
-    {r:/^(bra|okej|fine|helt ok|det går|ja|absolut|visst|exakt|precis|japp|jepp|mm|mhm|jo|aa)\s*[.!]?$/i,
-     fn:()=>pick([
-        `Bra att höra! Finns det något speciellt du vill prata om idag?`,
-        `Skönt! Vad har tagit mest plats i dina tankar den senaste tiden?`,
-        `Okej! Berätta gärna mer — vad har din dag sett ut?`])},
-
-    // === Korta negativa svar ===
-    {r:/^(nej|nä|nope|inte|sämre|dåligt|meh|blä|nix)\s*[.!]?$/i,
-     fn:()=>pick([
-        `Okej. Vill du berätta vad som känns svårt just nu?`,
-        `Jag hör dig. Ibland räcker ett ord. Vad ligger bakom känslan?`,
-        `Det är okej. Jag är här när du vill prata om det.`])},
-
-    // === Stress (general) ===
-    {r:/(stressad|stressar|stress)\w*/i,
-     fn:()=>pick([
-        `Stress kan verkligen tära. Vad är det som stressar dig mest just nu?`,
-        `Jag hör att du är stressad. Hur visar det sig i kroppen?`,
-        `Stress är kroppens larm. Vad hade behövt hända för att stressen ska minska?`])},
-
-    // === Lycka/glädje (general) ===
-    {r:/(glad|lycklig|nöjd|tacksam|stolt|jätteglad)\w*/i,
-     fn:m=>pick([
-        `Vad härligt! Vad är det som gör dig ${m[1]}?`,
-        `Vilken fin känsla! Berätta gärna mer om vad som hänt.`,
-        `Så fint att höra! Vad har bidragit till den känslan?`])},
+     fn:m=>pick([`Härligt att du känner dig ${m[1]}! Vad tror du det beror på?`,`Vilken fin känsla! Har det hänt något speciellt?`,`Så fint! Vad har bidragit till att du känner dig ${m[1]}?`])},
+    {r:/känner mig\s+(ledsen|nere|deppig|dålig|tom|ensam|stressad|orolig|arg|irriterad|trött|utmattad|svag|hopplös|överväldigad|rädd|otrygg|värdelös|trasig)/i,
+     fn:m=>pick([`Tack för att du berättar att du känner dig ${m[1]}. Vad tror du ligger bakom?`,`Att vara ${m[1]} är tufft. Hur länge har du känt så?`,`Det är okej att känna sig ${m[1]}. Vill du berätta mer?`])},
+    {r:/mår\s+(bra|fantastiskt|underbart|toppen|jättebra|superbra|kanon)/i,
+     fn:m=>pick([`Vad härligt att du mår ${m[1]}! Vad har gjort att du mår så bra?`,`Så fint! Berätta mer om din dag!`])},
+    {r:/mår\s*(dåligt|inte bra|skit|kasst|inte så bra)/i,
+     fn:()=>pick(['Jag är ledsen att höra det. Vill du prata om det?','Tack för att du berättar. Vad påverkar dig mest just nu?'])},
+    {r:/(ångest|panik)/i,fn:()=>pick(['Ångest kan vara överväldigande. Kommer det i perioder?','Tack för att du berättar. Vet du vad som brukar trigga det?'])},
+    {r:/(ensam|isolerad|utanför)/i,fn:()=>pick(['Ensamhet kan vara tung. Saknar du någon specifik?','Att känna sig ensam är vanligare än man tror. Hur länge har du känt så?'])},
+    {r:/(bråk|gräl|konflikt)/i,fn:()=>pick(['Konflikter tar energi. Vill du berätta vad det handlade om?','Hur kände du dig efteråt?'])},
+    {r:/(trött|utmattad|slutkörd)/i,fn:()=>pick(['Trötthet är kroppens sätt att säga ifrån. Vad tror du det beror på?','Är det fysisk trötthet eller mental?'])},
+    {r:/(stressad|stress)/i,fn:()=>pick(['Vad stressar dig mest just nu?','Hur visar sig stressen i kroppen?'])},
+    {r:/(glad|lycklig|stolt|tacksam)/i,fn:m=>pick([`Vad härligt! Vad gör dig ${m[1]}?`,`Vilken fin känsla! Berätta mer.`])},
+    {r:/^(bra|okej|fine|helt ok|ja|mm)\s*[.!]?$/i,fn:()=>pick(['Bra att höra! Något speciellt du vill prata om?','Skönt! Vad har tagit mest plats i tankarna?'])},
+    {r:/^(nej|nä|dåligt|meh)\s*[.!]?$/i,fn:()=>pick(['Okej. Vill du berätta vad som känns svårt?','Jag hör dig. Vad ligger bakom?'])},
+    {r:/(vet inte|osäker|ingen aning)/i,fn:()=>pick(['Det är okej att inte veta. Vad tänker du på just nu?','Inga krav — hur har dagen varit?'])},
 ];
 
-let convState={active:false,round:0,maxRounds:12,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),lastTopics:null,shortCount:0};
+let convState={active:false,round:0,maxRounds:12,transcript:[],fullText:'',recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),shortCount:0};
 
-// -- Build natural topic reference based on category --
-function buildMirror(topics,sentiment){
-    // Only reference recognized topic nouns — never random content words
-    if(!topics.found.length)return'';
-    const cat=topics.found[0].cat;
+function tpl(s){const d=ld();return s.replace(/\{name\}/g,d.userName||'du')}
 
-    if(sentiment.score>=65){
-        const p={
-            jobb:['Det verkar gå bra på jobbet.','Kul att det fungerar på jobbet.','Skönt att jobbet rullar på.'],
-            relationer:['Fint att det fungerar bra mellan er.','Skönt att relationerna mår bra.','Det låter som en fin relation.'],
-            hälsa:['Bra att du tar hand om dig.','Skönt att du mår bra.','Fint att hälsan är bra.'],
-            fritid:['Härligt med tid för sådant man gillar.','Fint att du gör saker du tycker om.','Kul att du unnar dig det.']
-        };
-        return p[cat]?' '+pick(p[cat]):'';
-    }else if(sentiment.score<=40){
-        const p={
-            jobb:['Jobbet låter tufft just nu.','Det verkar vara jobbigt på jobbet.','Arbetslivet kan verkligen ta energi.'],
-            relationer:['Relationer kan vara så svåra ibland.','Det låter som en tuff situation mellan er.','Relationer kräver verkligen mycket av oss.'],
-            hälsa:['Hälsan påverkar verkligen allt annat.','Det låter som att kroppen och huvudet behöver extra omsorg.','Det är tufft när man inte mår bra fysiskt.'],
-            fritid:['Det verkar som att du behöver mer tid för dig själv.','Viktigt att ha tid för saker man tycker om.']
-        };
-        return p[cat]?' '+pick(p[cat]):'';
-    }
-    return'';
-}
-
-// -- Compose a contextual response --
-function composeResponse(text,sentiment,topics){
+function composeResponse(text,sentiment){
     const d=ld(),pers=d.personality||'warm';
     const bucket=sentiment.score>=65?'pos':sentiment.score<=40?'neg':'neut';
-
-    // 1. Mirror phrase + optional natural topic reference
     let mirror=pick(MIRROR[pers][bucket]);
-    const suffix=buildMirror(topics,sentiment);
-    if(suffix)mirror+=suffix;
-
-    // 2. Choose follow-up category
-    const cat=topics.found.length?topics.found[0].cat:(sentiment.cats?.[0]||'allmänt');
-    const pool=convState.round>=4?[...FOLLOWUPS[cat]||[],...FOLLOWUPS.deep]:(FOLLOWUPS[cat]||FOLLOWUPS.allmänt);
-
-    // 3. Filter out already-asked questions
-    let available=pool.filter(q=>!convState.askedKeys.has(q.k));
-    if(!available.length)available=FOLLOWUPS.allmänt.filter(q=>!convState.askedKeys.has(q.k));
-    if(!available.length){convState.askedKeys.clear();available=pool;}
-
-    // 4. Pick question — ONLY use recognized topic words for {t}, never random words
+    let available=FOLLOWUPS.filter(q=>!convState.askedKeys.has(q.k));
+    if(!available.length){convState.askedKeys.clear();available=FOLLOWUPS}
     const chosen=pick(available);
     convState.askedKeys.add(chosen.k);
-    const topicWord=topics.found.length?topics.found[0].word:'det';
-    const question=chosen.q.replace(/\{t\}/g,topicWord);
-
-    return mirror+' '+question;
+    return mirror+' '+chosen.q;
 }
 
-// -- Should the conversation end naturally? --
 function shouldEnd(){
     if(convState.round>=12)return true;
     if(convState.round>=4&&convState.shortCount>=2)return true;
     const last=convState.transcript.filter(t=>t.role==='user').slice(-1)[0]?.text?.toLowerCase()||'';
-    if(convState.round>=3&&/\b(tack|hejdå|vi ses|det var allt|jag måste|sluta)\b/.test(last))return true;
+    if(convState.round>=3&&/\b(tack|hejdå|vi ses|det var allt|sluta)\b/.test(last))return true;
     return false;
 }
 
-function setHomeAvatar(mood){
-    const orb=document.getElementById('home-orb');if(!orb)return;
-    orb.className='avatar-orb idle'+(mood==='happy'?' happy':'');
-    const colors={happy:'radial-gradient(circle,#81ECEC,#00CEC9)',neutral:'radial-gradient(circle,#A29BFE,#6C5CE7)'};
-    const g=document.getElementById('home-glow');if(g)g.style.background=colors[mood]||colors.neutral;
-}
-
-// ===== CHAT UI HELPERS =====
+// ===== CHAT UI =====
 function addChat(role,text){
     const area=document.getElementById('chat-area');
-    // Remove typing indicator if exists
-    const typing=area.querySelector('.typing');if(typing)typing.remove();
+    const t=area.querySelector('.typing');if(t)t.remove();
     const div=document.createElement('div');
     div.className='chat-msg '+(role==='ai'?'ai':'user');
     div.textContent=text;
@@ -815,53 +1087,31 @@ function addChat(role,text){
 
 function showTyping(){
     const area=document.getElementById('chat-area');
-    const existing=area.querySelector('.typing');if(existing)return;
+    if(area.querySelector('.typing'))return;
     const div=document.createElement('div');
     div.className='chat-msg ai typing';
     div.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
-    area.appendChild(div);
-    area.scrollTop=area.scrollHeight;
+    area.appendChild(div);area.scrollTop=area.scrollHeight;
 }
+function removeTyping(){const t=document.getElementById('chat-area')?.querySelector('.typing');if(t)t.remove()}
 
-function removeTyping(){
-    const area=document.getElementById('chat-area');
-    const t=area.querySelector('.typing');if(t)t.remove();
-}
-
-// ===== TTS (best-effort, never blocks) =====
+// TTS
 function trySpeak(text){
     try{
         speechSynthesis.cancel();
-        const u=new SpeechSynthesisUtterance(text);
-        u.lang='sv-SE';
-
-        // Pick the best available Swedish voice — prefer natural/premium
+        const u=new SpeechSynthesisUtterance(text);u.lang='sv-SE';
         const voices=speechSynthesis.getVoices();
-        const svVoices=voices.filter(v=>v.lang.startsWith('sv'));
-        let best=null;
-        if(svVoices.length){
-            // Prefer voices with Natural/Premium/Enhanced/Neural/Online in name
-            best=svVoices.find(v=>/natural|premium|enhanced|neural|online|wavenet/i.test(v.name));
-            // Fallback: prefer female-sounding voices for Luna
-            if(!best)best=svVoices.find(v=>/female|kvinn/i.test(v.name));
-            if(!best)best=svVoices[0];
-        }
+        const svV=voices.filter(v=>v.lang.startsWith('sv'));
+        let best=svV.find(v=>/natural|premium|enhanced|neural|online/i.test(v.name))||svV[0];
         if(best)u.voice=best;
-
-        // More natural speech: slightly slower, warmer pitch, softer volume
-        u.rate=0.9;
-        u.pitch=1.1;
-        u.volume=0.9;
-
+        u.rate=0.9;u.pitch=1.1;u.volume=0.9;
         speechSynthesis.speak(u);
     }catch(e){}
 }
 
-// ===== MAIN CONVERSATION FLOW =====
 async function startConversation(){
     const d=ld();
-    convState={active:true,round:0,maxRounds:12,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),lastTopics:null,shortCount:0};
-
+    convState={active:true,round:0,maxRounds:12,transcript:[],fullText:'',recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),shortCount:0};
     document.getElementById('conv-view').classList.add('on');
     document.getElementById('conv-name').innerHTML='<span class="dot"></span> '+(d.aiName||'Luna');
     document.getElementById('chat-area').innerHTML='';
@@ -869,53 +1119,16 @@ async function startConversation(){
     document.getElementById('conv-text').value='';
     document.getElementById('listen-ind').textContent='';
     document.getElementById('mic-btn').className='mic-btn idle';
+    convState.timer=setInterval(()=>{convState.elapsed++;const m=Math.floor(convState.elapsed/60),s=convState.elapsed%60;document.getElementById('conv-timer').textContent=`${m}:${s.toString().padStart(2,'0')}`},1000);
 
-    // Hide camera — chat is the primary interface
-    document.getElementById('conv-camera').style.display='none';
-
-    // Timer
-    convState.timer=setInterval(()=>{
-        convState.elapsed++;
-        const m=Math.floor(convState.elapsed/60),s=convState.elapsed%60;
-        document.getElementById('conv-timer').textContent=`${m}:${s.toString().padStart(2,'0')}`;
-    },1000);
-
-    // If user hasn't set their name yet, ask for it
-    if(!d.userName){
-        convState.askingName=true;
-        await aiMessage('Hej! Innan vi börjar — vad heter du?');
-        return;
-    }
-
-    // Build greeting with memory from recent data
+    if(!d.userName){convState.askingName=true;await aiMessage('Hej! Vad heter du?');return}
     const pers=d.personality||'warm';
-    let greeting=tpl(pick(GREETS[pers]||GREETS.warm));
-
-    // Reference recent checkins or micro-thoughts
-    const todayMicros=(d.micro||[]).filter(m=>new Date(m.ts).toDateString()===new Date().toDateString());
-    if(todayMicros.length>0){
-        const last=todayMicros[todayMicros.length-1];
-        greeting+=` Jag såg att du skrev "${last.text.slice(0,35)}${last.text.length>35?'...':''}" — vill du prata mer om det?`;
-    }else if(d.checkins.length>0){
-        const last=d.checkins[d.checkins.length-1];
-        const daysSince=Math.floor((Date.now()-new Date(last.ts).getTime())/864e5);
-        if(daysSince<=2&&last.emotion==='stressad')greeting+=' Förra gången pratade vi om att du var stressad — hur är det nu?';
-        else if(daysSince<=2&&last.emotion==='ledsen')greeting+=' Sist verkade du ha det tufft — hur känns det idag?';
-        else if(daysSince<=2&&last.cats?.includes('jobb'))greeting+=' Sist nämnde du jobbet — hur har det gått?';
-        else if(daysSince<=2&&last.cats?.includes('relationer'))greeting+=' Sist pratade vi om relationer — har något förändrats?';
-    }
-
-    await aiMessage(greeting);
+    await aiMessage(tpl(pick(GREETS[pers]||GREETS.warm)));
 }
 
 async function aiMessage(text){
-    showTyping();
-    // Simulate thinking time
-    await new Promise(r=>setTimeout(r,800+Math.random()*600));
-    removeTyping();
-    addChat('ai',text);
-    trySpeak(text);
-    // Enable user input
+    showTyping();await new Promise(r=>setTimeout(r,800+Math.random()*600));
+    removeTyping();addChat('ai',text);trySpeak(text);
     document.getElementById('conv-text').focus();
 }
 
@@ -929,138 +1142,67 @@ function userSend(text){
 
 async function processUserResponse(text){
     if(!convState.active)return;
-
-    // Handle name collection
     if(convState.askingName){
         const name=text.replace(/[^a-zA-ZåäöÅÄÖéÉ\s-]/g,'').trim().split(/\s+/)[0];
-        if(name){
-            const d=ld();d.userName=name;sv(d);
-            convState.askingName=false;
-            const pers=d.personality||'warm';
-            let greeting=tpl(pick(GREETS[pers]||GREETS.warm));
-            await aiMessage(greeting);
-            return;
-        }
+        if(name){const d=ld();d.userName=name;sv(d);convState.askingName=false;await aiMessage(tpl(pick(GREETS[d.personality||'warm'])));return}
     }
-
     convState.round++;
     const sentiment=analyze(text);
-    const topics=extractTopics(text);
     convState.emotions.push(sentiment.emotion);
-    convState.lastTopics=topics;
+    if(text.trim().length<15)convState.shortCount++;else convState.shortCount=0;
+    if(shouldEnd()){const d=ld();await aiMessage(tpl(pick(CLOSES[d.personality||'warm'])));setTimeout(()=>endConversation(),2000);return}
 
-    // Track short answers for natural ending
-    if(text.trim().length<15)convState.shortCount++;
-    else convState.shortCount=0;
-
-    // Check if conversation should end naturally
-    if(shouldEnd()){
-        const d=ld(),pers=d.personality||'warm';
-        const close=tpl(pick(CLOSES[pers]||CLOSES.warm));
-        await aiMessage(close);
-        setTimeout(()=>endConversation(),2000);
-        return;
-    }
-
-    // Try smart pattern matching first — gives much more natural responses
     let response=null;
-    for(const p of PATTERNS){
-        const match=text.match(p.r);
-        if(match){response=p.fn(match,sentiment);break}
-    }
-
-    // Fall back to generic mirror+followup if no pattern matched
-    if(!response)response=composeResponse(text,sentiment,topics);
-
+    for(const p of PATTERNS){const m=text.match(p.r);if(m){response=p.fn(m,sentiment);break}}
+    if(!response)response=composeResponse(text,sentiment);
     await aiMessage(response);
 }
 
-// ===== SPEECH-TO-TEXT (microphone button) =====
-function toggleListening(){
-    if(convState.listening)stopListening();
-    else startListening();
+function endConversation(){
+    convState.active=false;stopListening();clearInterval(convState.timer);
+    try{speechSynthesis.cancel()}catch(e){}
+    document.getElementById('conv-view').classList.remove('on');
+    const d=ld();const fullText=convState.fullText.trim();
+    const result=analyze(fullText);
+    const score=result.score;
+    d.checkins.push({ts:new Date().toISOString(),score,emotion:result.emotion,transcript:fullText.slice(0,500)});
+    d.xp=(d.xp||0)+15;
+    sv(d);
+
+    // Show simple result
+    document.getElementById('s-val').textContent=score;
+    const col=score>=65?'var(--ok)':score>=40?'var(--w)':'var(--bad)';
+    document.getElementById('s-val').style.color=col;
+    const circ=364.4;
+    document.getElementById('s-arc').style.stroke=col.replace('var(','').replace(')','');
+    document.getElementById('s-arc').setAttribute('stroke',col.includes('ok')?'#00B894':col.includes('w')?'#FDCB6E':'#E17055');
+    setTimeout(()=>{document.getElementById('s-arc').style.strokeDashoffset=circ-(score/100)*circ},100);
+    const emoMap={glad:'😊 Glad',lugn:'😌 Lugn',neutral:'😐 Neutral',stressad:'😰 Stressad',ledsen:'😢 Ledsen',orolig:'😟 Orolig',arg:'😤 Arg',trott:'😴 Trött'};
+    document.getElementById('r-emo').textContent=emoMap[result.emotion]||'😐 Neutral';
+    document.getElementById('r-ref-title').textContent=(d.aiName||'Luna')+'s reflektion';
+    document.getElementById('r-ref-text').textContent=score>=65?'Du verkar ha det bra — fortsätt göra det som fungerar!':score>=40?'En stabil dag. Varje reflektion gör skillnad.':'Det verkar vara en tuff period. Att du pratar om det är ett steg framåt.';
+    go('result');
 }
+
+// ===== STT =====
+function toggleListening(){if(convState.listening)stopListening();else startListening()}
 
 function startListening(){
     const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){document.getElementById('listen-ind').textContent='Röststöd saknas — skriv istället';return}
-
+    if(!SR){document.getElementById('listen-ind').textContent='Röststöd saknas';return}
     convState.listening=true;
     document.getElementById('mic-btn').className='mic-btn rec';
     document.getElementById('listen-ind').textContent='🎤 Prata nu...';
     document.getElementById('conv-text').value='';
-
-    const rec=new SR();
-    convState.recognition=rec;
-    rec.lang='sv-SE';
-    rec.continuous=false;
-    rec.interimResults=true;
-    rec.maxAlternatives=1;
-
-    let finalTranscript='';
-    let sent=false; // Prevent double-send
-
-    function sendOnce(text){
-        if(sent)return;
-        sent=true;
-        stopListening();
-        if(text.trim())userSend(text.trim());
-    }
-
-    rec.onresult=(e)=>{
-        if(sent)return;
-        // With continuous=false, there's only one result at index 0
-        const result=e.results[0];
-        const transcript=result[0].transcript;
-        document.getElementById('conv-text').value=transcript;
-
-        if(result.isFinal){
-            finalTranscript=transcript;
-            document.getElementById('listen-ind').textContent='✓ Skickar...';
-            sendOnce(transcript);
-        }
-    };
-
-    rec.onend=()=>{
-        if(sent)return;
-        // Recognition ended without isFinal — send best effort or reset
-        const field=document.getElementById('conv-text').value;
-        if(field.trim()){
-            sendOnce(field);
-        }else{
-            stopListening();
-            document.getElementById('listen-ind').textContent='Inget ljud uppfattat — försök igen';
-            setTimeout(()=>{document.getElementById('listen-ind').textContent=''},2000);
-        }
-    };
-
-    rec.onerror=(e)=>{
-        if(sent)return;
-        stopListening();
-        if(e.error==='no-speech'){
-            document.getElementById('listen-ind').textContent='Inget tal uppfattat — försök igen';
-        }else if(e.error==='not-allowed'){
-            document.getElementById('listen-ind').textContent='Mikrofonåtkomst nekad';
-        }else{
-            document.getElementById('listen-ind').textContent='Kunde inte lyssna — skriv istället';
-        }
-        setTimeout(()=>{document.getElementById('listen-ind').textContent=''},3000);
-    };
-
-    try{rec.start()}catch(e){
-        stopListening();
-        document.getElementById('listen-ind').textContent='Kunde inte starta mikrofon';
-        setTimeout(()=>{document.getElementById('listen-ind').textContent=''},3000);
-    }
-
-    // Safety timeout: 15 seconds max
-    setTimeout(()=>{
-        if(!sent&&convState.listening){
-            const field=document.getElementById('conv-text').value;
-            if(field.trim())sendOnce(field);
-            else stopListening();
-        }
-    },15000);
+    const rec=new SR();convState.recognition=rec;
+    rec.lang='sv-SE';rec.continuous=false;rec.interimResults=true;rec.maxAlternatives=1;
+    let sent=false;
+    function sendOnce(text){if(sent)return;sent=true;stopListening();if(text.trim())userSend(text.trim())}
+    rec.onresult=(e)=>{if(sent)return;const r=e.results[0];document.getElementById('conv-text').value=r[0].transcript;if(r.isFinal){document.getElementById('listen-ind').textContent='✓ Skickar...';sendOnce(r[0].transcript)}};
+    rec.onend=()=>{if(sent)return;const v=document.getElementById('conv-text').value;if(v.trim())sendOnce(v);else{stopListening();document.getElementById('listen-ind').textContent='Inget uppfattat';setTimeout(()=>{document.getElementById('listen-ind').textContent=''},2000)}};
+    rec.onerror=()=>{if(sent)return;stopListening();document.getElementById('listen-ind').textContent='Kunde inte lyssna';setTimeout(()=>{document.getElementById('listen-ind').textContent=''},3000)};
+    try{rec.start()}catch(e){stopListening()}
+    setTimeout(()=>{if(!sent&&convState.listening){const v=document.getElementById('conv-text').value;if(v.trim())sendOnce(v);else stopListening()}},15000);
 }
 
 function stopListening(){
@@ -1071,702 +1213,18 @@ function stopListening(){
     convState.recognition=null;
 }
 
-function endConversation(){
-    convState.active=false;
-    stopListening();
-    if(convState.stream){convState.stream.getTracks().forEach(t=>t.stop());convState.stream=null}
-    clearInterval(convState.timer);
-    try{speechSynthesis.cancel()}catch(e){}
-    document.getElementById('conv-view').classList.remove('on');
-
-    const d=ld();
-    const fullText=convState.fullText.trim();
-    const result=analyze(fullText);
-
-    // Score: blend text analysis + simulated face/voice
-    const face=40+Math.random()*35,voice=35+Math.random()*40,text=result.score;
-    const w=fullText.length>20?{f:.3,v:.25,t:.45}:{f:.35,v:.35,t:.3};
-    const score=Math.max(5,Math.min(99,Math.round(face*w.f+voice*w.v+text*w.t)));
-
-    // Generate AI diary summary
-    const summary=generateSummary(convState.transcript,result,d);
-
-    const entry={
-        ts:new Date().toISOString(),score,emotion:result.emotion,
-        transcript:fullText,summary,cats:result.cats,
-        duration:convState.elapsed,rounds:convState.round,
-        emotions:convState.emotions
-    };
-
-    if(d.baseline===null)d.baseline=score;
-    const xp=15+(fullText.length>50?10:0)+(score>70?5:0)+(convState.round>=3?5:0);
-    const oldLvl=getLvl(d.xp||0);
-    d.xp=(d.xp||0)+xp;entry.xp=xp;
-    const preStrk=calcStreak(d.checkins);
-    d.checkins.push(entry);
-    const postStrk=calcStreak(d.checkins);
-    if(postStrk>preStrk&&postStrk>1){const b=postStrk*2;d.xp+=b;entry.streakBonus=b}
-    const newLvl=getLvl(d.xp);
-    sv(d);
-    showResult(entry,d,newLvl.l>oldLvl.l?newLvl:null);
-}
-
-function generateSummary(transcript,result,data){
-    const userParts=transcript.filter(t=>t.role==='user').map(t=>t.text).join(' ');
-    const name=data.aiName||'AI';
-    if(!userParts.trim())return `${name} och användaren hade ett kort samtal. Inte tillräckligt med data för en sammanfattning.`;
-
-    const emoLabel={glad:'glad och positiv',lugn:'lugn och balanserad',neutral:'neutral',stressad:'stressad',ledsen:'ledsen och tyngd',orolig:'orolig',arg:'frustrerad',trott:'trött och energilös'};
-    const mood=emoLabel[result.emotion]||'reflekterande';
-    const cats=result.cats.filter(c=>c!=='allmänt');
-    const catText=cats.length>0?` Samtalet berörde främst: ${cats.join(', ')}.`:'';
-
-    let summary=`Dagens samtal varade ${Math.floor(convState.elapsed/60)} minuter. Stämningen var övervägande ${mood}.${catText}`;
-
-    // Add insight based on history
-    if(data.checkins.length>=3){
-        const recent=data.checkins.slice(-3).map(c=>c.score);
-        const avg=recent.reduce((a,b)=>a+b)/recent.length;
-        const diff=result.score-Math.round(avg);
-        if(diff>10)summary+=` Välmåendet är ${diff} poäng bättre än de senaste dagarna.`;
-        else if(diff<-10)summary+=` Välmåendet sjönk ${Math.abs(diff)} poäng — en nedåtgående trend att uppmärksamma.`;
-    }
-    return summary;
-}
-
-// ===== INTERVENTIONS =====
-function getInterv(s){
-    if(s<35)return{t:'🧘 Andningsövning',p:'4-7-8: Andas in 4s, håll 7s, ut 8s genom munnen. 3 omgångar.'};
-    if(s<55)return{t:'🌿 Grounding-teknik',p:'5-4-3-2-1: Se 5 saker, rör 4, hör 3, lukta 2, smaka 1.'};
-    if(s<75)return{t:'🎵 Humörboost',p:'Sätt på en favoritlåt och rör dig i 2 minuter — det frigör endorfiner.'};
-    return{t:'🌟 Bevara känslan',p:'Skriv 3 saker du är tacksam för. Det stärker positiva neurala kopplingar.'};
-}
-
-// ===== SHOW RESULT =====
-function showResult(entry,data,lvlUp){
-    go('result');
-    const s=entry.score,arc=document.getElementById('s-arc');
-    const col=s>=65?'var(--ok)':s>=40?'var(--w)':'var(--bad)';
-    arc.style.stroke=col;
-    setTimeout(()=>{arc.style.strokeDashoffset=364.4*(1-s/100)},50);
-    let c=0;const el=document.getElementById('s-val');
-    const an=setInterval(()=>{c=Math.min(c+Math.ceil(s/20),s);el.textContent=c;if(c>=s)clearInterval(an)},30);
-
-    const emo={glad:'😊 Glad',lugn:'😌 Lugn',neutral:'😐 Neutral',stressad:'😰 Stressad',ledsen:'😢 Ledsen',orolig:'😟 Orolig',arg:'😤 Arg',trott:'😴 Trött'};
-    document.getElementById('r-emo').textContent=emo[entry.emotion]||'😐 Neutral';
-    document.getElementById('r-xp').textContent=`+${entry.xp||15} XP`+(entry.streakBonus?` +${entry.streakBonus} streak bonus!`:'');
-
-    // AI reflection
-    const aiName=data.aiName||'AI';
-    document.getElementById('r-ref-title').textContent=`🧠 ${aiName}s reflektion`;
-    let refText='';
-    if(data.checkins.length>1){
-        const prev=data.checkins[data.checkins.length-2];
-        const diff=s-prev.score;
-        if(diff>10)refText+=`Din score gick upp ${diff} poäng sedan igår — det du gör fungerar! `;
-        else if(diff<-10)refText+=`Idag var ${Math.abs(diff)} poäng lägre. Det är okej — alla dagar ser inte likadana ut. `;
-    }
-    if(entry.cats.includes('jobb')&&s<50)refText+='Jobbet verkar tynga dig. Fundera på vad du kan påverka vs. vad du behöver släppa. ';
-    if(entry.cats.includes('relationer')&&s>60)refText+='Relationer ger dig energi — investera i dem! ';
-    if(s<35)refText+='Det tar mod att erkänna att man har det tufft. Att du reflekterar är i sig ett steg framåt.';
-    else if(s>75)refText+='Du är i ett riktigt bra läge. Notera vad som bidrar — det är din formel.';
-    else refText+='Fortsätt reflektera dagligen. Medvetenhet är första steget till förändring.';
-    document.getElementById('r-ref-text').textContent=refText;
-
-    document.getElementById('r-summary').textContent=entry.summary||'(Ingen sammanfattning)';
-    document.getElementById('r-cats').innerHTML=(entry.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('');
-
-    const iv=getInterv(s);
-    document.getElementById('r-interv-t').textContent=iv.t;
-    document.getElementById('r-interv-p').textContent=iv.p;
-
-    // Value proof
-    const vp=document.getElementById('r-vproof');
-    if(data.checkins.length>=3&&data.baseline){
-        const recent=data.checkins.slice(-3).map(c=>c.score);
-        const avg=Math.round(recent.reduce((a,b)=>a+b)/recent.length);
-        const improvement=avg-data.baseline;
-        if(improvement!==0){
-            vp.style.display='';
-            document.getElementById('r-vp-text').textContent=improvement>0
-                ?`Sedan du började prata med ${aiName} har ditt genomsnittliga MoodScore ökat med ${improvement} poäng. Dina samtal gör skillnad!`
-                :`Ditt score har sjunkit ${Math.abs(improvement)} poäng sedan start. Det kan vara en tuff period — men att du fortsätter reflektera är det viktigaste.`;
-        }else vp.style.display='none';
-    }else vp.style.display='none';
-
-    const strk=calcStreak(data.checkins),lv=getLvl(data.xp||0);
-    document.getElementById('sh-s').textContent=s;
-    document.getElementById('sh-st').textContent=strk;
-    document.getElementById('sh-l').textContent=lv.l;
-
-    if(lvlUp)setTimeout(()=>toast(`🎉 Nivå ${lvlUp.l}: ${lvlUp.n}!`),1200);
-}
-
-// ===== VALUE PROOF (home) =====
-function renderValueProof(d){
-    const vp=document.getElementById('value-proof');
-    if(d.checkins.length<2){vp.style.display='none';return}
-    vp.style.display='';
-    const recent=d.checkins.slice(-5).map(c=>c.score);
-    const avg=Math.round(recent.reduce((a,b)=>a+b)/recent.length);
-    const diff=d.baseline?avg-d.baseline:0;
-    if(diff>0){
-        document.getElementById('vp-big').textContent=`+${diff} poäng`;
-        document.getElementById('vp-big').style.color='var(--ok)';
-        document.getElementById('vp-desc').textContent=`Ditt välmående har förbättrats sedan du började prata med ${d.aiName}`;
-    }else if(diff<0){
-        document.getElementById('vp-big').textContent=`${diff} poäng`;
-        document.getElementById('vp-big').style.color='var(--w)';
-        document.getElementById('vp-desc').textContent='En tuff period — men att du fortsätter visa upp är det som gör skillnad';
-    }else{
-        document.getElementById('vp-big').textContent=`${avg}/100`;
-        document.getElementById('vp-big').style.color='var(--pl)';
-        document.getElementById('vp-desc').textContent='Ditt genomsnittliga MoodScore. Fortsätt — mönstren blir tydligare med tid.';
-    }
-}
-
-// ===== RENDER HOME =====
-function renderHome(){
-    const d=ld();
-    const hr=new Date().getHours();
-    const greet=hr<10?'God morgon':hr<17?'Hej':hr<21?'God kväll':'God natt';
-    document.getElementById('home-greeting').textContent=greet+'!';
-    const td=todayDone(d.checkins);
-    document.getElementById('home-sub').textContent=td?'Du har pratat med '+d.aiName+' idag ✓':'Dags att checka in med '+d.aiName;
-
-    const strk=calcStreak(d.checkins);
-    document.getElementById('s-num').textContent=strk;
-    const days=['M','T','O','T','F','L','S'];const dow=(new Date().getDay()+6)%7;
-    document.getElementById('w-dots').innerHTML=days.map((n,i)=>`<div class="wd ${i<dow?'done':i===dow?(td?'done':'now'):'fut'}">${n}</div>`).join('');
-
-    renderValueProof(d);
-
-    // AI message on home
-    const msgs=td
-        ?['Bra jobbat idag! Vi ses imorgon 💛','Du tog dig tid att reflektera — det gör skillnad','Varje samtal bygger din emotionella styrka']
-        :['Jag är redo när du är — tryck för att prata','Hur har din dag varit? Jag lyssnar','Ta 2 minuter för dig själv — det är värt det'];
-    document.getElementById('home-ai-msg').textContent=pick(msgs);
-
-    setHomeAvatar(td?'happy':'neutral');
-
-    if(td&&d.checkins.length>0){
-        const last=d.checkins[d.checkins.length-1];
-        const col=last.score>=65?'var(--ok)':last.score>=40?'var(--w)':'var(--bad)';
-        document.getElementById('home-today').innerHTML=`<div class="cd" style="text-align:center;cursor:pointer" onclick="go('progress')">
-            <div style="font-size:.78rem;color:var(--t2)">Dagens MoodScore</div>
-            <div style="font-size:1.8rem;font-weight:800;color:${col}">${last.score}</div>
-            <div style="font-size:.72rem;color:var(--t2);margin-top:3px">Se din utveckling →</div></div>`;
-    }else document.getElementById('home-today').innerHTML='';
-
-    // Render alerts
-    renderAlerts();
-}
-
-// ===== RENDER DIARY =====
-function renderDiary(){
-    const d=ld(),list=document.getElementById('d-list');
-    const emo={glad:'😊',lugn:'😌',neutral:'😐',stressad:'😰',ledsen:'😢',orolig:'😟',arg:'😤',trott:'😴'};
-
-    // Merge full checkins + micro-checkins
-    const all=[];
-    d.checkins.forEach((e,i)=>all.push({...e,type:'full',idx:i}));
-    (d.micro||[]).forEach(e=>all.push({...e,type:'micro'}));
-    all.sort((a,b)=>new Date(b.ts)-new Date(a.ts));
-
-    if(!all.length){list.innerHTML='<div style="text-align:center;padding:36px 16px;color:var(--t2)"><div style="font-size:2.2rem;margin-bottom:6px">📖</div><p>Din dagbok är tom.<br>Skriv en snabb tanke eller starta ett samtal!</p></div>';return}
-    list.innerHTML=all.map(e=>{
-        const dt=new Date(e.ts);const ds=dt.toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-        const col=e.score>=65?'var(--ok)':e.score>=40?'var(--w)':'var(--bad)';
-        if(e.type==='micro'){
-            return`<div class="de"><div class="de-h"><span class="de-d">💭 ${emo[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${e.text}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
-        }
-        const txt=e.summary||e.transcript?.slice(0,100)||'Inget innehåll';
-        return`<div class="de" onclick="showEntry(${e.idx})"><div class="de-h"><span class="de-d">${emo[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${txt}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
-    }).join('');
-}
-document.getElementById('d-search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.de').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(q)?'':'none'})});
-function showEntry(i){const d=ld(),e=d.checkins[i];if(e)showResult(e,d,null)}
-
-// ===== RENDER PROGRESS =====
-function renderProgress(){
-    const d=ld(),ci=d.checkins,strk=calcStreak(ci),lv=getLvl(d.xp||0),nx=getNext(d.xp||0);
-    const prog=nx?((d.xp-lv.xp)/(nx.xp-lv.xp)*100):100;
-    document.getElementById('lvl-bar').innerHTML=`<div class="lvl-b" style="background:${lv.c};color:#000">Lv${lv.l}</div><div class="lvl-i"><div class="n">${lv.n}</div><div class="x">${d.xp||0} XP${nx?` — ${nx.xp-(d.xp||0)} till ${nx.n}`:' — Max!'}</div><div class="xp-bar"><div class="xp-f" style="width:${prog}%"></div></div></div>`;
-
-    // Rank
-    if(ci.length>=3&&d.baseline){
-        const rec=ci.slice(-5).reduce((a,c)=>a+c.score,0)/Math.min(ci.length,5);
-        const imp=rec-d.baseline;
-        const pct=Math.max(5,Math.min(99,Math.round(50+imp*1.5+strk*2)));
-        document.getElementById('rk-p').textContent=`Topp ${100-pct}%`;
-        document.getElementById('rk-l').textContent=pct>80?`Du utvecklas snabbare än ${pct}% av alla`:`Du förbättras mer än ${pct}% av användarna`;
-        document.getElementById('rk-m').style.left=pct+'%';
-    }
-
-    const tot=ci.length,scores=ci.map(c=>c.score);
-    const avg=tot?Math.round(scores.reduce((a,b)=>a+b)/tot):0;
-    const best=tot?Math.max(...scores):0;
-    let wc='';
-    const tw=ci.filter(c=>(Date.now()-new Date(c.ts).getTime())<7*864e5);
-    const lw=ci.filter(c=>{const a=Date.now()-new Date(c.ts).getTime();return a>=7*864e5&&a<14*864e5});
-    if(tw.length&&lw.length){const d2=Math.round(tw.reduce((a,c)=>a+c.score,0)/tw.length-lw.reduce((a,c)=>a+c.score,0)/lw.length);wc=d2>0?`<div class="c up">+${d2} vs förra v.</div>`:d2<0?`<div class="c dn">${d2} vs förra v.</div>`:''}
-    document.getElementById('st-row').innerHTML=`<div class="sb"><div class="v">${avg||'—'}</div><div class="l">Snitt</div>${wc}</div><div class="sb"><div class="v" style="color:var(--g)">${strk}</div><div class="l">Streak</div></div><div class="sb"><div class="v" style="color:var(--ok)">${best||'—'}</div><div class="l">Bästa</div></div><div class="sb"><div class="v">${tot}</div><div class="l">Samtal</div></div>`;
-
-    drawChart(ci);
-
-    // Patterns (using all data points: checkins + micro)
-    const pl=document.getElementById('pat-list');
-    const allPts=getAllDataPoints(d);
-    if(allPts.length<5){pl.innerHTML='<p style="font-size:.8rem;color:var(--t2)">5+ mätningar behövs för mönster.</p>';return}
-    const pats=[];
-    for(const cat of['jobb','relationer','hälsa','fritid']){
-        const w=allPts.filter(c=>c.cats?.includes(cat)),wo=allPts.filter(c=>!c.cats?.includes(cat));
-        if(w.length>=2&&wo.length>=2){const df=Math.round(w.reduce((a,c)=>a+c.score,0)/w.length-wo.reduce((a,c)=>a+c.score,0)/wo.length);if(Math.abs(df)>5)pats.push(`När du nämner <strong>${cat}</strong>: ${df>0?'+':''}${df} poäng ${df>0?'↑':'↓'}`)}
-    }
-    const ec={};allPts.forEach(c=>{ec[c.emotion]=(ec[c.emotion]||0)+1});
-    const top=Object.entries(ec).sort((a,b)=>b[1]-a[1])[0];
-    if(top)pats.push(`Vanligaste känslan: <strong>${top[0]}</strong> (${Math.round(top[1]/allPts.length*100)}%)`);
-    if(d.baseline&&allPts.length>=3){const r=allPts.slice(-3).reduce((a,c)=>a+c.score,0)/3;const df=Math.round(r-d.baseline);if(df)pats.push(`${df>0?'Förbättrad':'Sjunkit'} <strong>${Math.abs(df)} poäng</strong> sedan start`)}
-    // Time-of-day pattern
-    const morning=allPts.filter(e=>new Date(e.ts).getHours()<12);
-    const evening=allPts.filter(e=>new Date(e.ts).getHours()>=17);
-    if(morning.length>=2&&evening.length>=2){
-        const mAvg=Math.round(morning.reduce((a,c)=>a+c.score,0)/morning.length);
-        const eAvg=Math.round(evening.reduce((a,c)=>a+c.score,0)/evening.length);
-        if(Math.abs(mAvg-eAvg)>8)pats.push(`Du mår bäst på <strong>${mAvg>eAvg?'morgonen':'kvällen'}</strong> (${Math.max(mAvg,eAvg)} vs ${Math.min(mAvg,eAvg)} poäng)`);
-    }
-    pl.innerHTML=pats.length?pats.map(p=>`<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;color:var(--t2);line-height:1.45">${p}</div>`).join(''):'<p style="font-size:.8rem;color:var(--t2)">Inga tydliga mönster ännu.</p>';
-}
-
-// ===== CHART =====
-function drawChart(ci){
-    const cv=document.getElementById('t-chart');if(!cv)return;
-    const ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;
-    cv.width=cv.offsetWidth*dpr;cv.height=cv.offsetHeight*dpr;ctx.scale(dpr,dpr);
-    const w=cv.offsetWidth,h=cv.offsetHeight,p={t:12,r:6,b:18,l:26};
-    ctx.clearRect(0,0,w,h);
-    const ent=ci.slice(-14);if(ent.length<2){ctx.fillStyle='#A7A9BE';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('2+ samtal för graf',w/2,h/2);return}
-    const sc=ent.map(e=>e.score),cW=w-p.l-p.r,cH=h-p.t-p.b;
-    ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
-    for(let i=0;i<=100;i+=25){const y=p.t+cH-(i/100)*cH;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillStyle='#A7A9BE';ctx.font='8px sans-serif';ctx.textAlign='right';ctx.fillText(i,p.l-3,y+3)}
-    const pts=sc.map((s,i)=>({x:p.l+(i/(sc.length-1))*cW,y:p.t+cH-(s/100)*cH}));
-    const gd=ctx.createLinearGradient(0,p.t,0,h);gd.addColorStop(0,'rgba(108,92,231,.22)');gd.addColorStop(1,'rgba(108,92,231,0)');
-    ctx.beginPath();ctx.moveTo(pts[0].x,h-p.b);pts.forEach(pt=>ctx.lineTo(pt.x,pt.y));ctx.lineTo(pts[pts.length-1].x,h-p.b);ctx.fillStyle=gd;ctx.fill();
-    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++){const cx=(pts[i-1].x+pts[i].x)/2;ctx.bezierCurveTo(cx,pts[i-1].y,cx,pts[i].y,pts[i].x,pts[i].y)}
-    ctx.strokeStyle='#6C5CE7';ctx.lineWidth=2.5;ctx.stroke();
-    pts.forEach((pt,i)=>{ctx.beginPath();ctx.arc(pt.x,pt.y,3.5,0,Math.PI*2);ctx.fillStyle=sc[i]>=65?'#00B894':sc[i]>=40?'#FDCB6E':'#E17055';ctx.fill();ctx.strokeStyle='#1A1928';ctx.lineWidth=1.5;ctx.stroke();const dt=new Date(ent[i].ts);ctx.fillStyle='#A7A9BE';ctx.font='7px sans-serif';ctx.textAlign='center';ctx.fillText(`${dt.getDate()}/${dt.getMonth()+1}`,pt.x,h-3)});
-}
-
-// ===== NAV =====
-document.querySelectorAll('.ni').forEach(i=>{i.addEventListener('click',()=>go(i.dataset.p))});
-function go(p){
-    document.querySelectorAll('.ni').forEach(i=>i.classList.toggle('on',i.dataset.p===p));
-    document.querySelectorAll('.pg').forEach(pg=>pg.classList.toggle('on',pg.id==='pg-'+p));
-    if(p==='home')renderHome();if(p==='diary')renderDiary();if(p==='progress')renderProgress();if(p==='settings')renderSettings();
-    window.scrollTo(0,0);
-}
-
-// ===== ONBOARDING =====
-function obNext(step){
-    if(step===4){
-        const name=document.getElementById('ai-name-input').value.trim()||'Luna';
-        document.getElementById('ob-name-preview').textContent=name;
-    }
-    document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('on'));
-    document.getElementById('ob'+step).classList.add('on');
-}
-function selectPers(el){document.querySelectorAll('.pers-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel')}
-function finishOnboarding(){
-    const userName=document.getElementById('user-name-input').value.trim();
-    const name=document.getElementById('ai-name-input').value.trim()||'Luna';
-    const pers=document.querySelector('.pers-btn.sel')?.dataset.pers||'warm';
-    const d=ld();d.firstVisit=false;d.userName=userName;d.aiName=name;d.personality=pers;d.onboarded=new Date().toISOString();sv(d);
-    document.getElementById('ob').classList.add('h');
-    document.getElementById('app').style.display='';
-    renderHome();
-}
-
-// ===== SHARE =====
-function doShare(){
-    const d=ld(),strk=calcStreak(d.checkins),lv=getLvl(d.xp||0),last=d.checkins[d.checkins.length-1];
-    const txt=`🧠 Moodly\n\nMoodScore: ${last?.score||'—'}/100\nStreak: ${strk} dagar 🔥\nNivå ${lv.l}: ${lv.n}\n\n${location.href}`;
-    if(navigator.share)navigator.share({title:'Moodly',text:txt}).catch(()=>{});
-    else navigator.clipboard?.writeText(txt).then(()=>toast('Kopierat!')).catch(()=>{});
-}
-function exportData(){const d=ld();const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='kanslaflow-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exporterad!')}
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
-
-// ===== QUICK THOUGHT =====
-function submitQuickThought(){
-    const inp=document.getElementById('qt-input');
-    const text=inp.value.trim();
-    if(!text)return;
-    const result=analyze(text);
-    const d=ld();
-
-    // Save micro-checkin
-    const entry={ts:new Date().toISOString(),text,score:result.score,emotion:result.emotion,cats:result.cats};
-    d.micro.push(entry);
-    if(d.micro.length>200)d.micro=d.micro.slice(-200);
-
-    // XP
-    const xp=3+(text.length>30?2:0);
-    const oldLvl=getLvl(d.xp||0);
-    d.xp=(d.xp||0)+xp;
-    const newLvl=getLvl(d.xp);
-    if(d.baseline===null)d.baseline=result.score;
-    sv(d);
-
-    // Show feedback
-    const emoMap={glad:'😊 Glad',lugn:'😌 Lugn',neutral:'😐 Neutral',stressad:'😰 Stressad',ledsen:'😢 Ledsen',orolig:'😟 Orolig',arg:'😤 Arg',trott:'😴 Trött'};
-    const col=result.score>=65?'var(--ok)':result.score>=40?'var(--w)':'var(--bad)';
-    const comments={glad:'Fint att höra! Fortsätt göra det som fungerar.',lugn:'Stabilitet är styrka. Bra läge.',neutral:'Noterat. Ibland är neutralt helt okej.',stressad:'Stress noterat. Prova en kort andningsövning?',ledsen:'Jag hör dig. Du är inte ensam om att känna så.',orolig:'Oro är vanligt. Vill du prata mer om det?',arg:'Frustration noterat. Vad kan du påverka?',trott:'Vila är viktigt. Var snäll mot dig själv.'};
-    const fb=document.getElementById('qt-feedback');
-    fb.style.display='';
-    fb.innerHTML=`<div class="qt-emo">${emoMap[result.emotion]||'😐 Neutral'} <span style="font-size:.72rem;color:var(--t2)">+${xp} XP</span></div>
-        <div class="qt-comment">${comments[result.emotion]||'Noterat!'}</div>
-        <div class="qt-bar"><div class="qt-fill" style="width:${result.score}%;background:${col}"></div></div>`;
-
-    inp.value='';
-
-    // Auto-hide feedback
-    setTimeout(()=>{fb.style.display='none'},5000);
-
-    // Refresh alerts
-    renderAlerts();
-
-    if(newLvl.l>oldLvl.l)toast(`🎉 Nivå ${newLvl.l}: ${newLvl.n}!`);
-}
-
-// ===== PATTERN ALERTS =====
-function detectAlerts(d){
-    const alerts=[];
-    const all=getAllDataPoints(d);
-    const today=new Date().toDateString();
-
-    // 1. Consecutive decline (3+ entries each lower)
-    if(all.length>=3){
-        const last3=all.slice(-3);
-        if(last3[2].score<last3[1].score-4&&last3[1].score<last3[0].score-4){
-            alerts.push({id:'decline-'+today,sev:'bad',ico:'📉',title:'Nedåtgående trend',desc:'Ditt välmående har sjunkit tre mätningar i rad. Vill du starta ett samtal?'});
-        }
-    }
-
-    // 2. Stress streak
-    if(all.length>=3){
-        const lastEmotions=all.slice(-3).map(e=>e.emotion);
-        if(lastEmotions.every(e=>e==='stressad')){
-            alerts.push({id:'stress-'+today,sev:'warn',ico:'⚠️',title:'Stress-mönster upptäckt',desc:'Du har rapporterat stress 3 gånger i rad. En andningsövning kan hjälpa: 4s in, 7s håll, 8s ut.'});
-        }
-    }
-
-    // 3. Category insight (needs 5+ entries)
-    if(all.length>=5){
-        for(const cat of['jobb','relationer','hälsa','fritid']){
-            const withCat=all.filter(e=>e.cats?.includes(cat));
-            const without=all.filter(e=>!e.cats?.includes(cat));
-            if(withCat.length>=2&&without.length>=2){
-                const avgWith=Math.round(withCat.reduce((a,c)=>a+c.score,0)/withCat.length);
-                const avgWithout=Math.round(without.reduce((a,c)=>a+c.score,0)/without.length);
-                const diff=avgWith-avgWithout;
-                if(diff>12)alerts.push({id:'cat-pos-'+cat,sev:'insight',ico:'💡',title:`${cat.charAt(0).toUpperCase()+cat.slice(1)} gör dig glad`,desc:`Du mår i snitt ${diff} poäng bättre när du pratar om ${cat}. Investera mer tid där!`});
-                else if(diff<-12)alerts.push({id:'cat-neg-'+cat,sev:'warn',ico:'💡',title:`${cat.charAt(0).toUpperCase()+cat.slice(1)} tynger dig`,desc:`Ditt score sjunker i snitt ${Math.abs(diff)} poäng när ${cat} kommer upp. Finns det något du kan förändra?`});
-            }
-        }
-    }
-
-    // 4. Improvement celebration
-    if(all.length>=3&&d.baseline){
-        const last3=all.slice(-3);
-        if(last3.every(e=>e.score>=65)){
-            const avg=Math.round(last3.reduce((a,c)=>a+c.score,0)/3);
-            if(avg-d.baseline>=10)alerts.push({id:'improve-'+today,sev:'good',ico:'🎉',title:'Tre bra mätningar i rad!',desc:`Ditt snitt ligger ${avg-d.baseline} poäng över din startpunkt. Det du gör fungerar!`});
-        }
-    }
-
-    // 5. Inactivity nudge
-    if(all.length>0){
-        const lastTs=new Date(all[all.length-1].ts);
-        const daysSince=Math.floor((Date.now()-lastTs.getTime())/864e5);
-        if(daysSince>=2)alerts.push({id:'inactive-'+Math.floor(Date.now()/864e5),sev:'warn',ico:'👋',title:`${daysSince} dagar sedan sist`,desc:'En snabb tanke tar bara sekunder. Hur mår du idag?'});
-    }
-
-    // 6. Emotion shift (compare last 7 days vs previous 7 days)
-    if(all.length>=6){
-        const now=Date.now();
-        const week1=all.filter(e=>{const a=now-new Date(e.ts).getTime();return a<7*864e5});
-        const week2=all.filter(e=>{const a=now-new Date(e.ts).getTime();return a>=7*864e5&&a<14*864e5});
-        if(week1.length>=2&&week2.length>=2){
-            const dom=arr=>{const c={};arr.forEach(e=>c[e.emotion]=(c[e.emotion]||0)+1);return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]};
-            const d1=dom(week1),d2=dom(week2);
-            if(d1&&d2&&d1!==d2){
-                const emoSv={glad:'glad',lugn:'lugn',stressad:'stressad',ledsen:'ledsen',orolig:'orolig',arg:'arg',trott:'trött',neutral:'neutral'};
-                alerts.push({id:'shift-'+d1+d2,sev:['stressad','ledsen','orolig','arg'].includes(d1)?'warn':'insight',ico:'🔄',title:'Känsloförändring',desc:`Din vanligaste känsla ändrades från ${emoSv[d2]||d2} till ${emoSv[d1]||d1} den senaste veckan.`});
-            }
-        }
-    }
-
-    return alerts;
-}
-
-function renderAlerts(){
-    const d=ld();
-    const el=document.getElementById('home-alerts');
-    if(!el)return;
-    const alerts=detectAlerts(d).filter(a=>!d.alertsSeen.includes(a.id));
-    // Priority: bad > warn > insight > good
-    const prio={bad:0,warn:1,insight:2,good:3};
-    alerts.sort((a,b)=>(prio[a.sev]||9)-(prio[b.sev]||9));
-    const show=alerts.slice(0,3);
-    el.innerHTML=show.map(a=>`<div class="alert-card ${a.sev}"><div class="alert-icon">${a.ico}</div><div class="alert-body"><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div><button class="alert-dismiss" onclick="dismissAlert('${a.id}')">×</button></div>`).join('');
-}
-
-function dismissAlert(id){
-    const d=ld();
-    d.alertsSeen.push(id);
-    if(d.alertsSeen.length>100)d.alertsSeen=d.alertsSeen.slice(-50);
-    sv(d);
-    renderAlerts();
-}
-
-// ===== SETTINGS =====
-function renderSettings(){
-    const d=ld();
-    let html='';
-
-    // Profile
-    html+=`<div class="cd"><div class="ct">👤 Profil</div>
-        <div class="sett-row"><span>Ditt namn</span><input class="sett-input" id="sett-username" value="${d.userName||''}"></div>
-        <div class="sett-row"><span>AI-namn</span><input class="sett-input" id="sett-ainame" value="${d.aiName||'Luna'}"></div>
-        <div class="sett-row"><span>Personlighet</span><select id="sett-pers">
-            <option value="warm"${d.personality==='warm'?' selected':''}>🤗 Varm & empatisk</option>
-            <option value="direct"${d.personality==='direct'?' selected':''}>💪 Direkt & ärlig</option>
-            <option value="coach"${d.personality==='coach'?' selected':''}>🎯 Coachande</option>
-        </select></div>
-        <button class="btn bp" onclick="saveProfile()" style="margin-top:10px">Spara</button></div>`;
-
-    // Family
-    html+=`<div class="cd"><div class="ct">👨‍👩‍👧‍👦 Familj</div>`;
-    if(APK!==PARENT_KEY){
-        html+=`<p style="font-size:.82rem;color:var(--t2)">Du tittar på en barnprofil. Gå tillbaka till föräldern för att hantera familjen.</p>`;
-    }else if(!d.familyId){
-        html+=`<p style="font-size:.82rem;color:var(--t2);margin-bottom:10px">Ingen familj skapad ännu. Skapa en familj för att följa dina barns mående.</p>
-            <button class="btn ba" onclick="createFamily()">Skapa familj</button>`;
-    }else{
-        html+=`<button class="btn bp" onclick="showFamilyDashboard()" style="margin-bottom:12px">📊 Familje-dashboard</button>`;
-        if(d.familyProfiles&&d.familyProfiles.length>0){
-            d.familyProfiles.forEach(function(fp,i){
-                html+=`<div class="fam-member">
-                    <div class="fam-avatar">👧</div>
-                    <div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup}</div></div>
-                    <button class="btn bs" style="width:auto;padding:6px 12px;font-size:.72rem" onclick="switchToProfile('${fp.storageKey}','${fp.name}')">Visa</button>
-                    <button class="alert-dismiss" onclick="removeChild(${i})" title="Ta bort">×</button>
-                </div>`;
-            });
-        }
-        html+=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)">
-            <div class="sett-row"><span>Barnets namn</span><input class="sett-input" id="new-child-name" placeholder=""></div>
-            <div class="sett-row"><span>Åldersgrupp</span><select id="new-child-age">
-                <option value="6-9">6-9 år</option><option value="10-13">10-13 år</option><option value="14-17">14-17 år</option>
-            </select></div>
-            <button class="btn ba" onclick="addChild()" style="margin-top:8px">➕ Lägg till barn</button></div>`;
-    }
-    html+=`</div>`;
-
-    // Data
-    html+=`<div class="cd"><div class="ct">💾 Data</div>
-        <button class="btn bs" onclick="exportData()" style="margin-bottom:8px">📋 Exportera data (JSON)</button>
-        <button class="btn bs" onclick="confirmDeleteAll()" style="background:rgba(225,112,85,.1);color:var(--bad)">🗑️ Radera all data</button></div>`;
-
-    // About
-    html+=`<div class="cd"><div class="ct">ℹ️ Om Moodly</div>
-        <div class="sett-row"><span>Version 4.0</span></div>
-        <p style="font-size:.76rem;color:var(--t2);line-height:1.5;padding:6px 0">All data lagras lokalt på din enhet. Inget skickas till servrar.</p></div>`;
-
-    document.getElementById('settings-content').innerHTML=html;
-}
-
-function saveProfile(){
-    const d=ld();
-    d.userName=document.getElementById('sett-username').value.trim();
-    d.aiName=document.getElementById('sett-ainame').value.trim()||'Luna';
-    d.personality=document.getElementById('sett-pers').value;
-    sv(d);
-    toast('Sparat!');
-}
-
-function confirmDeleteAll(){
-    if(!confirm('Är du säker? All data raderas permanent.'))return;
-    if(sok){
-        const d=ld();
-        if(d.familyProfiles)d.familyProfiles.forEach(function(fp){localStorage.removeItem(fp.storageKey)});
-        localStorage.removeItem(APK);
-    }
-    D={checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:''};
-    if(sok)localStorage.setItem(APK,JSON.stringify(D));
-    toast('All data raderad.');
-    renderSettings();
-    renderHome();
-}
-
-// ===== FAMILY =====
-function createFamily(){
-    const d=ld();
-    d.familyId='fam_'+Date.now();
-    d.role='parent';
-    d.familyProfiles=[];
-    sv(d);
-    renderSettings();
-    toast('Familj skapad!');
-}
-
-function addChild(){
-    var nameEl=document.getElementById('new-child-name');
-    var ageEl=document.getElementById('new-child-age');
-    var name=nameEl.value.trim();
-    if(!name)return;
-    var ageGroup=ageEl.value;
-    var id='child_'+Date.now();
-    var storageKey='moodly_child_'+id;
-
-    var d=ld();
-    d.familyProfiles.push({id:id,name:name,ageGroup:ageGroup,storageKey:storageKey});
-    sv(d);
-
-    // Create child profile
-    var childData={checkins:[],micro:[],xp:0,level:1,firstVisit:false,baseline:null,userName:name,aiName:d.aiName||'Luna',personality:'warm',onboarded:new Date().toISOString(),alertsSeen:[],familyId:d.familyId,role:'child',familyProfiles:[],parentKey:PARENT_KEY};
-    if(sok)localStorage.setItem(storageKey,JSON.stringify(childData));
-
-    renderSettings();
-    toast(name+' tillagd!');
-}
-
-function removeChild(idx){
-    var d=ld();
-    if(!d.familyProfiles||!d.familyProfiles[idx])return;
-    var fp=d.familyProfiles[idx];
-    if(sok)localStorage.removeItem(fp.storageKey);
-    d.familyProfiles.splice(idx,1);
-    sv(d);
-    renderSettings();
-}
-
-function switchToProfile(storageKey,name){
-    APK=storageKey;
-    var banner=document.getElementById('profile-banner');
-    banner.style.display='flex';
-    document.getElementById('profile-banner-text').textContent='Visar: '+name;
-    document.querySelectorAll('.pg').forEach(function(pg){pg.style.paddingTop='48px'});
-    go('home');
-}
-
-function switchToParent(){
-    APK=PARENT_KEY;
-    document.getElementById('profile-banner').style.display='none';
-    document.querySelectorAll('.pg').forEach(function(pg){pg.style.paddingTop='16px'});
-    go('home');
-}
-
-function getChildSafeData(storageKey){
-    if(!sok)return null;
-    try{
-        var raw=localStorage.getItem(storageKey);
-        if(!raw)return null;
-        var d=JSON.parse(raw);
-        var allPts=getAllDataPoints(d);
-        var scores=allPts.map(function(p){return p.score});
-        var avg=scores.length?Math.round(scores.reduce(function(a,b){return a+b},0)/scores.length):0;
-        var emotions=allPts.map(function(p){return p.emotion});
-        var emoCounts={};emotions.forEach(function(e){emoCounts[e]=(emoCounts[e]||0)+1});
-        var domEmo='neutral';var maxC=0;for(var k in emoCounts){if(emoCounts[k]>maxC){maxC=emoCounts[k];domEmo=k}}
-        var lastTs=allPts.length?allPts[allPts.length-1].ts:null;
-        var recentScores=allPts.slice(-3).map(function(p){return p.score});
-        var trend='—';
-        if(recentScores.length>=2){var diff=recentScores[recentScores.length-1]-recentScores[0];trend=diff>5?'↑':diff<-5?'↓':'→'}
-        return{avg:avg,domEmo:domEmo,lastTs:lastTs,trend:trend,count:allPts.length};
-    }catch(e){return null}
-}
-
-function detectFamilyAlerts(d){
-    var alerts=[];
-    if(!d.familyProfiles)return alerts;
-    d.familyProfiles.forEach(function(fp){
-        if(!sok)return;
-        try{
-            var raw=localStorage.getItem(fp.storageKey);if(!raw)return;
-            var cd=JSON.parse(raw);
-            var allPts=getAllDataPoints(cd);
-            var recent=allPts.slice(-5);
-            var lowCount=recent.filter(function(p){return p.score<40||p.emotion==='stressad'}).length;
-            if(lowCount>=3)alerts.push({name:fp.name,count:lowCount});
-        }catch(e){}
-    });
-    return alerts;
-}
-
-function showFamilyDashboard(){
-    var d=ld();
-    var overlay=document.getElementById('fam-overlay');
-    overlay.style.display='block';
-    var emoIcons={glad:'😊',lugn:'😌',neutral:'😐',stressad:'😰',ledsen:'😢',orolig:'😟',arg:'😤',trott:'😴'};
-    var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:1.15rem">📊 Familje-dashboard</h2><button class="btn bs" style="width:auto;padding:8px 16px" onclick="closeFamilyDashboard()">Stäng</button></div>';
-
-    var famAlerts=detectFamilyAlerts(d);
-    famAlerts.forEach(function(a){
-        html+='<div class="alert-card warn" style="margin-bottom:12px"><div class="alert-icon">⚠️</div><div class="alert-body"><div class="alert-title">Obs!</div><div class="alert-desc">'+a.name+' har '+a.count+'+ låga/stressade registreringar.</div></div></div>';
-    });
-
-    if(!d.familyProfiles||d.familyProfiles.length===0){
-        html+='<p style="color:var(--t2);text-align:center;padding:20px">Inga barn tillagda ännu.</p>';
-    }else{
-        d.familyProfiles.forEach(function(fp){
-            var safe=getChildSafeData(fp.storageKey);
-            if(!safe){
-                html+='<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">'+fp.name+'</div><div class="fam-stat">'+fp.ageGroup+' — Ingen data ännu</div></div></div>';
-                return;
-            }
-            var col=safe.avg>=65?'var(--ok)':safe.avg>=40?'var(--w)':'var(--bad)';
-            var trendCol=safe.trend==='↑'?'color:var(--ok)':safe.trend==='↓'?'color:var(--bad)':'color:var(--t2)';
-            var lastTime=safe.lastTs?new Date(safe.lastTs).toLocaleDateString('sv-SE',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-            html+='<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">'+fp.name+'</div><div class="fam-stat">'+fp.ageGroup+' — '+(emoIcons[safe.domEmo]||'😐')+' '+safe.domEmo+' — Senaste: '+lastTime+'</div></div><div class="fam-score"><div class="v" style="color:'+col+'">'+(safe.avg||'—')+'</div><div class="trend" style="'+trendCol+'">'+safe.trend+'</div></div></div>';
-        });
-    }
-    document.getElementById('fam-overlay-content').innerHTML=html;
-}
-
-function closeFamilyDashboard(){
-    document.getElementById('fam-overlay').style.display='none';
-}
-
-// ===== QUICK THOUGHT EVENTS =====
-document.getElementById('qt-send').addEventListener('click',submitQuickThought);
-document.getElementById('qt-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitQuickThought()}});
-
-// ===== CONVERSATION BUTTONS =====
+// ===== EVENT LISTENERS =====
 document.getElementById('start-conv-btn').addEventListener('click',startConversation);
 document.getElementById('end-conv-btn').addEventListener('click',endConversation);
 document.getElementById('mic-btn').addEventListener('click',toggleListening);
 document.getElementById('send-btn').addEventListener('click',()=>{const v=document.getElementById('conv-text').value;if(v.trim())userSend(v)});
 document.getElementById('conv-text').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=e.target.value;if(v.trim())userSend(v)}});
-
-// ===== KEYBOARD SCROLL FIX (mobile) =====
-document.getElementById('conv-text').addEventListener('focus',()=>{
-    setTimeout(()=>{const a=document.getElementById('chat-area');if(a)a.scrollTop=a.scrollHeight},350);
-});
-if(window.visualViewport){
-    window.visualViewport.addEventListener('resize',()=>{
-        const a=document.getElementById('chat-area');if(a)a.scrollTop=a.scrollHeight;
-    });
-}
+document.getElementById('conv-text').addEventListener('focus',()=>{setTimeout(()=>{const a=document.getElementById('chat-area');if(a)a.scrollTop=a.scrollHeight},350)});
 
 // ===== INIT =====
-// Load voices early (safely)
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
-
 const d0=ld();
 if(!d0.firstVisit){document.getElementById('ob').classList.add('h');document.getElementById('app').style.display='';renderHome()}
-
-window.addEventListener('resize',()=>{try{const d=ld();if(d.checkins.length>=2)drawChart(d.checkins)}catch(e){}});
 </script>
 </body>
 </html>
