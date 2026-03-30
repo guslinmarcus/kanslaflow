@@ -473,7 +473,7 @@ async function searchNominatim(query,dropdown,input,addrId){
         }).join('');
 
         // Always show manual option
-        html+=`<div class="ac-item ac-manual"><div class="ac-name">✏️ Använd "${query}"</div><div class="ac-addr">Lägg till utan kartdata</div></div>`;
+        html+=`<div class="ac-item ac-manual"><div class="ac-name">✏️ Använd "${query}"</div><div class="ac-addr">Manuellt — kan inte jämföras anonymt med andra</div></div>`;
         dropdown.innerHTML=html;
 
         dropdown.querySelectorAll('.ac-item').forEach((el,i)=>{
@@ -652,7 +652,7 @@ function renderHome(){
         html+=`<div class="place-card">
             <div class="place-header">
                 <div class="place-icon" style="background:${pt.bg}">${pt.icon}</div>
-                <div><div class="place-name">${place.name}</div><div class="place-type-label">${pt.label}${place.address?' — '+place.address.split(',').slice(0,2).join(','):''}</div></div>
+                <div><div class="place-name">${place.name}${place.osmId?' <span title="Kopplad till karta" style="font-size:.7rem;opacity:.5">📍</span>':''}</div><div class="place-type-label">${pt.label}${place.address?' — '+place.address.split(',').slice(0,2).join(','):''}</div></div>
             </div>
             <div class="emoji-row">`;
         MOODS.forEach(m=>{
@@ -891,7 +891,11 @@ function saveNewPlace(){
     selectedPlace=null;
     closeModal();
     renderHome();
-    toast(`${(pd?.name||name)} tillagd!`);
+    if(pd?.osmId){
+        toast(`${pd.name} tillagd! 📍`);
+    }else{
+        toast(`${name} tillagd — tips: sök på platsen för att koppla kartdata`);
+    }
 }
 
 // ===== ONBOARDING =====
