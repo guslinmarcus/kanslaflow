@@ -135,6 +135,32 @@
         .start-conv-btn .orb-mini{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle,var(--pl),var(--p));display:flex;align-items:center;justify-content:center}
         .start-conv-btn .orb-mini .dot{width:5px;height:5px;border-radius:50%;background:#fff;margin:0 2px}
 
+        /* ALERTS */
+        .alert-card{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--r);margin-bottom:10px;animation:fu .3s ease}
+        .alert-card.warn{background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.18)}
+        .alert-card.bad{background:rgba(225,112,85,.08);border:1px solid rgba(225,112,85,.18)}
+        .alert-card.good{background:rgba(0,184,148,.08);border:1px solid rgba(0,184,148,.18)}
+        .alert-card.insight{background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.18)}
+        .alert-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+        .alert-body{flex:1;min-width:0}
+        .alert-title{font-size:.84rem;font-weight:700}
+        .alert-desc{font-size:.76rem;color:var(--t2);margin-top:2px;line-height:1.4}
+        .alert-dismiss{background:none;border:none;color:var(--t2);font-size:1.1rem;cursor:pointer;padding:2px 6px;flex-shrink:0;opacity:.6}
+
+        /* QUICK THOUGHT */
+        .qt-card{background:var(--c1);border-radius:var(--r);padding:16px;margin-bottom:12px;border:1px solid rgba(255,255,255,.04)}
+        .qt-row{display:flex;gap:8px;align-items:center}
+        .qt-input{flex:1;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:24px;color:var(--t);font-size:.86rem;outline:none}
+        .qt-input::placeholder{color:var(--t2)}
+        .qt-send{width:38px;height:38px;border-radius:50%;border:none;background:var(--a);color:var(--bg);font-size:1.1rem;font-weight:700;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+        .qt-send:active{transform:scale(.93)}
+        .qt-send svg{width:18px;height:18px;fill:var(--bg)}
+        .qt-feedback{margin-top:12px;padding:12px;border-radius:var(--rs);background:rgba(255,255,255,.04);animation:fu .3s ease}
+        .qt-emo{font-size:.84rem;font-weight:600;display:flex;align-items:center;gap:6px}
+        .qt-comment{font-size:.76rem;color:var(--t2);margin-top:4px;line-height:1.4}
+        .qt-bar{height:4px;border-radius:2px;margin-top:8px;background:rgba(255,255,255,.07);overflow:hidden}
+        .qt-fill{height:100%;border-radius:2px;transition:width .6s ease}
+
         /* RESULT */
         .res-hero{text-align:center;padding:16px 0}
         .score-ring{width:130px;height:130px;border-radius:50%;margin:0 auto 14px;position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column}
@@ -285,6 +311,17 @@
         </div>
         <div class="week-dots" id="w-dots"></div>
 
+        <div id="home-alerts"></div>
+
+        <div class="qt-card">
+            <div class="ct">💭 Snabb tanke</div>
+            <div class="qt-row">
+                <input type="text" class="qt-input" id="qt-input" placeholder="Hur känner du dig just nu?" enterkeyhint="send">
+                <button class="qt-send" id="qt-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            </div>
+            <div id="qt-feedback" style="display:none"></div>
+        </div>
+
         <div id="home-avatar" style="margin:16px 0">
             <div class="avatar-wrap">
                 <div class="avatar-orb idle" id="home-orb">
@@ -354,9 +391,10 @@
 // ===================================================================
 
 const SK='kf3';
-let D={checkins:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null};
+let D={checkins:[],micro:[],xp:0,level:1,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[]};
 let sok=false;try{localStorage.setItem('_','1');localStorage.removeItem('_');sok=true}catch(e){}
-function ld(){if(!sok)return D;try{const r=localStorage.getItem(SK);return r?JSON.parse(r):{...D}}catch(e){return{...D}}}
+function ld(){if(!sok)return D;try{const r=localStorage.getItem(SK);if(!r)return{...D};const d=JSON.parse(r);if(!d.micro)d.micro=[];if(!d.alertsSeen)d.alertsSeen=[];return d}catch(e){return{...D}}}
+function getAllDataPoints(d){const f=(d.checkins||[]).map(c=>({...c,type:'full'}));const m=(d.micro||[]).map(c=>({...c,type:'micro'}));return[...f,...m].sort((a,b)=>new Date(a.ts)-new Date(b.ts))}
 function sv(d){D=d;if(sok)try{localStorage.setItem(SK,JSON.stringify(d))}catch(e){}}
 
 // ===== SENTIMENT =====
@@ -382,38 +420,160 @@ function calcStreak(ci){if(!ci.length)return 0;const ds=new Set(ci.map(c=>new Da
 function todayDone(ci){return ci.some(c=>new Date(c.ts).toDateString()===new Date().toDateString())}
 
 // ===== CONVERSATION ENGINE =====
-const PERS={
-    warm:{
-        greet:['Hej {name}! Vad fint att du tar dig tid. Hur har din dag varit?','Hej {name}! Jag är här för dig. Berätta, hur mår du just nu?','Välkommen tillbaka {name}! Hur känns det idag?'],
-        pos:['Vad härligt att höra! Vad var det bästa ögonblicket?','Det låter riktigt bra! Vad tror du bidrog till den känslan?','Så fint! Berätta mer om vad som gör dig glad.'],
-        neg:['Jag hör dig. Det låter som en tuff dag. Vad har tyngt dig mest?','Tack för att du delar det. Det tar mod. Vad behöver du just nu?','Jag förstår att det känns tungt. Vill du berätta mer om vad som hänt?'],
-        neut:['Berätta lite mer — vad har tagit mest plats i dina tankar idag?','Hur har energin varit under dagen?','Vad har du gjort idag som betydde något för dig?'],
-        deep:['Hur påverkar det dig på insidan?','Vad tror du att du behöver för att det ska bli bättre?','Om du kunde ändra en sak just nu — vad hade det varit?'],
-        close:['Tack för att du pratade med mig {name}. Jag finns här imorgon också. Ta hand om dig. ❤️','Det var fint att höra om din dag {name}. Kom ihåg — varje dag du reflekterar gör skillnad. Vi ses!','Tack {name}. Du gör verkligen framsteg genom att prata om dina känslor. Sov gott!']
-    },
-    direct:{
-        greet:['Hej {name}. Rakt på — hur har dagen varit?','Hej! Ge mig en snabb statusuppdatering på hur du mår.','Okej {name}, ny dag. Hur ligger du till känslomässigt?'],
-        pos:['Bra. Vad drev det positiva?','Nice. Vad var nyckeln till den känslan?','Starkt. Vad ska du göra för att behålla den energin?'],
-        neg:['Okej, det suger. Men vad kan du faktiskt påverka i situationen?','Rak fråga: vad hade du gjort annorlunda idag?','Det låter tufft. Vad är en konkret sak du kan göra imorgon?'],
-        neut:['Ge mig mer. Vad har du egentligen känt under ytan?','Okej neutralt — men vad vill du att imorgon ska se ut?','Fair enough. Vad har du prioriterat idag?'],
-        deep:['Vad är det verkliga problemet här?','Om du var brutalt ärlig med dig själv — vad behöver förändras?','Vad håller dig tillbaka?'],
-        close:['Bra pratat {name}. En dag i taget. Ses imorgon.','Du vet var jag finns {name}. Keep going.','Stark session. Kom ihåg vad du sa idag — det var viktigt.']
-    },
-    coach:{
-        greet:['Hej {name}! Redo att reflektera och växa? Hur har dagen sett ut?','Välkommen {name}! Varje samtal är ett steg framåt. Hur mår du?','Hej {name}! Låt oss kolla in — hur har du presterat idag, känslomässigt?'],
-        pos:['Fantastiskt! Det är precis den typen av dagar vi bygger fler av. Vad var framgångsfaktorn?','Starkt! Hur kan du ta med den känslan in i morgondagen?','Exakt så bygger du momentum! Vad triggade det positiva?'],
-        neg:['Tuffa dagar är en del av resan. Vad kan du lära dig av idag?','Motgångar bygger resiliens. Vad är en sak du kan göra annorlunda imorgon?','Jag hör dig. Men här är utmaningen: vad ÄR inom din kontroll just nu?'],
-        neut:['Neutralt är inte dåligt — men vi siktar högre. Vad hade gjort dagen till en 8/10?','Vad är ett litet mål du kan sätta för imorgon?','Bra att du checkar in. Vad vill du fokusera på framåt?'],
-        deep:['Vad driver dig egentligen? Vad vill du känna mer av?','Om du tänker 3 månader framåt — vad vill du ha förändrat?','Vad är din superkraft? Använder du den tillräckligt?'],
-        close:['Bra session {name}! Du tar ansvar för ditt välmående — det är modigt. Ses imorgon, redo att bygga vidare!','Starkt jobbat {name}. Varje reflektion stärker din emotionella intelligens. Vi kör igen imorgon!','Remember: du är starkare än du tror {name}. Bra att du investerar i dig själv. 🏆']
-    }
-};
-
-let convState={active:false,round:0,maxRounds:5,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false};
-
-function getAILines(cat){const d=ld();return PERS[d.personality||'warm'][cat]||PERS.warm[cat]}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 function tpl(s){const d=ld();return s.replace(/\{name\}/g,d.userName||'du')}
+
+// -- Topic extraction for mirroring --
+const TOPICS={
+    jobb:['chefen','chef','kollegor','kollega','mötet','möte','deadline','projekt','kunder','kund','kontoret','arbetet','jobbet','lönen','lön','presentationen','leveransen'],
+    relationer:['partner','sambon','sambo','flickvän','pojkvän','mamma','pappa','föräldrarna','barnen','barn','kompisen','kompis','vänner','familjen','systern','brodern','svärmor'],
+    hälsa:['träningen','gym','sömnen','sömn','huvudvärk','ont','sjuk','energin','vikten','kosten','maten','ryggen','ångesten','paniken'],
+    fritid:['resan','semestern','filmen','serien','boken','musiken','promenaden','matchen','spelet','hobbyn','festen','konserten']
+};
+const STOPWORDS=new Set(['jag','mig','min','mitt','du','dig','det','den','är','var','har','hade','inte','och','men','att','som','för','med','kan','ska','vill','lite','mycket','ganska','bara','också','väldigt','nu','idag','igår','imorse','ikväll']);
+
+function extractTopics(text){
+    const words=text.toLowerCase().replace(/[.,!?;:]/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOPWORDS.has(w));
+    const found=[];
+    for(const w of words){
+        for(const[cat,list]of Object.entries(TOPICS)){
+            if(list.some(t=>w.includes(t)||t.includes(w)))found.push({word:w,cat});
+        }
+    }
+    // Also extract significant non-topic words (potential subjects user cares about)
+    const subjects=words.filter(w=>w.length>3&&!found.some(f=>f.word===w)).slice(0,3);
+    return{found,subjects,raw:words};
+}
+
+// -- Mirror phrases (acknowledge what user said) --
+const MIRROR={
+    warm:{pos:['Vad fint att höra!','Det låter riktigt bra!','Jag blir glad av det!','Härligt!'],neg:['Jag hör dig.','Tack för att du delar det.','Det låter tungt.','Jag förstår att det är svårt.'],neut:['Jag förstår.','Tack för att du berättar.','Okej, jag hör dig.','Jag lyssnar.']},
+    direct:{pos:['Bra.','Nice.','Starkt.','Det funkar.'],neg:['Okej, det suger.','Rak input.','Tough.','Jag hör dig.'],neut:['Okej.','Uppfattat.','Jag förstår.','Got it.']},
+    coach:{pos:['Fantastiskt!','Starkt jobbat!','Exakt så bygger du framåt!','Bra momentum!'],neg:['Det tar mod att erkänna det.','Varje utmaning är en möjlighet.','Jag hör dig.','Tufft — men du hanterar det.'],neut:['Bra att du reflekterar.','Intressant.','Okej, låt oss utforska det.','Jag lyssnar.']}
+};
+
+// -- Follow-up questions per category (keyed to prevent repetition) --
+const FOLLOWUPS={
+    jobb:[
+        {k:'j1',q:'Vad är det med {t} som påverkar dig mest?'},
+        {k:'j2',q:'Hur länge har det varit så på jobbet?'},
+        {k:'j3',q:'Finns det något du kan förändra i situationen?'},
+        {k:'j4',q:'Hur påverkar det dig när du kommer hem?'},
+        {k:'j5',q:'Vad hade behövt hända för att det skulle bli bättre?'},
+        {k:'j6',q:'Hur stöttar dina kollegor dig i det?'},
+        {k:'j7',q:'Vad ger dig energi på jobbet?'},
+        {k:'j8',q:'Har du pratat med någon om det?'}
+    ],
+    relationer:[
+        {k:'r1',q:'Berätta mer om vad som hände med {t}.'},
+        {k:'r2',q:'Hur fick det dig att känna inombords?'},
+        {k:'r3',q:'Har du kunnat prata med {t} om det?'},
+        {k:'r4',q:'Vad behöver du mest från den relationen just nu?'},
+        {k:'r5',q:'Vad uppskattar du mest hos {t}?'},
+        {k:'r6',q:'Hur hanterar ni konflikter vanligtvis?'},
+        {k:'r7',q:'Vad skulle göra relationen ännu bättre?'},
+        {k:'r8',q:'Hur mår du i den relationen egentligen?'}
+    ],
+    hälsa:[
+        {k:'h1',q:'Hur har {t} påverkat ditt mående?'},
+        {k:'h2',q:'Hur länge har du känt så?'},
+        {k:'h3',q:'Vad brukar hjälpa dig med det?'},
+        {k:'h4',q:'Hur sover du just nu?'},
+        {k:'h5',q:'Gör du något aktivt för att ta hand om dig?'},
+        {k:'h6',q:'Vad behöver din kropp mest just nu?'},
+        {k:'h7',q:'Hur påverkar det din vardag?'},
+        {k:'h8',q:'Har du pratat med en läkare om det?'}
+    ],
+    fritid:[
+        {k:'f1',q:'Berätta mer om {t} — hur var det?'},
+        {k:'f2',q:'Vad var det bästa med det?'},
+        {k:'f3',q:'Hur ofta gör du det?'},
+        {k:'f4',q:'Vad ger det dig?'},
+        {k:'f5',q:'Har du hittat andra saker som ger dig samma känsla?'},
+        {k:'f6',q:'Hur prioriterar du tid för det?'}
+    ],
+    allmänt:[
+        {k:'a1',q:'Vad tar mest plats i dina tankar just nu?'},
+        {k:'a2',q:'Hur har energin varit idag?'},
+        {k:'a3',q:'Vad hade gjort dagen bättre?'},
+        {k:'a4',q:'Vad ser du fram emot?'},
+        {k:'a5',q:'Om du fick önska dig en sak just nu — vad hade det varit?'},
+        {k:'a6',q:'Hur skulle du beskriva din känsla med ett ord?'},
+        {k:'a7',q:'Vad har du gjort idag som betydde något för dig?'},
+        {k:'a8',q:'Finns det något som oroar dig som du inte pratat om?'},
+        {k:'a9',q:'Vad är du tacksam för just nu?'},
+        {k:'a10',q:'Hur mår du jämfört med igår?'}
+    ],
+    deep:[
+        {k:'d1',q:'Hur påverkar det här dig på insidan, egentligen?'},
+        {k:'d2',q:'Vad tror du ligger bakom den känslan?'},
+        {k:'d3',q:'Om du var snäll mot dig själv just nu — vad hade du sagt?'},
+        {k:'d4',q:'Vad skulle behöva förändras för att du ska må bättre?'},
+        {k:'d5',q:'Vad håller dig tillbaka?'},
+        {k:'d6',q:'Om du tänker 3 månader framåt — vad vill du ha förändrat?'},
+        {k:'d7',q:'Vad driver dig egentligen? Vad vill du känna mer av?'},
+        {k:'d8',q:'Vem i ditt liv förstår dig bäst?'}
+    ]
+};
+
+// -- Greeting templates --
+const GREETS={
+    warm:['Hej {name}! Vad fint att du tar dig tid. Hur har din dag varit?','Hej {name}! Jag är här för dig. Berätta, hur mår du just nu?','Välkommen tillbaka {name}! Hur känns det idag?'],
+    direct:['Hej {name}. Rakt på — hur har dagen varit?','Ge mig en snabb statusuppdatering på hur du mår.','Okej {name}, ny dag. Hur ligger du till känslomässigt?'],
+    coach:['Hej {name}! Redo att reflektera och växa? Hur har dagen sett ut?','Välkommen {name}! Varje samtal är ett steg framåt. Hur mår du?','Hej {name}! Hur har du presterat idag, känslomässigt?']
+};
+const CLOSES={
+    warm:['Tack för att du pratade med mig {name}. Jag finns här imorgon också. Ta hand om dig. ❤️','Det var fint att höra om din dag {name}. Varje dag du reflekterar gör skillnad. Vi ses!','Tack {name}. Du gör framsteg genom att prata om dina känslor. Sov gott!'],
+    direct:['Bra pratat {name}. En dag i taget. Ses imorgon.','Du vet var jag finns {name}. Keep going.','Stark session. Kom ihåg vad du sa idag — det var viktigt.'],
+    coach:['Bra session {name}! Du tar ansvar för ditt välmående — modigt. Ses imorgon!','Starkt jobbat {name}. Varje reflektion stärker din emotionella intelligens!','Du är starkare än du tror {name}. Bra att du investerar i dig själv. 🏆']
+};
+
+let convState={active:false,round:0,maxRounds:12,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),lastTopics:null,shortCount:0};
+
+// -- Build mirroring suffix from extracted topics --
+function buildMirror(topics,sentiment){
+    if(!topics.found.length&&!topics.subjects.length)return'';
+    const kw=topics.found.length?topics.found[0].word:topics.subjects[0];
+    const adj=sentiment.score>=65?'positivt':sentiment.score<=40?'tufft':'';
+    return adj?` ${kw} låter ${adj}.`:` det du säger om ${kw}.`;
+}
+
+// -- Compose a contextual response --
+function composeResponse(text,sentiment,topics){
+    const d=ld(),pers=d.personality||'warm';
+    const bucket=sentiment.score>=65?'pos':sentiment.score<=40?'neg':'neut';
+
+    // 1. Mirror phrase
+    let mirror=pick(MIRROR[pers][bucket]);
+    const suffix=buildMirror(topics,sentiment);
+    if(suffix)mirror+=suffix.charAt(0)===' '?suffix:' '+suffix;
+
+    // 2. Choose follow-up category
+    const cat=topics.found.length?topics.found[0].cat:(sentiment.cats?.[0]||'allmänt');
+    const pool=convState.round>=4?[...FOLLOWUPS[cat]||[],...FOLLOWUPS.deep]:(FOLLOWUPS[cat]||FOLLOWUPS.allmänt);
+
+    // 3. Filter out already-asked questions
+    let available=pool.filter(q=>!convState.askedKeys.has(q.k));
+    if(!available.length)available=FOLLOWUPS.allmänt.filter(q=>!convState.askedKeys.has(q.k));
+    if(!available.length){convState.askedKeys.clear();available=pool;}
+
+    // 4. Pick question and fill {t} placeholder with topic word
+    const chosen=pick(available);
+    convState.askedKeys.add(chosen.k);
+    const topicWord=topics.found.length?topics.found[0].word:(topics.subjects[0]||'det');
+    const question=chosen.q.replace(/\{t\}/g,topicWord);
+
+    return mirror+' '+question;
+}
+
+// -- Should the conversation end naturally? --
+function shouldEnd(){
+    if(convState.round>=12)return true;
+    if(convState.round>=4&&convState.shortCount>=2)return true;
+    const last=convState.transcript.filter(t=>t.role==='user').slice(-1)[0]?.text?.toLowerCase()||'';
+    if(convState.round>=3&&/\b(tack|hejdå|vi ses|det var allt|jag måste|sluta)\b/.test(last))return true;
+    return false;
+}
 
 function setHomeAvatar(mood){
     const orb=document.getElementById('home-orb');if(!orb)return;
@@ -467,7 +627,7 @@ function trySpeak(text){
 // ===== MAIN CONVERSATION FLOW =====
 async function startConversation(){
     const d=ld();
-    convState={active:true,round:0,maxRounds:5,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false};
+    convState={active:true,round:0,maxRounds:12,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),lastTopics:null,shortCount:0};
 
     document.getElementById('conv-view').classList.add('on');
     document.getElementById('conv-name').innerHTML='<span class="dot"></span> '+(d.aiName||'Luna');
@@ -500,16 +660,24 @@ async function startConversation(){
         return;
     }
 
-    // Build greeting with memory
-    let greeting=tpl(pick(getAILines('greet')));
-    if(d.checkins.length>0){
+    // Build greeting with memory from recent data
+    const pers=d.personality||'warm';
+    let greeting=tpl(pick(GREETS[pers]||GREETS.warm));
+
+    // Reference recent checkins or micro-thoughts
+    const todayMicros=(d.micro||[]).filter(m=>new Date(m.ts).toDateString()===new Date().toDateString());
+    if(todayMicros.length>0){
+        const last=todayMicros[todayMicros.length-1];
+        greeting+=` Jag såg att du skrev "${last.text.slice(0,35)}${last.text.length>35?'...':''}" — vill du prata mer om det?`;
+    }else if(d.checkins.length>0){
         const last=d.checkins[d.checkins.length-1];
         const daysSince=Math.floor((Date.now()-new Date(last.ts).getTime())/864e5);
         if(daysSince<=2&&last.emotion==='stressad')greeting+=' Förra gången pratade vi om att du var stressad — hur är det nu?';
+        else if(daysSince<=2&&last.emotion==='ledsen')greeting+=' Sist verkade du ha det tufft — hur känns det idag?';
         else if(daysSince<=2&&last.cats?.includes('jobb'))greeting+=' Sist nämnde du jobbet — hur har det gått?';
+        else if(daysSince<=2&&last.cats?.includes('relationer'))greeting+=' Sist pratade vi om relationer — har något förändrats?';
     }
 
-    // AI sends first message
     await aiMessage(greeting);
 }
 
@@ -541,7 +709,8 @@ async function processUserResponse(text){
         if(name){
             const d=ld();d.userName=name;sv(d);
             convState.askingName=false;
-            let greeting=tpl(pick(getAILines('greet')));
+            const pers=d.personality||'warm';
+            let greeting=tpl(pick(GREETS[pers]||GREETS.warm));
             await aiMessage(greeting);
             return;
         }
@@ -549,25 +718,26 @@ async function processUserResponse(text){
 
     convState.round++;
     const sentiment=analyze(text);
+    const topics=extractTopics(text);
     convState.emotions.push(sentiment.emotion);
+    convState.lastTopics=topics;
 
-    if(convState.round>=convState.maxRounds){
-        const close=tpl(pick(getAILines('close')));
+    // Track short answers for natural ending
+    if(text.trim().length<15)convState.shortCount++;
+    else convState.shortCount=0;
+
+    // Check if conversation should end naturally
+    if(shouldEnd()){
+        const d=ld(),pers=d.personality||'warm';
+        const close=tpl(pick(CLOSES[pers]||CLOSES.warm));
         await aiMessage(close);
         setTimeout(()=>endConversation(),2000);
         return;
     }
 
-    let lines;
-    if(convState.round<=2){
-        if(sentiment.score>=65)lines=getAILines('pos');
-        else if(sentiment.score<=40)lines=getAILines('neg');
-        else lines=getAILines('neut');
-    }else{
-        lines=getAILines('deep');
-    }
-
-    await aiMessage(tpl(pick(lines)));
+    // Compose contextual response
+    const response=composeResponse(text,sentiment,topics);
+    await aiMessage(response);
 }
 
 // ===== SPEECH-TO-TEXT (microphone button) =====
@@ -804,7 +974,7 @@ function renderHome(){
         :['Jag är redo när du är — tryck för att prata','Hur har din dag varit? Jag lyssnar','Ta 2 minuter för dig själv — det är värt det'];
     document.getElementById('home-ai-msg').textContent=pick(msgs);
 
-    setAvatar('idle',td?'happy':'neutral');
+    setHomeAvatar(td?'happy':'neutral');
 
     if(td&&d.checkins.length>0){
         const last=d.checkins[d.checkins.length-1];
@@ -814,18 +984,31 @@ function renderHome(){
             <div style="font-size:1.8rem;font-weight:800;color:${col}">${last.score}</div>
             <div style="font-size:.72rem;color:var(--t2);margin-top:3px">Se din utveckling →</div></div>`;
     }else document.getElementById('home-today').innerHTML='';
+
+    // Render alerts
+    renderAlerts();
 }
 
 // ===== RENDER DIARY =====
 function renderDiary(){
     const d=ld(),list=document.getElementById('d-list');
     const emo={glad:'😊',lugn:'😌',neutral:'😐',stressad:'😰',ledsen:'😢',orolig:'😟',arg:'😤',trott:'😴'};
-    if(!d.checkins.length){list.innerHTML='<div style="text-align:center;padding:36px 16px;color:var(--t2)"><div style="font-size:2.2rem;margin-bottom:6px">📖</div><p>Din dagbok är tom.<br>Starta ditt första samtal!</p></div>';return}
-    list.innerHTML=[...d.checkins].reverse().map((e,i)=>{
+
+    // Merge full checkins + micro-checkins
+    const all=[];
+    d.checkins.forEach((e,i)=>all.push({...e,type:'full',idx:i}));
+    (d.micro||[]).forEach(e=>all.push({...e,type:'micro'}));
+    all.sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+
+    if(!all.length){list.innerHTML='<div style="text-align:center;padding:36px 16px;color:var(--t2)"><div style="font-size:2.2rem;margin-bottom:6px">📖</div><p>Din dagbok är tom.<br>Skriv en snabb tanke eller starta ett samtal!</p></div>';return}
+    list.innerHTML=all.map(e=>{
         const dt=new Date(e.ts);const ds=dt.toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
         const col=e.score>=65?'var(--ok)':e.score>=40?'var(--w)':'var(--bad)';
+        if(e.type==='micro'){
+            return`<div class="de"><div class="de-h"><span class="de-d">💭 ${emo[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${e.text}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
+        }
         const txt=e.summary||e.transcript?.slice(0,100)||'Inget innehåll';
-        return`<div class="de" onclick="showEntry(${d.checkins.length-1-i})"><div class="de-h"><span class="de-d">${emo[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${txt}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
+        return`<div class="de" onclick="showEntry(${e.idx})"><div class="de-h"><span class="de-d">${emo[e.emotion]||'😐'} ${ds}</span><span class="de-s" style="color:${col}">${e.score}</span></div><div class="de-x">${txt}</div><div class="de-t">${(e.cats||[]).map(c=>`<span class="tag">${c}</span>`).join('')}</div></div>`;
     }).join('');
 }
 document.getElementById('d-search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.de').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(q)?'':'none'})});
@@ -858,18 +1041,27 @@ function renderProgress(){
 
     drawChart(ci);
 
-    // Patterns
+    // Patterns (using all data points: checkins + micro)
     const pl=document.getElementById('pat-list');
-    if(ci.length<5){pl.innerHTML='<p style="font-size:.8rem;color:var(--t2)">5+ samtal behövs för mönster.</p>';return}
+    const allPts=getAllDataPoints(d);
+    if(allPts.length<5){pl.innerHTML='<p style="font-size:.8rem;color:var(--t2)">5+ mätningar behövs för mönster.</p>';return}
     const pats=[];
     for(const cat of['jobb','relationer','hälsa','fritid']){
-        const w=ci.filter(c=>c.cats?.includes(cat)),wo=ci.filter(c=>!c.cats?.includes(cat));
-        if(w.length>=2&&wo.length>=2){const df=Math.round(w.reduce((a,c)=>a+c.score,0)/w.length-wo.reduce((a,c)=>a+c.score,0)/wo.length);if(Math.abs(df)>5)pats.push(`Dagar du nämner <strong>${cat}</strong>: ${df>0?'+':''}${df} poäng ${df>0?'↑':'↓'}`)}
+        const w=allPts.filter(c=>c.cats?.includes(cat)),wo=allPts.filter(c=>!c.cats?.includes(cat));
+        if(w.length>=2&&wo.length>=2){const df=Math.round(w.reduce((a,c)=>a+c.score,0)/w.length-wo.reduce((a,c)=>a+c.score,0)/wo.length);if(Math.abs(df)>5)pats.push(`När du nämner <strong>${cat}</strong>: ${df>0?'+':''}${df} poäng ${df>0?'↑':'↓'}`)}
     }
-    const ec={};ci.forEach(c=>{ec[c.emotion]=(ec[c.emotion]||0)+1});
+    const ec={};allPts.forEach(c=>{ec[c.emotion]=(ec[c.emotion]||0)+1});
     const top=Object.entries(ec).sort((a,b)=>b[1]-a[1])[0];
-    if(top)pats.push(`Vanligaste känslan: <strong>${top[0]}</strong> (${Math.round(top[1]/ci.length*100)}%)`);
-    if(d.baseline&&ci.length>=3){const r=ci.slice(-3).reduce((a,c)=>a+c.score,0)/3;const df=Math.round(r-d.baseline);if(df)pats.push(`${df>0?'Förbättrad':'Sjunkit'} <strong>${Math.abs(df)} poäng</strong> sedan start`)}
+    if(top)pats.push(`Vanligaste känslan: <strong>${top[0]}</strong> (${Math.round(top[1]/allPts.length*100)}%)`);
+    if(d.baseline&&allPts.length>=3){const r=allPts.slice(-3).reduce((a,c)=>a+c.score,0)/3;const df=Math.round(r-d.baseline);if(df)pats.push(`${df>0?'Förbättrad':'Sjunkit'} <strong>${Math.abs(df)} poäng</strong> sedan start`)}
+    // Time-of-day pattern
+    const morning=allPts.filter(e=>new Date(e.ts).getHours()<12);
+    const evening=allPts.filter(e=>new Date(e.ts).getHours()>=17);
+    if(morning.length>=2&&evening.length>=2){
+        const mAvg=Math.round(morning.reduce((a,c)=>a+c.score,0)/morning.length);
+        const eAvg=Math.round(evening.reduce((a,c)=>a+c.score,0)/evening.length);
+        if(Math.abs(mAvg-eAvg)>8)pats.push(`Du mår bäst på <strong>${mAvg>eAvg?'morgonen':'kvällen'}</strong> (${Math.max(mAvg,eAvg)} vs ${Math.min(mAvg,eAvg)} poäng)`);
+    }
     pl.innerHTML=pats.length?pats.map(p=>`<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;color:var(--t2);line-height:1.45">${p}</div>`).join(''):'<p style="font-size:.8rem;color:var(--t2)">Inga tydliga mönster ännu.</p>';
 }
 
@@ -930,6 +1122,143 @@ function doShare(){
 }
 function exportData(){const d=ld();const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='kanslaflow-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exporterad!')}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+
+// ===== QUICK THOUGHT =====
+function submitQuickThought(){
+    const inp=document.getElementById('qt-input');
+    const text=inp.value.trim();
+    if(!text)return;
+    const result=analyze(text);
+    const d=ld();
+
+    // Save micro-checkin
+    const entry={ts:new Date().toISOString(),text,score:result.score,emotion:result.emotion,cats:result.cats};
+    d.micro.push(entry);
+    if(d.micro.length>200)d.micro=d.micro.slice(-200);
+
+    // XP
+    const xp=3+(text.length>30?2:0);
+    const oldLvl=getLvl(d.xp||0);
+    d.xp=(d.xp||0)+xp;
+    const newLvl=getLvl(d.xp);
+    if(d.baseline===null)d.baseline=result.score;
+    sv(d);
+
+    // Show feedback
+    const emoMap={glad:'😊 Glad',lugn:'😌 Lugn',neutral:'😐 Neutral',stressad:'😰 Stressad',ledsen:'😢 Ledsen',orolig:'😟 Orolig',arg:'😤 Arg',trott:'😴 Trött'};
+    const col=result.score>=65?'var(--ok)':result.score>=40?'var(--w)':'var(--bad)';
+    const comments={glad:'Fint att höra! Fortsätt göra det som fungerar.',lugn:'Stabilitet är styrka. Bra läge.',neutral:'Noterat. Ibland är neutralt helt okej.',stressad:'Stress noterat. Prova en kort andningsövning?',ledsen:'Jag hör dig. Du är inte ensam om att känna så.',orolig:'Oro är vanligt. Vill du prata mer om det?',arg:'Frustration noterat. Vad kan du påverka?',trott:'Vila är viktigt. Var snäll mot dig själv.'};
+    const fb=document.getElementById('qt-feedback');
+    fb.style.display='';
+    fb.innerHTML=`<div class="qt-emo">${emoMap[result.emotion]||'😐 Neutral'} <span style="font-size:.72rem;color:var(--t2)">+${xp} XP</span></div>
+        <div class="qt-comment">${comments[result.emotion]||'Noterat!'}</div>
+        <div class="qt-bar"><div class="qt-fill" style="width:${result.score}%;background:${col}"></div></div>`;
+
+    inp.value='';
+
+    // Auto-hide feedback
+    setTimeout(()=>{fb.style.display='none'},5000);
+
+    // Refresh alerts
+    renderAlerts();
+
+    if(newLvl.l>oldLvl.l)toast(`🎉 Nivå ${newLvl.l}: ${newLvl.n}!`);
+}
+
+// ===== PATTERN ALERTS =====
+function detectAlerts(d){
+    const alerts=[];
+    const all=getAllDataPoints(d);
+    const today=new Date().toDateString();
+
+    // 1. Consecutive decline (3+ entries each lower)
+    if(all.length>=3){
+        const last3=all.slice(-3);
+        if(last3[2].score<last3[1].score-4&&last3[1].score<last3[0].score-4){
+            alerts.push({id:'decline-'+today,sev:'bad',ico:'📉',title:'Nedåtgående trend',desc:'Ditt välmående har sjunkit tre mätningar i rad. Vill du starta ett samtal?'});
+        }
+    }
+
+    // 2. Stress streak
+    if(all.length>=3){
+        const lastEmotions=all.slice(-3).map(e=>e.emotion);
+        if(lastEmotions.every(e=>e==='stressad')){
+            alerts.push({id:'stress-'+today,sev:'warn',ico:'⚠️',title:'Stress-mönster upptäckt',desc:'Du har rapporterat stress 3 gånger i rad. En andningsövning kan hjälpa: 4s in, 7s håll, 8s ut.'});
+        }
+    }
+
+    // 3. Category insight (needs 5+ entries)
+    if(all.length>=5){
+        for(const cat of['jobb','relationer','hälsa','fritid']){
+            const withCat=all.filter(e=>e.cats?.includes(cat));
+            const without=all.filter(e=>!e.cats?.includes(cat));
+            if(withCat.length>=2&&without.length>=2){
+                const avgWith=Math.round(withCat.reduce((a,c)=>a+c.score,0)/withCat.length);
+                const avgWithout=Math.round(without.reduce((a,c)=>a+c.score,0)/without.length);
+                const diff=avgWith-avgWithout;
+                if(diff>12)alerts.push({id:'cat-pos-'+cat,sev:'insight',ico:'💡',title:`${cat.charAt(0).toUpperCase()+cat.slice(1)} gör dig glad`,desc:`Du mår i snitt ${diff} poäng bättre när du pratar om ${cat}. Investera mer tid där!`});
+                else if(diff<-12)alerts.push({id:'cat-neg-'+cat,sev:'warn',ico:'💡',title:`${cat.charAt(0).toUpperCase()+cat.slice(1)} tynger dig`,desc:`Ditt score sjunker i snitt ${Math.abs(diff)} poäng när ${cat} kommer upp. Finns det något du kan förändra?`});
+            }
+        }
+    }
+
+    // 4. Improvement celebration
+    if(all.length>=3&&d.baseline){
+        const last3=all.slice(-3);
+        if(last3.every(e=>e.score>=65)){
+            const avg=Math.round(last3.reduce((a,c)=>a+c.score,0)/3);
+            if(avg-d.baseline>=10)alerts.push({id:'improve-'+today,sev:'good',ico:'🎉',title:'Tre bra mätningar i rad!',desc:`Ditt snitt ligger ${avg-d.baseline} poäng över din startpunkt. Det du gör fungerar!`});
+        }
+    }
+
+    // 5. Inactivity nudge
+    if(all.length>0){
+        const lastTs=new Date(all[all.length-1].ts);
+        const daysSince=Math.floor((Date.now()-lastTs.getTime())/864e5);
+        if(daysSince>=2)alerts.push({id:'inactive-'+Math.floor(Date.now()/864e5),sev:'warn',ico:'👋',title:`${daysSince} dagar sedan sist`,desc:'En snabb tanke tar bara sekunder. Hur mår du idag?'});
+    }
+
+    // 6. Emotion shift (compare last 7 days vs previous 7 days)
+    if(all.length>=6){
+        const now=Date.now();
+        const week1=all.filter(e=>{const a=now-new Date(e.ts).getTime();return a<7*864e5});
+        const week2=all.filter(e=>{const a=now-new Date(e.ts).getTime();return a>=7*864e5&&a<14*864e5});
+        if(week1.length>=2&&week2.length>=2){
+            const dom=arr=>{const c={};arr.forEach(e=>c[e.emotion]=(c[e.emotion]||0)+1);return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]};
+            const d1=dom(week1),d2=dom(week2);
+            if(d1&&d2&&d1!==d2){
+                const emoSv={glad:'glad',lugn:'lugn',stressad:'stressad',ledsen:'ledsen',orolig:'orolig',arg:'arg',trott:'trött',neutral:'neutral'};
+                alerts.push({id:'shift-'+d1+d2,sev:['stressad','ledsen','orolig','arg'].includes(d1)?'warn':'insight',ico:'🔄',title:'Känsloförändring',desc:`Din vanligaste känsla ändrades från ${emoSv[d2]||d2} till ${emoSv[d1]||d1} den senaste veckan.`});
+            }
+        }
+    }
+
+    return alerts;
+}
+
+function renderAlerts(){
+    const d=ld();
+    const el=document.getElementById('home-alerts');
+    if(!el)return;
+    const alerts=detectAlerts(d).filter(a=>!d.alertsSeen.includes(a.id));
+    // Priority: bad > warn > insight > good
+    const prio={bad:0,warn:1,insight:2,good:3};
+    alerts.sort((a,b)=>(prio[a.sev]||9)-(prio[b.sev]||9));
+    const show=alerts.slice(0,3);
+    el.innerHTML=show.map(a=>`<div class="alert-card ${a.sev}"><div class="alert-icon">${a.ico}</div><div class="alert-body"><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div><button class="alert-dismiss" onclick="dismissAlert('${a.id}')">×</button></div>`).join('');
+}
+
+function dismissAlert(id){
+    const d=ld();
+    d.alertsSeen.push(id);
+    if(d.alertsSeen.length>100)d.alertsSeen=d.alertsSeen.slice(-50);
+    sv(d);
+    renderAlerts();
+}
+
+// ===== QUICK THOUGHT EVENTS =====
+document.getElementById('qt-send').addEventListener('click',submitQuickThought);
+document.getElementById('qt-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitQuickThought()}});
 
 // ===== CONVERSATION BUTTONS =====
 document.getElementById('start-conv-btn').addEventListener('click',startConversation);
