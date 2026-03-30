@@ -442,7 +442,7 @@ function sv(d){D=d;if(sok)try{localStorage.setItem(APK,JSON.stringify(d))}catch(
 
 // ===== SENTIMENT =====
 const EMO={glad:{w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','awesome','nice'],v:.85},lugn:{w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok'],v:.65},ledsen:{w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt'],v:.25},stressad:{w:['stressad','pressad','överväldigad','kaos','panik','deadline','mycket','hinner inte','sliten','utbränd','utmattad','nervös'],v:.3},orolig:{w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','grubblar'],v:.28},arg:{w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd'],v:.2},trott:{w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg'],v:.35}};
-const CATS={jobb:['jobb','jobbet','arbete','kontor','chef','möte','möten','kolleg','projekt','deadline','kund'],relationer:['familj','partner','sambo','kompis','vän','vänner','barn','mamma','pappa','relation'],hälsa:['träna','gym','springa','yoga','sömn','sov','sjuk','ont','energi','mat'],fritid:['hobby','spel','film','serie','bok','musik','natur','promenad','resa']};
+const CATS={jobb:['jobb','jobbet','arbete','kontor','chef','möte','möten','kolleg','projekt','deadline','kund','presentation','lön','befordran','uppsagd','intervju','karriär','företag'],relationer:['familj','partner','sambo','kompis','vän','vänner','barn','mamma','pappa','relation','konflikt','konflikter','bråk','gräl','separation','dejt','kärlek','svartsjuk','otrogen','gifta','skild'],hälsa:['träna','gym','springa','yoga','sömn','sov','sjuk','ont','energi','mat','ångest','panik','stress','depression','terapi','psykolog','medicinering','smärta','huvudvärk','utbränd'],fritid:['hobby','spel','film','serie','bok','musik','natur','promenad','resa','semester','fest','konsert','sport','träning']};
 
 function analyze(txt){
     if(!txt||!txt.trim())return{emotion:'neutral',score:50,conf:0,cats:['allmänt']};
@@ -468,12 +468,12 @@ function tpl(s){const d=ld();return s.replace(/\{name\}/g,d.userName||'du')}
 
 // -- Topic extraction for mirroring --
 const TOPICS={
-    jobb:['chefen','chef','kollegor','kollega','mötet','möte','deadline','projekt','kunder','kund','kontoret','arbetet','jobbet','lönen','lön','presentationen','leveransen'],
-    relationer:['partner','sambon','sambo','flickvän','pojkvän','mamma','pappa','föräldrarna','barnen','barn','kompisen','kompis','vänner','familjen','systern','brodern','svärmor'],
-    hälsa:['träningen','gym','sömnen','sömn','huvudvärk','ont','sjuk','energin','vikten','kosten','maten','ryggen','ångesten','paniken'],
-    fritid:['resan','semestern','filmen','serien','boken','musiken','promenaden','matchen','spelet','hobbyn','festen','konserten']
+    jobb:['chefen','chef','kollegor','kollega','mötet','möte','deadline','projekt','kunder','kund','kontoret','arbetet','jobbet','lönen','lön','presentationen','leveransen','intervjun','befordran','uppsägningen','karriären','företaget','arbetskamrat'],
+    relationer:['partner','sambon','sambo','flickvän','pojkvän','mamma','pappa','föräldrarna','barnen','barn','kompisen','kompis','vänner','familjen','systern','brodern','svärmor','konflikten','konflikter','bråket','grälet','separationen','relationen','dejten','kärleken'],
+    hälsa:['träningen','gym','sömnen','sömn','huvudvärk','ont','sjuk','energin','vikten','kosten','maten','ryggen','ångesten','paniken','stressen','depressionen','terapin','psykologen','smärtan','utbrändhet'],
+    fritid:['resan','semestern','filmen','serien','boken','musiken','promenaden','matchen','spelet','hobbyn','festen','konserten','träningen','sporten']
 };
-const STOPWORDS=new Set(['jag','mig','min','mitt','du','dig','det','den','är','var','har','hade','inte','och','men','att','som','för','med','kan','ska','vill','lite','mycket','ganska','bara','också','väldigt','nu','idag','igår','imorse','ikväll']);
+const STOPWORDS=new Set(['jag','mig','min','mitt','mina','du','dig','din','ditt','det','den','de','dem','är','var','har','hade','inte','och','men','att','som','för','med','kan','ska','vill','lite','mycket','ganska','bara','också','väldigt','nu','idag','igår','imorse','ikväll','vanligtvis','brukar','ibland','alltid','aldrig','kanske','nog','rätt','verkligen','faktiskt','egentligen','tycker','tror','känner','hanterar','fungerar','behöver','försöker','vet','ser','får','gör','säger','saker','något','ingenting','allt','riktigt','bättre','sämre','mer','mindre','sedan','redan','fortfarande','dock','ändå','annars','ganska','gick','går','blev','blir','skulle','kunde','ville','gjort','varit','blivit','kommit','tagit','sagt','tänkt','känt','velat','brukat','försökt']);
 
 function extractTopics(text){
     const words=text.toLowerCase().replace(/[.,!?;:]/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOPWORDS.has(w));
@@ -490,9 +490,21 @@ function extractTopics(text){
 
 // -- Mirror phrases (acknowledge what user said) --
 const MIRROR={
-    warm:{pos:['Vad fint att höra!','Det låter riktigt bra!','Jag blir glad av det!','Härligt!'],neg:['Jag hör dig.','Tack för att du delar det.','Det låter tungt.','Jag förstår att det är svårt.'],neut:['Jag förstår.','Tack för att du berättar.','Okej, jag hör dig.','Jag lyssnar.']},
-    direct:{pos:['Bra.','Nice.','Starkt.','Det funkar.'],neg:['Okej, det suger.','Rak input.','Tough.','Jag hör dig.'],neut:['Okej.','Uppfattat.','Jag förstår.','Got it.']},
-    coach:{pos:['Fantastiskt!','Starkt jobbat!','Exakt så bygger du framåt!','Bra momentum!'],neg:['Det tar mod att erkänna det.','Varje utmaning är en möjlighet.','Jag hör dig.','Tufft — men du hanterar det.'],neut:['Bra att du reflekterar.','Intressant.','Okej, låt oss utforska det.','Jag lyssnar.']}
+    warm:{
+        pos:['Vad fint att höra!','Det låter riktigt bra!','Jag blir glad av det!','Härligt!','Vilken fin känsla.','Det värmer att höra.','Skönt att höra!','Så bra!','Åh, det gör mig glad.'],
+        neg:['Jag hör dig.','Tack för att du delar det med mig.','Det låter tungt.','Jag förstår att det är svårt.','Det är okej att känna så.','Tack för att du litar på mig med det.','Jag uppskattar din ärlighet.','Det låter verkligen jobbigt.'],
+        neut:['Jag förstår.','Tack för att du berättar.','Jag hör dig.','Jag lyssnar.','Berätta gärna mer.','Jag är här för dig.','Intressant, berätta mer.','Jag hänger med.']
+    },
+    direct:{
+        pos:['Bra.','Nice.','Starkt.','Det funkar.','Fint.','Låter bra.','Fett.'],
+        neg:['Okej, det suger.','Rak input.','Tough.','Jag hör dig.','Det låter skitjobbigt.','Tufft.'],
+        neut:['Okej.','Uppfattat.','Jag förstår.','Got it.','Jag hänger med.','Hm, okej.']
+    },
+    coach:{
+        pos:['Fantastiskt!','Starkt jobbat!','Exakt så bygger du framåt!','Bra momentum!','Du är på rätt spår!','Vilken positiv energi!','Det är en styrka!'],
+        neg:['Det tar mod att erkänna det.','Varje utmaning är en möjlighet.','Jag hör dig.','Tufft — men du hanterar det.','Att erkänna det är första steget.','Starka människor ber om hjälp.'],
+        neut:['Bra att du reflekterar.','Intressant.','Okej, låt oss utforska det.','Jag lyssnar.','Bra självinsikt.','Intressant perspektiv.']
+    }
 };
 
 // -- Follow-up questions per category (keyed to prevent repetition) --
@@ -573,12 +585,30 @@ const CLOSES={
 
 let convState={active:false,round:0,maxRounds:12,transcript:[],fullText:'',stream:null,recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),lastTopics:null,shortCount:0};
 
-// -- Build mirroring suffix from extracted topics --
+// -- Build natural topic reference based on category --
 function buildMirror(topics,sentiment){
-    if(!topics.found.length&&!topics.subjects.length)return'';
-    const kw=topics.found.length?topics.found[0].word:topics.subjects[0];
-    const adj=sentiment.score>=65?'positivt':sentiment.score<=40?'tufft':'';
-    return adj?` ${kw} låter ${adj}.`:` det du säger om ${kw}.`;
+    // Only reference recognized topic nouns — never random content words
+    if(!topics.found.length)return'';
+    const cat=topics.found[0].cat;
+
+    if(sentiment.score>=65){
+        const p={
+            jobb:['Det verkar gå bra på jobbet.','Kul att det fungerar på jobbet.','Skönt att jobbet rullar på.'],
+            relationer:['Fint att det fungerar bra mellan er.','Skönt att relationerna mår bra.','Det låter som en fin relation.'],
+            hälsa:['Bra att du tar hand om dig.','Skönt att du mår bra.','Fint att hälsan är bra.'],
+            fritid:['Härligt med tid för sådant man gillar.','Fint att du gör saker du tycker om.','Kul att du unnar dig det.']
+        };
+        return p[cat]?' '+pick(p[cat]):'';
+    }else if(sentiment.score<=40){
+        const p={
+            jobb:['Jobbet låter tufft just nu.','Det verkar vara jobbigt på jobbet.','Arbetslivet kan verkligen ta energi.'],
+            relationer:['Relationer kan vara så svåra ibland.','Det låter som en tuff situation mellan er.','Relationer kräver verkligen mycket av oss.'],
+            hälsa:['Hälsan påverkar verkligen allt annat.','Det låter som att kroppen och huvudet behöver extra omsorg.','Det är tufft när man inte mår bra fysiskt.'],
+            fritid:['Det verkar som att du behöver mer tid för dig själv.','Viktigt att ha tid för saker man tycker om.']
+        };
+        return p[cat]?' '+pick(p[cat]):'';
+    }
+    return'';
 }
 
 // -- Compose a contextual response --
@@ -586,10 +616,10 @@ function composeResponse(text,sentiment,topics){
     const d=ld(),pers=d.personality||'warm';
     const bucket=sentiment.score>=65?'pos':sentiment.score<=40?'neg':'neut';
 
-    // 1. Mirror phrase
+    // 1. Mirror phrase + optional natural topic reference
     let mirror=pick(MIRROR[pers][bucket]);
     const suffix=buildMirror(topics,sentiment);
-    if(suffix)mirror+=suffix.charAt(0)===' '?suffix:' '+suffix;
+    if(suffix)mirror+=suffix;
 
     // 2. Choose follow-up category
     const cat=topics.found.length?topics.found[0].cat:(sentiment.cats?.[0]||'allmänt');
@@ -600,10 +630,10 @@ function composeResponse(text,sentiment,topics){
     if(!available.length)available=FOLLOWUPS.allmänt.filter(q=>!convState.askedKeys.has(q.k));
     if(!available.length){convState.askedKeys.clear();available=pool;}
 
-    // 4. Pick question and fill {t} placeholder with topic word
+    // 4. Pick question — ONLY use recognized topic words for {t}, never random words
     const chosen=pick(available);
     convState.askedKeys.add(chosen.k);
-    const topicWord=topics.found.length?topics.found[0].word:(topics.subjects[0]||'det');
+    const topicWord=topics.found.length?topics.found[0].word:'det';
     const question=chosen.q.replace(/\{t\}/g,topicWord);
 
     return mirror+' '+question;
