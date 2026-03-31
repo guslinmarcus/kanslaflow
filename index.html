@@ -914,14 +914,21 @@ async function pullRemoteData(){
         const{data:prof}=await sb.from('profiles').select('*').eq('id',sbUser.id).single();
         if(prof){
             const d=ld();
-            d.userName=prof.user_name||d.userName;
-            d.aiName=prof.ai_name||d.aiName;
-            d.personality=prof.personality||d.personality;
+            // Only overwrite profile fields if remote is newer than local edits
+            const localUpdated=d.profileUpdatedAt?new Date(d.profileUpdatedAt):new Date(0);
+            const remoteUpdated=prof.updated_at?new Date(prof.updated_at):new Date(0);
+            if(remoteUpdated>=localUpdated){
+                d.userName=prof.user_name||d.userName;
+                d.aiName=prof.ai_name||d.aiName;
+                d.personality=prof.personality||d.personality;
+            }
             d.points=Math.max(d.points||0,prof.points||0);
             d.xp=Math.max(d.xp||0,prof.xp||0);
             d.streak=Math.max(d.streak||0,prof.streak||0);
-            d.selectedAvatar=prof.selected_avatar||d.selectedAvatar;
-            if(prof.kommun)d.kommun=prof.kommun;
+            if(remoteUpdated>=localUpdated){
+                d.selectedAvatar=prof.selected_avatar||d.selectedAvatar;
+                if(prof.kommun)d.kommun=prof.kommun;
+            }
             // Merge unlocked avatars
             const merged=new Set([...(d.unlockedAvatars||[]),...(prof.unlocked_avatars||[])]);
             d.unlockedAvatars=[...merged];
@@ -2379,7 +2386,8 @@ function saveProfile(){
         const cd=getFullChildData(fp.storageKey);
         if(cd){cd.kommun=d.kommun;if(sok)localStorage.setItem(fp.storageKey,JSON.stringify(cd))}
     });
-    sv(d);syncProfile(d);toast('Sparat!');renderHome();
+    d.profileUpdatedAt=new Date().toISOString();
+    sv(d);syncProfile(d);flushPendingChanges();toast('Sparat!');renderHome();
 }
 
 function exportData(){
