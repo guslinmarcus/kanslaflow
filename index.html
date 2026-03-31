@@ -4188,13 +4188,26 @@ function exitDemo(){
 async function tryRestoreFromRemote(){
     // Check if user has existing data in Supabase before showing onboarding
     try{
-        const{data:prof}=await sb.from('profiles').select('user_name,kommun').eq('id',sbUser.id).single();
-        if(prof&&prof.user_name){
+        const{data:prof}=await sb.from('profiles').select('user_name,kommun,streak,points').eq('id',sbUser.id).single();
+        const hasProfile=prof&&(prof.user_name||prof.streak>0||prof.points>0);
+
+        // Also check if user has places or family membership
+        let hasPlaces=false,hasFam=false;
+        if(!hasProfile){
+            const{data:places}=await sb.from('places').select('id').eq('user_id',sbUser.id).limit(1);
+            hasPlaces=places&&places.length>0;
+        }
+        if(!hasProfile&&!hasPlaces){
+            const{data:mem}=await sb.from('family_members').select('family_id').eq('user_id',sbUser.id).limit(1);
+            hasFam=mem&&mem.length>0;
+        }
+
+        if(hasProfile||hasPlaces||hasFam){
             // User has remote data — pull it and show app
             const d=ld();
             d.firstVisit=false;
-            d.userName=prof.user_name;
-            d.kommun=prof.kommun||'';
+            d.userName=prof?.user_name||'';
+            d.kommun=prof?.kommun||'';
             d.role='parent';
             sv(d);
             await pullRemoteData();
@@ -4204,7 +4217,7 @@ async function tryRestoreFromRemote(){
             processJoinCode();
             return;
         }
-    }catch(e){}
+    }catch(e){console.log('tryRestoreFromRemote error:',e)}
     // No remote data — show onboarding for new user
     document.getElementById('ob').classList.remove('h');
     obNext(1);
