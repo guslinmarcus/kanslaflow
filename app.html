@@ -367,6 +367,16 @@
         .toast.show{transform:translateX(-50%) translateY(0)}
         .toast.show{opacity:1}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--pd);border-radius:3px}
+        /* Offline banner */
+        .offline-bar{position:fixed;top:0;left:0;right:0;padding:6px 0;background:var(--bad);color:#fff;text-align:center;font-size:.72rem;font-weight:600;z-index:200;transform:translateY(-100%);transition:transform .3s}
+        .offline-bar.show{transform:translateY(0)}
+        /* PWA install banner */
+        .install-banner{position:fixed;bottom:70px;left:12px;right:12px;padding:14px 16px;background:var(--c2);border:1px solid rgba(108,92,231,.2);border-radius:var(--r);display:flex;align-items:center;gap:12px;z-index:140;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:slideUp .3s ease}
+        .install-banner .ib-text{flex:1;font-size:.78rem;color:var(--t2)}
+        .install-banner .ib-text strong{color:var(--t)}
+        .install-banner .ib-btn{padding:8px 16px;border-radius:var(--rs);background:var(--p);color:#fff;border:none;font-size:.76rem;font-weight:600;cursor:pointer;white-space:nowrap}
+        .install-banner .ib-close{background:none;border:none;color:var(--t2);font-size:1.1rem;cursor:pointer;padding:4px}
+        @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 
         /* ADD-PLACE MODAL */
         .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:250;display:none;align-items:center;justify-content:center;padding:24px}
@@ -821,6 +831,13 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="offline-bar" id="offline-bar">Ingen internetanslutning — dina check-ins sparas lokalt</div>
+<div class="install-banner" id="install-banner" style="display:none">
+    <div style="font-size:1.4rem">📲</div>
+    <div class="ib-text"><strong>Lägg till Moodly</strong> på hemskärmen för snabbare åtkomst</div>
+    <button class="ib-btn" id="install-btn">Installera</button>
+    <button class="ib-close" id="install-close">&times;</button>
+</div>
 
 <script>
 // ===================================================================
@@ -1392,7 +1409,7 @@ function checkInPlace(placeId,score){
         // Clear tags if score range changed
         const oldR=oldScore<=2?0:oldScore>=4?2:1;
         const newR=score<=2?0:score>=4?2:1;
-        if(oldR!==newR){d.placeCheckins[idx].tags=[]}
+        if(oldR!==newR&&d.placeCheckins[idx].tags&&d.placeCheckins[idx].tags.length){d.placeCheckins[idx].tags=[];toast('Nya tagg-alternativ tillgängliga')}
     }else{
         d.placeCheckins.push({ts:new Date().toISOString(),placeId,score,comment,tags:[]});
         d.xp=(d.xp||0)+5;
@@ -1760,6 +1777,7 @@ function renderParentView(){
     if(d.familyProfiles&&d.familyProfiles.length){
         d.familyProfiles.forEach(fp=>{
             const cd=getFullChildData(fp.storageKey);
+            if(!cd)return;
             const lines=generateSmartSummary(cd,fp.name);
             if(lines.length){
                 smartHtml+=`<div class="smart-summary"><div class="ss-title">💡 Insikter</div>${lines.map(l=>`<div class="ss-line ${l.cls}">${l.text}</div>`).join('')}</div>`;
@@ -2419,9 +2437,9 @@ function obNext(step){
         renderOb4();
     }
     if(step===5){
-        const names=obChildren.map(c=>c.name).join(' och ');
-        const tp=obChildren.reduce((s,c)=>s+c.places.length,0);
-        document.getElementById('ob5-summary').textContent=names+' kan börja checka in på '+tp+' platser. Du ser allt i din dashboard.';
+        const parts=obChildren.map(c=>c.name+' ('+c.places.length+' platser)');
+        const names=parts.length>1?parts.slice(0,-1).join(', ')+' och '+parts[parts.length-1]:parts[0];
+        document.getElementById('ob5-summary').textContent=names+' kan börja checka in. Du ser allt i din dashboard.';
     }
 }
 
@@ -2707,6 +2725,7 @@ function addChild(){
 
 function removeChild(idx){
     const d=ld();if(!d.familyProfiles[idx])return;
+    if(d.familyProfiles.length<=1){toast('Du måste ha minst ett barn');return}
     if(sok)localStorage.removeItem(d.familyProfiles[idx].storageKey);
     d.familyProfiles.splice(idx,1);sv(d);
 }
@@ -4102,12 +4121,36 @@ async function shareChildInvite(){
 // Register service worker
 if('serviceWorker' in navigator){
     navigator.serviceWorker.register('sw.js').then(reg=>{
-        // If notifications are enabled, schedule reminder
         if(localStorage.getItem('moodly_notif')==='on'&&reg.active){
             reg.active.postMessage({type:'SCHEDULE_REMINDER',hour:17,minute:0});
         }
     }).catch(()=>{});
 }
+
+// Offline indicator
+const offlineBar=document.getElementById('offline-bar');
+function updateOnlineStatus(){offlineBar.classList.toggle('show',!navigator.onLine)}
+window.addEventListener('online',updateOnlineStatus);
+window.addEventListener('offline',updateOnlineStatus);
+updateOnlineStatus();
+
+// PWA install prompt
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();deferredInstallPrompt=e;
+    // Don't show if already dismissed or in standalone mode
+    if(localStorage.getItem('moodly_install_dismissed')||window.matchMedia('(display-mode:standalone)').matches)return;
+    setTimeout(()=>{document.getElementById('install-banner').style.display=''},3000);
+});
+document.getElementById('install-btn')?.addEventListener('click',()=>{
+    if(!deferredInstallPrompt)return;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(()=>{deferredInstallPrompt=null;document.getElementById('install-banner').style.display='none'});
+});
+document.getElementById('install-close')?.addEventListener('click',()=>{
+    document.getElementById('install-banner').style.display='none';
+    localStorage.setItem('moodly_install_dismissed','1');
+});
 
 // ===== SENTIMENT (for chat) =====
 const EMO={glad:{w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','awesome','nice','stark','kraftfull','lättad','superbra','jättebra','perfekt','duktig','grym','levande','taggad','peppad','inspirerad','fokuserad'],v:.85},lugn:{w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok','chill','tillfreds'],v:.65},ledsen:{w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt','deppig','trist','knäckt','trasig','värdelös'],v:.25},stressad:{w:['stressad','pressad','överväldigad','kaos','panik','deadline','hinner inte','sliten','utbränd','utmattad','nervös','hektisk','jäktad','överbelastad'],v:.3},orolig:{w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','grubblar','bekymrad'],v:.28},arg:{w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd','lack'],v:.2},trott:{w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg','slutkörd'],v:.35}};

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'moodly-v10';
+const CACHE_NAME = 'moodly-v11';
 const ASSETS = [
   './app.html',
   './manifest.json'
