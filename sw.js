@@ -1,6 +1,6 @@
-const CACHE_NAME = 'moodly-v7';
+const CACHE_NAME = 'moodly-v8';
 const ASSETS = [
-  './index.html',
+  './app.html',
   './manifest.json'
 ];
 
@@ -49,7 +49,7 @@ self.addEventListener('push', e => {
     badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧒</text></svg>',
     tag: 'moodly-reminder',
     renotify: true,
-    data: { url: './index.html' }
+    data: { url: './app.html' }
   };
   e.waitUntil(self.registration.showNotification(title, options));
 });
@@ -57,11 +57,11 @@ self.addEventListener('push', e => {
 // Notification click — open app
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  const url = new URL('./index.html', self.location.origin).href;
+  const url = new URL('./app.html', self.location.origin).href;
   e.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then(clients => {
-        const existing = clients.find(c => new URL(c.url).pathname.endsWith('index.html'));
+        const existing = clients.find(c => new URL(c.url).pathname.endsWith('app.html'));
         if (existing) return existing.focus();
         return self.clients.openWindow(url);
       })
@@ -96,7 +96,7 @@ function scheduleParentSummary() {
           icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📊</text></svg>',
           tag: 'moodly-parent-summary',
           renotify: true,
-          data: { url: './index.html' }
+          data: { url: './app.html' }
         });
         parentSummary = null; // Only show once per day
       }
@@ -116,7 +116,7 @@ function scheduleCheck(hour, minute) {
           body: 'Dags att checka in! Hur var dagen? 📊',
           tag: 'moodly-daily',
           renotify: false,
-          data: { url: './index.html' }
+          data: { url: './app.html' }
         });
       }
     }

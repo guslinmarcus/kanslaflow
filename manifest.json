@@ -2,7 +2,7 @@
   "name": "Moodly",
   "short_name": "Moodly",
   "description": "Förstå hur ditt barn mår — i skolan, på idrotten och hemma",
-  "start_url": "./index.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0F0E17",
