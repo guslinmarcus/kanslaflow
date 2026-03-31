@@ -2739,8 +2739,7 @@ function getChildDetailedData(storageKey){
 async function shareInvite(){
     const d=ld();
     const url=window.location.origin+window.location.pathname.replace(/index\.html$/,'');
-    const kommun=d.kommun?` Vi bygger en bild av hur barnen mår i ${d.kommun} — ju fler familjer, desto bättre insikter.`:'';
-    const msg=`Jag använder Moodly för att följa hur mitt barn mår i skolan, på idrotten och hemma.${kommun} Prova du också — det är gratis!`;
+    const msg=`Jag använder Moodly för att följa hur mitt barn mår i skolan, på idrotten och hemma. Ju fler familjer som är med, desto bättre insikter. Prova du också — det är gratis!`;
     if(navigator.share){
         navigator.share({title:'Prova Moodly',text:msg,url}).catch(()=>{});
     }else{
