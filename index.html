@@ -576,6 +576,7 @@
         <input type="text" id="user-kommun-input" list="kommun-list" placeholder="Hemkommun (t.ex. Täby, Göteborg)" maxlength="50" autocomplete="off">
         <div id="ob-kommun-hint" style="font-size:.7rem;color:var(--t2);margin-top:-10px;margin-bottom:16px">Välj kommun för att jämföra välmående med andra familjer i ditt område</div>
         <button class="btn bp" onclick="obValidateAndNext(3)">Nästa</button>
+        <button class="btn" onclick="obNext(1)" style="background:none;color:var(--t2);font-size:.78rem;margin-top:6px">Tillbaka</button>
     </div>
 
     <div class="ob-step" id="ob3">
@@ -586,11 +587,12 @@
         <div style="width:100%;max-width:320px;margin-bottom:8px">
             <input type="text" id="ob-child-name" placeholder="Barnets namn" maxlength="30" style="width:100%;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:.95rem;text-align:center;outline:none;margin-bottom:8px">
             <select id="ob-child-age" style="width:100%;padding:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:.88rem;outline:none;margin-bottom:10px;text-align:center">
-                <option value="6-9">6–9 år</option><option value="10-13">10–13 år</option><option value="14-17">14–17 år</option>
+                <option value="" disabled selected>Välj åldersgrupp</option><option value="6-9">6–9 år</option><option value="10-13">10–13 år</option><option value="14-17">14–17 år</option>
             </select>
             <button class="btn ba" onclick="obAddChild()" style="width:100%">+ Lägg till barn</button>
         </div>
         <button class="btn bp" onclick="obNext(4)" id="ob3-next" disabled style="max-width:280px;margin-top:12px">Nästa</button>
+        <button class="btn" onclick="obNext(2)" style="background:none;color:var(--t2);font-size:.78rem;margin-top:6px">Tillbaka</button>
     </div>
 
     <div class="ob-step" id="ob4">
@@ -600,9 +602,9 @@
         <div id="ob4-child-tabs" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;justify-content:center"></div>
         <div id="ob4-places-list" style="width:100%;margin-bottom:12px"></div>
         <div class="quick-places" id="ob-quick-places">
-            <div class="quick-place" onclick="obQuickAddPlace('school','Skola')"><div class="qp-icon">🏫</div><div class="qp-label">Skola</div></div>
-            <div class="quick-place" onclick="obQuickAddPlace('sport','Idrott')"><div class="qp-icon">⚽</div><div class="qp-label">Idrott</div></div>
-            <div class="quick-place" onclick="obQuickAddPlace('home','Hem')"><div class="qp-icon">🏠</div><div class="qp-label">Hem</div></div>
+            <div class="quick-place" data-type="school" onclick="obQuickAddPlace('school','Skola')"><div class="qp-icon">🏫</div><div class="qp-label">Skola</div></div>
+            <div class="quick-place" data-type="sport" onclick="obQuickAddPlace('sport','Idrott')"><div class="qp-icon">⚽</div><div class="qp-label">Idrott</div></div>
+            <div class="quick-place" data-type="home" onclick="obQuickAddPlace('home','Hem')"><div class="qp-icon">🏠</div><div class="qp-label">Hem</div></div>
         </div>
         <div class="adv-toggle" id="ob-adv-toggle" onclick="document.getElementById('ob-adv-section').classList.toggle('open');this.textContent=this.textContent.includes('Sök')?'Dölj sökning':'Sök specifik plats'">Sök specifik plats</div>
         <div class="adv-section" id="ob-adv-section">
@@ -616,6 +618,7 @@
         </div>
         <button class="btn bp" onclick="obNextChild()" id="ob4-next" style="margin-top:8px">Nästa barn</button>
         <div id="ob4-skip" style="margin-top:6px"></div>
+        <button class="btn" onclick="obNext(3)" style="background:none;color:var(--t2);font-size:.78rem;margin-top:4px">Tillbaka</button>
     </div>
 
     <div class="ob-step" id="ob5">
@@ -2226,9 +2229,10 @@ function saveNewPlace(){
 }
 
 function quickAddPlaceFromModal(type,defaultName){
-    const name=prompt('Namn på platsen:',defaultName);
-    if(!name)return;
-    addPlace(name.trim(),type,null);
+    const d=ld();
+    const count=(d.places||[]).filter(p=>p.type===type).length;
+    const name=count?defaultName+' '+(count+1):defaultName;
+    addPlace(name,type,null);
     closeModal();
     renderHome();
     toast(PT[type]?.icon+' '+name+' tillagd!');
@@ -2239,6 +2243,8 @@ let obChildren=[];
 let obActiveChild=0;
 
 function obValidateAndNext(step){
+    const nameInput=document.getElementById('user-name-input');
+    if(!nameInput||!nameInput.value.trim()){toast('Ange ditt namn');if(nameInput)nameInput.focus();return}
     const kommunInput=document.getElementById('user-kommun-input');
     const hint=document.getElementById('ob-kommun-hint');
     const val=kommunInput?kommunInput.value.trim():'';
@@ -2288,6 +2294,7 @@ function obAddChild(){
     const name=nameEl.value.trim();
     if(!name){toast('Ange barnets namn');return}
     const ageGroup=document.getElementById('ob-child-age').value;
+    if(!ageGroup){toast('Välj åldersgrupp');return}
     obChildren.push({name,ageGroup,places:[]});
     nameEl.value='';
     renderObChildren();
@@ -2331,8 +2338,8 @@ function switchObChild(i){
 
 function obQuickAddPlace(type,defaultName){
     const child=obChildren[obActiveChild];if(!child)return;
-    const name=prompt('Namn på platsen:',defaultName);
-    if(!name)return;
+    const count=child.places.filter(p=>p.type===type).length;
+    const name=count?defaultName+' '+(count+1):defaultName;
     child.places.push({name,type,osmId:'',address:'',lat:null,lng:null});
     renderOb4Places();renderOb4();updateQuickPlaceButtons();
     toast(PT[type]?.icon+' '+name+' tillagd!');
@@ -2341,13 +2348,15 @@ function obQuickAddPlace(type,defaultName){
 function updateQuickPlaceButtons(){
     const child=obChildren[obActiveChild];if(!child)return;
     document.querySelectorAll('#ob-quick-places .quick-place').forEach(el=>{
-        const type=el.onclick?.toString().match(/'(\w+)'/)?.[1];
-        if(type&&child.places.some(p=>p.type===type)){
+        const type=el.getAttribute('data-type')||el.onclick?.toString().match(/'(\w+)'/)?.[1];
+        const count=type?child.places.filter(p=>p.type===type).length:0;
+        const label=el.querySelector('.qp-label');
+        if(count>0){
             el.classList.add('added');
-            el.querySelector('.qp-label').textContent='Tillagd';
-        }else if(type){
+            label.textContent=(PT[type]?.label||type)+' ('+count+')';
+        }else{
             el.classList.remove('added');
-            el.querySelector('.qp-label').textContent=PT[type]?.label||type;
+            label.textContent=PT[type]?.label||type;
         }
     });
 }
@@ -2553,11 +2562,11 @@ function removeChild(idx){
 }
 
 function addPlaceToChild(storageKey,type,defaultName){
-    const name=prompt('Platsnamn:',defaultName);
-    if(!name)return;
     const cd=getFullChildData(storageKey);
     if(!cd)return;
-    const place={id:'p_'+Date.now(),name:name.trim(),type,osmId:'',address:'',lat:null,lng:null};
+    const count=(cd.places||[]).filter(p=>p.type===type).length;
+    const name=count?defaultName+' '+(count+1):defaultName;
+    const place={id:'p_'+Date.now(),name,type,osmId:'',address:'',lat:null,lng:null};
     cd.places.push(place);
     if(sok)localStorage.setItem(storageKey,JSON.stringify(cd));
     toast(name+' tillagd!');
@@ -3822,6 +3831,11 @@ function initApp(){
         // Child joining via invite link — show child onboarding
         startChildOnboarding();
         processJoinCode();
+    }else if(sbUser){
+        // Authenticated but not onboarded — go straight to onboarding
+        document.getElementById('auth-screen').style.display='none';
+        document.getElementById('ob').classList.remove('h');
+        obNext(1);
     }else{
         // New user — show demo dashboard
         document.getElementById('auth-screen').style.display='none';
