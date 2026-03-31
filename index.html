@@ -941,6 +941,8 @@ async function migrateLocalToRemote(){
 
 async function pullRemoteData(){
     if(!sb||!sbUser||!navigator.onLine)return;
+    // Only pull to parent profile — don't overwrite child profiles
+    if(APK!==PARENT_KEY)return;
     try{
         // Pull profile
         const{data:prof}=await sb.from('profiles').select('*').eq('id',sbUser.id).single();
@@ -1036,6 +1038,8 @@ function syncPlace(place){
 // Sync profile to Supabase
 function syncProfile(d){
     if(!sbUser)return;
+    // Only sync parent profile — never overwrite with child data
+    if(APK!==PARENT_KEY)return;
     enqueue('profiles','upsert',{
         id:sbUser.id,user_name:d.userName||'',ai_name:d.aiName||'Luna',
         personality:d.personality||'warm',xp:d.xp||0,points:d.points||0,
