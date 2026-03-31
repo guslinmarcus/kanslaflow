@@ -1126,23 +1126,47 @@ async function pullRemoteData(){
             });
         }
 
-        // Pull checkins (last 90 days)
+        // Pull checkins (last 90 days) — distribute to correct child profiles
         const since=new Date(Date.now()-90*864e5).toISOString().slice(0,10);
         const{data:remoteCheckins}=await sb.from('place_checkins').select('*').eq('user_id',sbUser.id).gte('checked_at',since);
         if(remoteCheckins){
+            // Build place→storageKey map so we know which child owns each place
             const d=ld();
+            const placeOwner={};
+            d.places.forEach(p=>{placeOwner[p.id]=PARENT_KEY});
+            (d.familyProfiles||[]).forEach(fp=>{
+                const cd=getFullChildData(fp.storageKey);
+                if(cd&&cd.places)cd.places.forEach(p=>{placeOwner[p.id]=fp.storageKey});
+            });
+            // Group checkins by owner
+            const byOwner={};
             remoteCheckins.forEach(rc=>{
-                const existing=d.placeCheckins.findIndex(c=>c.placeId===rc.place_id&&new Date(c.ts).toDateString()===new Date(rc.ts).toDateString());
-                if(existing>=0){
-                    // Remote wins if newer
-                    if(new Date(rc.ts)>new Date(d.placeCheckins[existing].ts)){
-                        d.placeCheckins[existing]={ts:rc.ts,placeId:rc.place_id,score:rc.score,comment:rc.comment||''};
+                const owner=placeOwner[rc.place_id]||PARENT_KEY;
+                if(!byOwner[owner])byOwner[owner]=[];
+                byOwner[owner].push(rc);
+            });
+            // Merge into each profile
+            Object.entries(byOwner).forEach(([key,checkins])=>{
+                const pd=key===PARENT_KEY?ld():getFullChildData(key);
+                if(!pd)return;
+                if(!pd.placeCheckins)pd.placeCheckins=[];
+                let changed=false;
+                checkins.forEach(rc=>{
+                    const existing=pd.placeCheckins.findIndex(c=>c.placeId===rc.place_id&&new Date(c.ts).toDateString()===new Date(rc.ts).toDateString());
+                    const entry={ts:rc.ts,placeId:rc.place_id,score:rc.score,comment:rc.comment||'',tags:rc.tags||[]};
+                    if(existing>=0){
+                        if(new Date(rc.ts)>new Date(pd.placeCheckins[existing].ts)){
+                            pd.placeCheckins[existing]=entry;changed=true;
+                        }
+                    }else{
+                        pd.placeCheckins.push(entry);changed=true;
                     }
-                }else{
-                    d.placeCheckins.push({ts:rc.ts,placeId:rc.place_id,score:rc.score,comment:rc.comment||''});
+                });
+                if(changed){
+                    if(key===PARENT_KEY)sv(pd);
+                    else if(sok)localStorage.setItem(key,JSON.stringify(pd));
                 }
             });
-            sv(d);
         }
 
         // Pull family membership
@@ -2425,7 +2449,7 @@ function obAddChild(){
     toast(name+' tillagd!');
 }
 
-function obRemoveChild(i){obChildren.splice(i,1);renderObChildren()}
+function obRemoveChild(i){if(obChildren.length<=1){toast('Du måste ha minst ett barn');return}obChildren.splice(i,1);if(obActiveChild>=obChildren.length)obActiveChild=obChildren.length-1;renderObChildren()}
 
 function renderOb4(){
     const child=obChildren[obActiveChild];if(!child)return;
