@@ -4185,6 +4185,31 @@ function exitDemo(){
     document.getElementById('ob').classList.remove('h');
 }
 
+async function tryRestoreFromRemote(){
+    // Check if user has existing data in Supabase before showing onboarding
+    try{
+        const{data:prof}=await sb.from('profiles').select('user_name,kommun').eq('id',sbUser.id).single();
+        if(prof&&prof.user_name){
+            // User has remote data — pull it and show app
+            const d=ld();
+            d.firstVisit=false;
+            d.userName=prof.user_name;
+            d.kommun=prof.kommun||'';
+            d.role='parent';
+            sv(d);
+            await pullRemoteData();
+            document.getElementById('ob').classList.add('h');
+            document.getElementById('app').style.display='';
+            renderHome();
+            processJoinCode();
+            return;
+        }
+    }catch(e){}
+    // No remote data — show onboarding for new user
+    document.getElementById('ob').classList.remove('h');
+    obNext(1);
+}
+
 function initApp(){
     buildKommunDatalist();
     const d0=ld();
@@ -4210,10 +4235,10 @@ function initApp(){
         startChildOnboarding();
         processJoinCode();
     }else if(sbUser){
-        // Authenticated but not onboarded — go straight to onboarding
+        // Authenticated but local data is empty — try pulling remote data first
         document.getElementById('auth-screen').style.display='none';
-        document.getElementById('ob').classList.remove('h');
-        obNext(1);
+        tryRestoreFromRemote();
+        return;
     }else{
         // New user — show demo dashboard
         document.getElementById('auth-screen').style.display='none';
