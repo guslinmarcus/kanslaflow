@@ -382,6 +382,35 @@
         .fam-tag.pos{background:rgba(0,184,148,.12);color:#00b894}
         .fam-tag.neg{background:rgba(225,112,85,.12);color:#e17055}
         .fam-tag.neu{background:rgba(255,255,255,.06);color:var(--t2)}
+
+        /* Demo banner */
+        .demo-banner{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,var(--p),var(--pd));padding:14px 16px;text-align:center;border-radius:0 0 16px 16px;margin:-16px -16px 16px}
+        .demo-banner .db-title{font-size:.88rem;font-weight:700;margin-bottom:8px}
+        .demo-banner .db-sub{font-size:.72rem;color:rgba(255,255,255,.7);margin-bottom:10px}
+        .demo-banner .db-btns{display:flex;gap:8px;justify-content:center}
+        .demo-banner .db-btn{padding:8px 18px;border-radius:20px;font-size:.78rem;font-weight:700;border:none;cursor:pointer}
+        .demo-banner .db-btn.primary{background:#fff;color:var(--pd)}
+        .demo-banner .db-btn.secondary{background:rgba(255,255,255,.15);color:#fff}
+
+        /* Quick place buttons */
+        .quick-places{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:center}
+        .quick-place{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 16px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:var(--r);cursor:pointer;transition:all .15s;min-width:90px}
+        .quick-place:active{transform:scale(.95)}
+        .quick-place.added{border-color:var(--ok);background:rgba(0,184,148,.1);pointer-events:none}
+        .quick-place .qp-icon{font-size:1.6rem}
+        .quick-place .qp-label{font-size:.72rem;font-weight:600;color:var(--t2)}
+        .quick-place.added .qp-label{color:var(--ok)}
+        .adv-toggle{font-size:.72rem;color:var(--t2);cursor:pointer;text-align:center;padding:8px;text-decoration:underline}
+        .adv-section{max-height:0;overflow:hidden;transition:max-height .3s ease}
+        .adv-section.open{max-height:400px}
+
+        /* Smart summary */
+        .smart-summary{background:linear-gradient(135deg,rgba(108,92,231,.08),rgba(0,206,201,.06));border:1px solid rgba(108,92,231,.15);border-radius:var(--r);padding:14px;margin-bottom:12px}
+        .smart-summary .ss-line{font-size:.82rem;line-height:1.5;margin-bottom:4px}
+        .smart-summary .ss-line:last-child{margin-bottom:0}
+        .smart-summary .ss-warn{color:var(--bad)}
+        .smart-summary .ss-good{color:var(--ok)}
+        .smart-summary .ss-info{color:var(--t2)}
     </style>
 </head>
 <body>
@@ -445,13 +474,22 @@
 <div class="modal" id="add-place-modal">
     <div class="modal-box">
         <h2>Lägg till plats</h2>
-        <div class="ac-wrap">
-            <input type="text" id="new-place-name" placeholder="Sök plats (t.ex. Ytterbyskolan)" maxlength="80" autocomplete="off">
-            <div class="ac-dropdown" id="ac-drop-modal"></div>
+        <div class="quick-places" id="modal-quick-places">
+            <div class="quick-place" onclick="quickAddPlaceFromModal('school','Skola')"><div class="qp-icon">🏫</div><div class="qp-label">Skola</div></div>
+            <div class="quick-place" onclick="quickAddPlaceFromModal('sport','Idrott')"><div class="qp-icon">⚽</div><div class="qp-label">Idrott</div></div>
+            <div class="quick-place" onclick="quickAddPlaceFromModal('home','Hem')"><div class="qp-icon">🏠</div><div class="qp-label">Hem</div></div>
+            <div class="quick-place" onclick="quickAddPlaceFromModal('hobby','Hobby')"><div class="qp-icon">🎨</div><div class="qp-label">Hobby</div></div>
         </div>
-        <div id="new-place-addr" class="place-address" style="margin-bottom:8px"></div>
-        <div class="pt-grid" id="new-place-types"></div>
-        <button class="btn ba" onclick="saveNewPlace()">Lägg till</button>
+        <div class="adv-toggle" onclick="document.getElementById('modal-adv-section').classList.toggle('open');this.textContent=this.textContent.includes('Sök')?'Dölj sökning':'Sök specifik plats'">Sök specifik plats</div>
+        <div class="adv-section" id="modal-adv-section">
+            <div class="ac-wrap">
+                <input type="text" id="new-place-name" placeholder="Sök plats (t.ex. Ytterbyskolan)" maxlength="80" autocomplete="off">
+                <div class="ac-dropdown" id="ac-drop-modal"></div>
+            </div>
+            <div id="new-place-addr" class="place-address" style="margin-bottom:8px"></div>
+            <div class="pt-grid" id="new-place-types"></div>
+            <button class="btn ba" onclick="saveNewPlace()">Lägg till</button>
+        </div>
         <button class="btn bs" onclick="closeModal()" style="margin-top:8px">Avbryt</button>
     </div>
 </div>
@@ -460,12 +498,13 @@
 <div class="ob" id="ob">
     <div class="ob-step on" id="ob1">
         <div style="font-size:3.2rem;margin-bottom:14px">🧒</div>
-        <h1>Moodly</h1>
-        <p>Förstå hur ditt barn mår — i skolan, på idrotten och hemma. Se mönster och fånga signaler tidigt.</p>
+        <h1>Välkommen till Moodly</h1>
+        <p>Följ hur ditt barn mår — i skolan, på idrotten och hemma.</p>
+        <p style="font-size:.78rem;color:var(--pl);margin:8px 0 16px;font-weight:600">Du skapar kontot. Dina barn checkar sedan in sitt mående dagligen.</p>
         <div style="text-align:left;max-width:280px;margin-bottom:24px">
-            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📊</span> Barnet checkar in sitt mående dagligen</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📈</span> Du ser trender och mönster per plats</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔔</span> Varningar om ditt barn mår dåligt</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>😊</span> Barnet trycker en emoji per plats — tar 30 sek</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📈</span> Du ser trender och mönster i din dashboard</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔔</span> Varningar om mående sjunker</div>
             <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔒</span> Privat — du ser trender, aldrig samtal</div>
         </div>
         <button class="btn bp" onclick="obNext(2)" style="max-width:280px">Kom igång</button>
@@ -499,17 +538,25 @@
     <div class="ob-step" id="ob4">
         <div style="font-size:2.5rem;margin-bottom:10px">📍</div>
         <h1 id="ob4-title">Platser</h1>
-        <p id="ob4-desc">Lägg till platser för ditt barn.</p>
+        <p id="ob4-desc">Vilka platser ska ditt barn checka in på?</p>
         <div id="ob4-child-tabs" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;justify-content:center"></div>
         <div id="ob4-places-list" style="width:100%;margin-bottom:12px"></div>
-        <div class="ac-wrap" style="width:100%">
-            <input type="text" id="ob-place-name" placeholder="Sök plats (t.ex. Ytterbyskolan)" maxlength="80" autocomplete="off" style="width:100%;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:1.1rem;text-align:center;outline:none">
-            <div class="ac-dropdown" id="ac-drop-ob"></div>
+        <div class="quick-places" id="ob-quick-places">
+            <div class="quick-place" onclick="obQuickAddPlace('school','Skola')"><div class="qp-icon">🏫</div><div class="qp-label">Skola</div></div>
+            <div class="quick-place" onclick="obQuickAddPlace('sport','Idrott')"><div class="qp-icon">⚽</div><div class="qp-label">Idrott</div></div>
+            <div class="quick-place" onclick="obQuickAddPlace('home','Hem')"><div class="qp-icon">🏠</div><div class="qp-label">Hem</div></div>
         </div>
-        <div id="ob-place-addr" class="place-address" style="margin-bottom:8px;text-align:center"></div>
-        <div class="pt-grid" id="ob-place-types" style="margin-bottom:12px"></div>
-        <button class="btn ba" onclick="obAddPlace()" style="margin-bottom:12px">+ Lägg till plats</button>
-        <button class="btn bp" onclick="obNextChild()" id="ob4-next">Nästa barn</button>
+        <div class="adv-toggle" id="ob-adv-toggle" onclick="document.getElementById('ob-adv-section').classList.toggle('open');this.textContent=this.textContent.includes('Sök')?'Dölj sökning':'Sök specifik plats'">Sök specifik plats</div>
+        <div class="adv-section" id="ob-adv-section">
+            <div class="ac-wrap" style="width:100%">
+                <input type="text" id="ob-place-name" placeholder="Sök plats (t.ex. Ytterbyskolan)" maxlength="80" autocomplete="off" style="width:100%;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:1.1rem;text-align:center;outline:none">
+                <div class="ac-dropdown" id="ac-drop-ob"></div>
+            </div>
+            <div id="ob-place-addr" class="place-address" style="margin-bottom:8px;text-align:center"></div>
+            <div class="pt-grid" id="ob-place-types" style="margin-bottom:12px"></div>
+            <button class="btn ba" onclick="obAddPlace()" style="margin-bottom:12px">+ Lägg till plats</button>
+        </div>
+        <button class="btn bp" onclick="obNextChild()" id="ob4-next" style="margin-top:8px">Nästa barn</button>
         <div id="ob4-skip" style="margin-top:6px"></div>
     </div>
 
@@ -1408,6 +1455,10 @@ function renderHome(){
     }
 
     let html='';
+    if(isChild){
+        html+=`<div class="ct" style="font-size:.95rem;margin:8px 0 4px">📍 Dina platser</div>`;
+        if(checkedCount===0)html+=`<div style="font-size:.78rem;color:var(--t2);text-align:center;margin-bottom:8px">Tryck en emoji för varje plats — det tar 30 sekunder! 😊</div>`;
+    }
     d.places.forEach(place=>{
         const pt=PT[place.type]||PT.other;
         const todayCheck=todayChecks.find(c=>c.placeId===place.id);
@@ -1462,7 +1513,7 @@ function renderParentView(){
     const hr=new Date().getHours();
     const greet=hr<10?'God morgon':hr<17?'Hej':hr<21?'God kväll':'God natt';
     document.getElementById('home-greeting').innerHTML=`${greet}, ${d.userName||'du'}!`;
-    document.getElementById('home-sub').textContent='Så mår dina barn idag';
+    document.getElementById('home-sub').textContent='Din förälder-dashboard';
     document.querySelector('.streak-row').style.display='none';
 
     const summaryEl=document.getElementById('home-summary');
@@ -1471,6 +1522,19 @@ function renderParentView(){
     const benchEl=document.getElementById('home-benchmarks');
     const alertsEl=document.getElementById('home-alerts');
     summaryEl.innerHTML='';
+
+    // Smart summaries
+    let smartHtml='';
+    if(d.familyProfiles&&d.familyProfiles.length){
+        d.familyProfiles.forEach(fp=>{
+            const cd=getFullChildData(fp.storageKey);
+            const lines=generateSmartSummary(cd,fp.name);
+            if(lines.length){
+                smartHtml+=`<div class="smart-summary">${lines.map(l=>`<div class="ss-line ${l.cls}">${l.text}</div>`).join('')}</div>`;
+            }
+        });
+    }
+    if(smartHtml)summaryEl.innerHTML=smartHtml;
 
     if(!d.familyProfiles||!d.familyProfiles.length){
         placesEl.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--t2)">
@@ -1516,16 +1580,25 @@ function renderParentView(){
             </div>`;
 
         if(cd&&cd.places&&cd.places.length){
+            if(checkedCount===0)html+=`<div style="font-size:.78rem;color:var(--t2);padding:6px 0;text-align:center">💡 Ge din telefon till ${fp.name} och låt hen trycka på en emoji för varje plats</div>`;
             cd.places.forEach(p=>{
                 const pt=PT[p.type]||PT.other;
                 const tc=todayChecks.find(c=>c.placeId===p.id);
                 const score=tc?tc.score:null;
                 const mood=score?MOODS[score-1]:null;
                 const last30=(cd.placeCheckins||[]).filter(c=>c.placeId===p.id&&Date.now()-new Date(c.ts).getTime()<30*864e5);
+                const last7=(cd.placeCheckins||[]).filter(c=>c.placeId===p.id&&Date.now()-new Date(c.ts).getTime()<7*864e5);
+                const prev7=(cd.placeCheckins||[]).filter(c=>c.placeId===p.id&&Date.now()-new Date(c.ts).getTime()<14*864e5&&Date.now()-new Date(c.ts).getTime()>=7*864e5);
                 const avg=last30.length?Math.round(last30.reduce((a,c)=>a+c.score,0)/last30.length*10)/10:null;
+                const avg7=last7.length?last7.reduce((a,c)=>a+c.score,0)/last7.length:null;
+                const avgPrev=prev7.length?prev7.reduce((a,c)=>a+c.score,0)/prev7.length:null;
+                const trend=avg7&&avgPrev?(avg7-avgPrev>=0.5?'↑':avgPrev-avg7>=0.5?'↓':'→'):null;
+                const trendCol=trend==='↑'?'var(--ok)':trend==='↓'?'var(--bad)':'var(--t2)';
                 const col=avg?avg>=4?'var(--ok)':avg>=3?'var(--w)':'var(--bad)':'var(--t2)';
-                html+=`<div class="fam-place-row"><span>${pt.icon}</span><span style="flex:1">${p.name}</span><span style="font-size:1.1rem">${mood?mood.emoji:'⬜'}</span>${avg?`<span class="fam-place-score" style="color:${col}">${avg}</span>`:''}</div>`;
+                html+=`<div class="fam-place-row"><span>${pt.icon}</span><span style="flex:1">${p.name}</span><span style="font-size:1.1rem">${mood?mood.emoji:'⬜'}</span>${avg?`<span class="fam-place-score" style="color:${col}">${avg}${trend?` <span style="color:${trendCol}">${trend}</span>`:''}</span>`:''}</div>`;
+                // Show today's tags or top weekly tags
                 if(tc?.tags&&tc.tags.length){const sc=tc.score<=2?'neg':tc.score>=4?'pos':'neu';html+=`<div class="fam-tags">${tc.tags.map(t=>`<span class="fam-tag ${sc}">${t}</span>`).join('')}</div>`}
+                else if(last7.length){const tagC={};last7.forEach(c=>(c.tags||[]).forEach(t=>{tagC[t]=(tagC[t]||0)+1}));const top=Object.entries(tagC).sort((a,b)=>b[1]-a[1]).slice(0,2);if(top.length)html+=`<div class="fam-tags"><span style="font-size:.6rem;color:var(--t2);margin-right:2px">Veckan:</span>${top.map(([t])=>`<span class="fam-tag neu">${t}</span>`).join('')}</div>`}
                 if(tc?.comment)html+=`<div class="fam-place-comment">"${tc.comment}"</div>`;
                 if(tc)html+=renderReactRow(fp.storageKey,'',p.id);
             });
@@ -2036,6 +2109,16 @@ function saveNewPlace(){
     }
 }
 
+function quickAddPlaceFromModal(type,defaultName){
+    const d=ld();
+    if(d.places.some(p=>p.type===type)){toast('Du har redan en '+defaultName);return}
+    const name=prompt('Namn på platsen:',defaultName)||defaultName;
+    addPlace(name,type,null);
+    closeModal();
+    renderHome();
+    toast(PT[type]?.icon+' '+name+' tillagd!');
+}
+
 // ===== ONBOARDING =====
 let obChildren=[];
 let obActiveChild=0;
@@ -2131,6 +2214,30 @@ function switchObChild(i){
     renderOb4();
 }
 
+function obQuickAddPlace(type,defaultName){
+    const child=obChildren[obActiveChild];if(!child)return;
+    // Check if already added
+    if(child.places.some(p=>p.type===type)){toast('Redan tillagd');return}
+    const name=prompt('Namn på platsen:',defaultName)||defaultName;
+    child.places.push({name,type,osmId:'',address:'',lat:null,lng:null});
+    renderOb4Places();renderOb4();updateQuickPlaceButtons();
+    toast(PT[type]?.icon+' '+name+' tillagd!');
+}
+
+function updateQuickPlaceButtons(){
+    const child=obChildren[obActiveChild];if(!child)return;
+    document.querySelectorAll('#ob-quick-places .quick-place').forEach(el=>{
+        const type=el.onclick?.toString().match(/'(\w+)'/)?.[1];
+        if(type&&child.places.some(p=>p.type===type)){
+            el.classList.add('added');
+            el.querySelector('.qp-label').textContent='Tillagd';
+        }else if(type){
+            el.classList.remove('added');
+            el.querySelector('.qp-label').textContent=PT[type]?.label||type;
+        }
+    });
+}
+
 function obAddPlace(){
     const name=document.getElementById('ob-place-name').value.trim();
     if(!name){toast('Ange ett namn');return}
@@ -2141,7 +2248,7 @@ function obAddPlace(){
     document.getElementById('ob-place-name').value='';
     document.getElementById('ob-place-addr').textContent='';
     document.getElementById('ac-drop-ob').classList.remove('on');
-    renderOb4Places();renderOb4();
+    renderOb4Places();renderOb4();updateQuickPlaceButtons();
 }
 
 function obRemovePlace(i){
@@ -3249,6 +3356,168 @@ buildKommunDatalist();
 detectChildJoin();
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
 
+// ===== SMART SUMMARY =====
+function generateSmartSummary(cd,childName){
+    if(!cd||!cd.places||!cd.places.length)return[];
+    const lines=[];
+    const now=Date.now();
+    const d7=7*864e5,d14=14*864e5;
+    const allCheckins=cd.placeCheckins||[];
+    const recent7=allCheckins.filter(c=>now-new Date(c.ts).getTime()<d7);
+    const recent14=allCheckins.filter(c=>now-new Date(c.ts).getTime()<d14&&now-new Date(c.ts).getTime()>=d7);
+
+    // Per-place analysis
+    const placeStats=cd.places.map(p=>{
+        const pc7=recent7.filter(c=>c.placeId===p.id);
+        const pc14=recent14.filter(c=>c.placeId===p.id);
+        const avg7=pc7.length?pc7.reduce((a,c)=>a+c.score,0)/pc7.length:null;
+        const avg14=pc14.length?pc14.reduce((a,c)=>a+c.score,0)/pc14.length:null;
+        // Top tags
+        const tagCounts={};
+        pc7.forEach(c=>(c.tags||[]).forEach(t=>{tagCounts[t]=(tagCounts[t]||0)+1}));
+        const topTags=Object.entries(tagCounts).sort((a,b)=>b[1]-a[1]).slice(0,2).map(e=>e[0]);
+        const dominantTag=Object.entries(tagCounts).find(e=>e[1]>=3);
+        return{name:p.name,type:p.type,avg7,avg14,topTags,dominantTag:dominantTag?dominantTag[0]:null,count7:pc7.length};
+    });
+
+    const withData=placeStats.filter(p=>p.avg7!==null);
+    if(!withData.length)return[{text:childName+' har inga check-ins ännu.',cls:'ss-info'}];
+
+    const overallAvg=withData.reduce((a,p)=>a+p.avg7,0)/withData.length;
+    const worst=withData.reduce((a,b)=>(a.avg7<b.avg7?a:b));
+    const best=withData.reduce((a,b)=>(a.avg7>b.avg7?a:b));
+
+    // Overall wellness
+    if(overallAvg>=4){
+        lines.push({text:childName+' verkar trivas överlag! Bäst på '+best.name+'.',cls:'ss-good'});
+    }else if(overallAvg>=3){
+        lines.push({text:childName+' mår okej — snitt '+overallAvg.toFixed(1)+'/5 senaste veckan.',cls:'ss-info'});
+    }
+
+    // Problem area
+    if(worst.avg7!==null&&worst.avg7<=2.5){
+        let txt=childName+' har det tufft på '+worst.name+'.';
+        if(worst.topTags.length)txt+=' Vanligaste orsaken: '+worst.topTags.join(', ')+'.';
+        lines.push({text:txt,cls:'ss-warn'});
+    }
+
+    // Trend
+    const withTrend=withData.filter(p=>p.avg14!==null);
+    if(withTrend.length){
+        const avg7all=withTrend.reduce((a,p)=>a+p.avg7,0)/withTrend.length;
+        const avg14all=withTrend.reduce((a,p)=>a+p.avg14,0)/withTrend.length;
+        if(avg7all-avg14all>=0.5)lines.push({text:childName+'s mående förbättras — bra utveckling!',cls:'ss-good'});
+        else if(avg14all-avg7all>=0.5)lines.push({text:'Obs: '+childName+' har tappat i mående den senaste veckan.',cls:'ss-warn'});
+    }
+
+    // Dominant tag
+    withData.forEach(p=>{
+        if(p.dominantTag)lines.push({text:'"'+p.dominantTag+'" dyker upp ofta för '+childName+' på '+p.name+'.',cls:'ss-info'});
+    });
+
+    // Streak
+    const streak=calcPlaceStreak(cd);
+    if(streak>=7)lines.push({text:childName+' checkar in varje dag — bra rutin!',cls:'ss-good'});
+
+    // Inactivity
+    if(recent7.length===0){
+        const lastCheckin=allCheckins.length?allCheckins[allCheckins.length-1]:null;
+        const daysAgo=lastCheckin?Math.round((now-new Date(lastCheckin.ts).getTime())/864e5):null;
+        if(daysAgo&&daysAgo>=2)lines.push({text:childName+' har inte checkat in på '+daysAgo+' dagar.',cls:'ss-warn'});
+    }
+
+    return lines.slice(0,3);
+}
+
+// ===== DEMO MODE =====
+let isDemo=false;
+function showDemo(){
+    isDemo=true;
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('ob').classList.add('h');
+    document.getElementById('app').style.display='';
+
+    // Generate demo data
+    const today=new Date();
+    const demoChildren=[
+        {name:'Maja',ageGroup:'10-13',storageKey:'_demo_maja'},
+        {name:'Leo',ageGroup:'6-9',storageKey:'_demo_leo'}
+    ];
+    const majaPlaces=[
+        {id:'dp1',name:'Västerskolan',type:'school'},
+        {id:'dp2',name:'IFK Handboll',type:'sport'},
+        {id:'dp3',name:'Hem',type:'home'}
+    ];
+    const leoPlaces=[
+        {id:'dp4',name:'Ekens förskola',type:'school'},
+        {id:'dp5',name:'Fotboll',type:'sport'},
+        {id:'dp6',name:'Hem',type:'home'}
+    ];
+    // 7 days of checkins
+    function genCheckins(places,patterns){
+        const checkins=[];
+        for(let day=6;day>=0;day--){
+            const d=new Date(today);d.setDate(d.getDate()-day);
+            places.forEach((p,i)=>{
+                const base=patterns[i];
+                const score=Math.max(1,Math.min(5,base+Math.round((Math.random()-0.5)*2)));
+                const tags=score<=2?['Kompisar','Trött']:score>=4?['Kompisar','Kul']:['Vanlig dag'];
+                checkins.push({ts:d.toISOString(),placeId:p.id,score,comment:'',tags});
+            });
+        }
+        // Today's checkins with specific tags
+        return checkins;
+    }
+    const majaCheckins=genCheckins(majaPlaces,[2,4,4]);
+    // Override today's with specific tags
+    const todayStr=today.toDateString();
+    majaCheckins.filter(c=>new Date(c.ts).toDateString()===todayStr).forEach(c=>{
+        if(c.placeId==='dp1'){c.score=2;c.tags=['Kompisar','Prov/läxor']}
+        if(c.placeId==='dp2'){c.score=5;c.tags=['Bra träning','Kompisar']}
+        if(c.placeId==='dp3'){c.score=4;c.tags=['Lugnt']}
+    });
+    const leoCheckins=genCheckins(leoPlaces,[4,2,5]);
+    leoCheckins.filter(c=>new Date(c.ts).toDateString()===todayStr).forEach(c=>{
+        if(c.placeId==='dp4'){c.score=4;c.tags=['Rolig lektion','Kompisar']}
+        if(c.placeId==='dp5'){c.score=2;c.tags=['Förlorade','Ont']}
+        if(c.placeId==='dp6'){c.score=5;c.tags=['Familj','Mys']}
+    });
+
+    // Store demo data temporarily
+    const majaData={places:majaPlaces,placeCheckins:majaCheckins,points:145,streak:7,selectedAvatar:'fox',unlockedAvatars:['default','fox'],role:'child',userName:'Maja'};
+    const leoData={places:leoPlaces,placeCheckins:leoCheckins,points:80,streak:4,selectedAvatar:'default',unlockedAvatars:['default'],role:'child',userName:'Leo'};
+    try{
+        localStorage.setItem('_demo_maja',JSON.stringify(majaData));
+        localStorage.setItem('_demo_leo',JSON.stringify(leoData));
+    }catch(e){}
+
+    // Set parent-like data temporarily
+    const demoParent={firstVisit:true,userName:'Demo',role:'parent',familyProfiles:demoChildren,places:[],placeCheckins:[],cheersSent:{},parentReactions:[],points:0,kommun:'Täby'};
+    D=demoParent;
+
+    // Render
+    renderParentView();
+
+    // Add demo banner
+    const summaryEl=document.getElementById('home-summary');
+    summaryEl.insertAdjacentHTML('afterbegin',`<div class="demo-banner">
+        <div class="db-title">Det här är en demo</div>
+        <div class="db-sub">Skapa ett konto för att börja följa ditt barns mående</div>
+        <div class="db-btns">
+            <button class="db-btn primary" onclick="exitDemo();document.getElementById('auth-screen').style.display=''">Skapa konto</button>
+            <button class="db-btn secondary" onclick="exitDemo();obNext(1)">Prova utan konto</button>
+        </div>
+    </div>`);
+}
+
+function exitDemo(){
+    isDemo=false;
+    try{localStorage.removeItem('_demo_maja');localStorage.removeItem('_demo_leo')}catch(e){}
+    D={...D,firstVisit:true};
+    document.getElementById('app').style.display='none';
+    document.getElementById('ob').classList.remove('h');
+}
+
 function initApp(){
     buildKommunDatalist();
     const d0=ld();
@@ -3267,6 +3536,10 @@ function initApp(){
         // Child joining via invite link — show child onboarding
         startChildOnboarding();
         processJoinCode();
+    }else{
+        // New user — show demo dashboard
+        document.getElementById('auth-screen').style.display='none';
+        showDemo();
     }
 }
 
