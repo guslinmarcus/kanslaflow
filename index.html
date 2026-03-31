@@ -1746,6 +1746,17 @@ function renderParentView(){
     // Kommun insights
     renderKommunInsights(d,benchEl);
 
+    // Feedback nudge (show after 3+ days of use, if not yet given)
+    if(!localStorage.getItem('moodly_feedback_given')){
+        const daysSinceOnboard=d.onboarded?Math.round((Date.now()-new Date(d.onboarded).getTime())/864e5):0;
+        if(daysSinceOnboard>=2){
+            placesEl.insertAdjacentHTML('beforeend',`<div style="text-align:center;padding:16px;margin-top:8px;background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.1);border-radius:var(--r);cursor:pointer" onclick="openFeedback()">
+                <div style="font-size:.82rem;font-weight:600;margin-bottom:4px">Hur tycker du att Moodly fungerar?</div>
+                <div style="font-size:.72rem;color:var(--t2)">Din feedback hjälper oss bli bättre — tryck här</div>
+            </div>`);
+        }
+    }
+
     // Schedule parent summary notification + ask permission once
     requestParentNotifications();
     scheduleParentNotification();
@@ -3265,6 +3276,7 @@ async function submitFeedback(){
         pending.push(feedback);
         localStorage.setItem('moodly_feedback_pending',JSON.stringify(pending));
     }
+    localStorage.setItem('moodly_feedback_given','1');
     closeFeedback();
     toast('Tack för din feedback! 🙏');
 }
