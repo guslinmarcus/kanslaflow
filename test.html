@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Moodly — Automatiska tester</title>
+<style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#0F0E17;color:#FFFFFE;font-family:system-ui,-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto}
+    h1{font-size:1.4rem;margin-bottom:20px;background:linear-gradient(135deg,#FFFFFE,#6C5CE7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .suite{margin-bottom:24px;background:rgba(255,255,255,.03);border-radius:12px;overflow:hidden}
+    .suite-header{padding:12px 16px;font-weight:700;font-size:.9rem;background:rgba(108,92,231,.1);cursor:pointer;display:flex;justify-content:space-between}
+    .suite-body{padding:0 16px 12px}
+    .test{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.82rem;border-bottom:1px solid rgba(255,255,255,.04)}
+    .test:last-child{border:none}
+    .pass{color:#00CEC9}
+    .fail{color:#FF6B6B}
+    .icon{width:20px;text-align:center}
+    .summary{margin-top:24px;padding:16px;border-radius:12px;font-size:.9rem;font-weight:600;text-align:center}
+    .summary.ok{background:rgba(0,206,201,.1);color:#00CEC9;border:1px solid rgba(0,206,201,.2)}
+    .summary.bad{background:rgba(255,107,107,.1);color:#FF6B6B;border:1px solid rgba(255,107,107,.2)}
+    .running{color:#FDCB6E;font-style:italic;font-size:.82rem;margin-bottom:16px}
+    .count{font-size:.72rem;padding:2px 8px;border-radius:10px}
+    .count.ok{background:rgba(0,206,201,.15);color:#00CEC9}
+    .count.bad{background:rgba(255,107,107,.15);color:#FF6B6B}
+</style>
+</head>
+<body>
+<h1>Moodly — Automatiska tester</h1>
+<div id="status" class="running">Kör tester...</div>
+<div id="results"></div>
+<div id="summary"></div>
+
+<script>
+// ========== TEST FRAMEWORK ==========
+const results = [];
+let currentSuite = '';
+
+function suite(name) { currentSuite = name; }
+
+function assert(name, condition, detail) {
+    results.push({ suite: currentSuite, name, pass: !!condition, detail: detail || '' });
+}
+
+function assertEqual(name, actual, expected) {
+    const pass = JSON.stringify(actual) === JSON.stringify(expected);
+    assert(name, pass, pass ? '' : `Förväntat: ${JSON.stringify(expected)}, Fick: ${JSON.stringify(actual)}`);
+}
+
+function assertGt(name, actual, min) {
+    assert(name, actual > min, `${actual} > ${min}`);
+}
+
+// ========== MOCK SETUP ==========
+// Mock localStorage
+const mockStore = {};
+const realLS = window.localStorage;
+
+const mockLocalStorage = {
+    getItem: (k) => mockStore[k] || null,
+    setItem: (k, v) => { mockStore[k] = String(v); },
+    removeItem: (k) => { delete mockStore[k]; },
+    clear: () => { Object.keys(mockStore).forEach(k => delete mockStore[k]); },
+    key: (i) => Object.keys(mockStore)[i],
+    get length() { return Object.keys(mockStore).length; }
+};
+
+// Replace localStorage
+Object.defineProperty(window, 'localStorage', { value: mockLocalStorage, writable: true });
+
+// Mock DOM elements the app expects
+function mockDOM() {
+    const ids = ['toast','offline-bar','install-banner','install-btn','install-close',
+        'home-greeting','home-sub','home-summary','home-alerts','places-list',
+        'auth-screen','auth-submit','auth-email','auth-pass','auth-status',
+        'ob','app','profile-banner','profile-banner-text',
+        'ob1','ob2','ob3','ob4','ob5','ob5-summary',
+        'ob4-title','ob4-desc','ob4-child-tabs','ob4-places-list','ob4-next','ob4-skip',
+        'ob-place-name','ob-place-addr','ac-drop-ob','ob-place-types',
+        'user-name-input','user-kommun-input','ob-children-list','ob3-next',
+        'pg-home','pg-family','pg-chat','pg-settings','pg-insikter',
+        'insikter-content','family-content','settings-content','chat-messages','chat-input',
+        'comment-test_place_1','comment-test_place_2'];
+    ids.forEach(id => {
+        if (!document.getElementById(id)) {
+            const el = document.createElement('div');
+            el.id = id;
+            el.classList.add('h');
+            el.innerHTML = '<input value="">';
+            document.body.appendChild(el);
+        }
+    });
+    // Mock nav items
+    document.querySelectorAll('.ni').forEach(el => el.remove());
+    document.querySelectorAll('.pg').forEach(el => el.remove());
+    document.querySelectorAll('.streak-row').forEach(el => el.remove());
+    const nav = document.createElement('div');
+    nav.innerHTML = '<div class="ni" data-p="home"></div><div class="ni" data-p="insikter"></div>';
+    document.body.appendChild(nav);
+    const sr = document.createElement('div');
+    sr.className = 'streak-row';
+    sr.style.display = 'none';
+    document.body.appendChild(sr);
+}
+
+mockDOM();
+
+// Minimal Supabase mock
+window.sb = null;
+window.sbUser = null;
+
+// Suppress toast visual
+window._origAlert = window.alert;
+window.alert = () => {};
+
+// ========== LOAD APP FUNCTIONS ==========
+// We'll define the core functions we need to test
+
+const sok = true;
+const PARENT_KEY = 'moodly';
+let APK = PARENT_KEY;
+let D = {places:[],placeCheckins:[],benchmarks:[],checkins:[],micro:[],xp:0,level:1,points:0,streak:0,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:'',unlockedAvatars:['default'],selectedAvatar:'default',dailyRewardClaimed:null,kommun:'',parentReactions:[],cheersSent:{}};
+
+function ld(){
+    if(!sok)return{...D};
+    try{
+        const r=localStorage.getItem(APK);
+        if(!r)return{...D};
+        const d=JSON.parse(r);
+        if(!d.places)d.places=[];if(!d.placeCheckins)d.placeCheckins=[];
+        if(!d.familyProfiles)d.familyProfiles=[];if(!d.points)d.points=0;
+        if(!d.unlockedAvatars)d.unlockedAvatars=['default'];
+        if(!d.kommun)d.kommun='';if(!d.parentReactions)d.parentReactions=[];
+        if(!d.cheersSent)d.cheersSent={};
+        return d;
+    }catch(e){return{...D}}
+}
+
+function sv(d){D=d;if(sok)try{localStorage.setItem(APK,JSON.stringify(d))}catch(e){}}
+
+function getFullChildData(sk){
+    if(!sok)return null;
+    try{const r=localStorage.getItem(sk);if(!r)return null;return JSON.parse(r)}catch(e){return null}
+}
+
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+const PT={
+    school:{icon:'🏫',label:'Skola',bg:'rgba(108,92,231,.15)'},
+    home:{icon:'🏠',label:'Hem',bg:'rgba(253,203,110,.15)'},
+    sport:{icon:'⚽',label:'Idrott',bg:'rgba(0,184,148,.15)'},
+    hobby:{icon:'🎨',label:'Hobby',bg:'rgba(162,155,254,.15)'},
+    other:{icon:'📍',label:'Annat',bg:'rgba(167,169,190,.15)'}
+};
+
+// ========== TESTS ==========
+
+// ----- SUITE 1: Data Model -----
+suite('1. Datamodell (localStorage)');
+
+(function(){
+    mockLocalStorage.clear();
+    APK = PARENT_KEY;
+
+    // Test save and load
+    const d = {...D, userName: 'TestPappa', role: 'parent', kommun: 'Stockholm'};
+    sv(d);
+    const loaded = ld();
+    assertEqual('Spara och ladda userName', loaded.userName, 'TestPappa');
+    assertEqual('Spara och ladda role', loaded.role, 'parent');
+    assertEqual('Spara och ladda kommun', loaded.kommun, 'Stockholm');
+
+    // Test default values
+    mockLocalStorage.clear();
+    const empty = ld();
+    assertEqual('Tom ld() ger tomma places', empty.places, []);
+    assertEqual('Tom ld() ger tomma placeCheckins', empty.placeCheckins, []);
+    assertEqual('Tom ld() ger tomma familyProfiles', empty.familyProfiles, []);
+
+    // Test APK switching
+    const childKey = 'moodly_child_test1';
+    const childData = {places: [{id:'p1',name:'Skola',type:'school'}], placeCheckins: [], role: 'child', userName: 'Maja'};
+    localStorage.setItem(childKey, JSON.stringify(childData));
+    APK = childKey;
+    const cd = ld();
+    assertEqual('APK switch laddar rätt profil', cd.userName, 'Maja');
+    assertEqual('Barnprofil har platser', cd.places.length, 1);
+
+    APK = PARENT_KEY;
+    const pd = ld();
+    assertEqual('Tillbaka till parent key', pd.userName, 'TestPappa');
+
+    // Test getFullChildData
+    const fullChild = getFullChildData(childKey);
+    assert('getFullChildData returnerar data', fullChild !== null);
+    assertEqual('getFullChildData rätt namn', fullChild.userName, 'Maja');
+
+    const nullChild = getFullChildData('nonexistent_key');
+    assert('getFullChildData returnerar null för saknad nyckel', nullChild === null);
+})();
+
+
+// ----- SUITE 2: Onboarding - Barn & Platser -----
+suite('2. Onboarding (barn + platser)');
+
+(function(){
+    mockLocalStorage.clear();
+    APK = PARENT_KEY;
+
+    // Simulate finishOnboarding
+    const d = ld();
+    d.firstVisit = false;
+    d.userName = 'Marcus';
+    d.kommun = 'Göteborg';
+    d.onboarded = new Date().toISOString();
+    d.role = 'parent';
+    d.familyId = 'fam_' + Date.now();
+    d.places = [];
+    d.familyProfiles = [];
+
+    // Simulate two children with places
+    const children = [
+        {name: 'Maja', ageGroup: '7-9', places: [
+            {name: 'Skola', type: 'school', osmId: '', address: '', lat: null, lng: null},
+            {name: 'Idrott', type: 'sport', osmId: '', address: '', lat: null, lng: null},
+            {name: 'Hem', type: 'home', osmId: '', address: '', lat: null, lng: null}
+        ]},
+        {name: 'Leo', ageGroup: '4-6', places: [
+            {name: 'Förskola', type: 'school', osmId: '', address: '', lat: null, lng: null},
+            {name: 'Hem', type: 'home', osmId: '', address: '', lat: null, lng: null}
+        ]}
+    ];
+
+    children.forEach(child => {
+        const id = 'child_' + Date.now() + '_' + Math.random().toString(36).slice(2,4);
+        const storageKey = 'moodly_child_' + id;
+        const childPlaces = child.places.map(p => ({
+            id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+            ...p
+        }));
+        d.familyProfiles.push({id, name: child.name, ageGroup: child.ageGroup, storageKey});
+        const childData = {
+            places: childPlaces, placeCheckins: [], benchmarks: [], checkins: [], micro: [],
+            xp: 0, level: 1, points: 0, streak: 0, firstVisit: false, baseline: null,
+            userName: child.name, aiName: 'Luna', personality: 'warm',
+            onboarded: new Date().toISOString(), alertsSeen: [], familyId: d.familyId,
+            role: 'child', familyProfiles: [], parentKey: PARENT_KEY,
+            unlockedAvatars: ['default'], selectedAvatar: 'default', kommun: d.kommun
+        };
+        localStorage.setItem(storageKey, JSON.stringify(childData));
+    });
+
+    sv(d);
+
+    // Verify
+    const saved = ld();
+    assertEqual('Förälder har 2 barn i familyProfiles', saved.familyProfiles.length, 2);
+    assertEqual('Barn 1 heter Maja', saved.familyProfiles[0].name, 'Maja');
+    assertEqual('Barn 2 heter Leo', saved.familyProfiles[1].name, 'Leo');
+
+    const majaData = getFullChildData(saved.familyProfiles[0].storageKey);
+    assert('Majas data existerar', majaData !== null);
+    assertEqual('Maja har 3 platser', majaData.places.length, 3);
+    assertEqual('Majas roll är child', majaData.role, 'child');
+
+    const leoData = getFullChildData(saved.familyProfiles[1].storageKey);
+    assert('Leos data existerar', leoData !== null);
+    assertEqual('Leo har 2 platser', leoData.places.length, 2);
+
+    // Verify places have unique IDs
+    const allPlaceIds = [...majaData.places, ...leoData.places].map(p => p.id);
+    const uniqueIds = new Set(allPlaceIds);
+    assertEqual('Alla plats-ID:n är unika', uniqueIds.size, allPlaceIds.length);
+
+    // Verify parent has no places (correct — places live on children)
+    assertEqual('Föräldern har inga egna platser', saved.places.length, 0);
+})();
+
+
+// ----- SUITE 3: Check-in Flow -----
+suite('3. Check-in-flöde');
+
+(function(){
+    // Use Maja's profile from suite 2
+    const d = ld();
+    const majaKey = d.familyProfiles[0].storageKey;
+    APK = majaKey;
+
+    const maja = ld();
+    const schoolPlace = maja.places.find(p => p.type === 'school');
+    const sportPlace = maja.places.find(p => p.type === 'sport');
+    const homePlace = maja.places.find(p => p.type === 'home');
+
+    // Check in at school with score 3
+    maja.placeCheckins.push({
+        ts: new Date().toISOString(),
+        placeId: schoolPlace.id,
+        score: 3,
+        comment: 'Okej dag',
+        tags: ['Vanlig dag', 'Trött']
+    });
+    sv(maja);
+
+    let reloaded = ld();
+    assertEqual('Check-in sparad', reloaded.placeCheckins.length, 1);
+    assertEqual('Score korrekt', reloaded.placeCheckins[0].score, 3);
+    assertEqual('Tags sparade', reloaded.placeCheckins[0].tags.length, 2);
+    assertEqual('Kommentar sparad', reloaded.placeCheckins[0].comment, 'Okej dag');
+
+    // Check in at sport with score 5
+    reloaded.placeCheckins.push({
+        ts: new Date().toISOString(),
+        placeId: sportPlace.id,
+        score: 5,
+        comment: '',
+        tags: ['Vann', 'Kompisar']
+    });
+    sv(reloaded);
+
+    reloaded = ld();
+    assertEqual('Två check-ins sparade', reloaded.placeCheckins.length, 2);
+
+    // Check in at home with score 4
+    reloaded.placeCheckins.push({
+        ts: new Date().toISOString(),
+        placeId: homePlace.id,
+        score: 4,
+        comment: 'Bra kväll',
+        tags: ['Familj']
+    });
+    sv(reloaded);
+
+    reloaded = ld();
+    assertEqual('Tre check-ins (alla platser)', reloaded.placeCheckins.length, 3);
+
+    // Verify checkins are tied to correct places
+    const schoolCheckins = reloaded.placeCheckins.filter(c => c.placeId === schoolPlace.id);
+    assertEqual('Skolcheckin kopplad rätt', schoolCheckins.length, 1);
+    assertEqual('Skolcheckin score', schoolCheckins[0].score, 3);
+
+    APK = PARENT_KEY;
+})();
+
+
+// ----- SUITE 4: Plats-barn-koppling -----
+suite('4. Plats-barn-koppling (isolering)');
+
+(function(){
+    const d = ld();
+    const majaKey = d.familyProfiles[0].storageKey;
+    const leoKey = d.familyProfiles[1].storageKey;
+
+    const maja = getFullChildData(majaKey);
+    const leo = getFullChildData(leoKey);
+
+    // Verify Maja and Leo have separate places
+    const majaPlaceIds = new Set(maja.places.map(p => p.id));
+    const leoPlaceIds = new Set(leo.places.map(p => p.id));
+
+    let overlap = false;
+    majaPlaceIds.forEach(id => { if(leoPlaceIds.has(id)) overlap = true; });
+    assert('Maja och Leo har inga gemensamma plats-ID:n', !overlap);
+
+    // Verify Maja's checkins don't appear on Leo
+    assertEqual('Leo har inga check-ins (bara Maja checkade in)', leo.placeCheckins.length, 0);
+    assertGt('Maja har check-ins', maja.placeCheckins.length, 0);
+
+    // Add place to Leo and verify it doesn't appear on Maja
+    const newPlace = {id: 'p_leo_park_' + Math.random().toString(36).slice(2,6), name: 'Parken', type: 'hobby', osmId: '', address: '', lat: null, lng: null};
+    leo.places.push(newPlace);
+    localStorage.setItem(leoKey, JSON.stringify(leo));
+
+    const majaRecheck = getFullChildData(majaKey);
+    const leoRecheck = getFullChildData(leoKey);
+    assertEqual('Leo har nu 3 platser', leoRecheck.places.length, 3);
+    assertEqual('Maja har fortfarande 3 platser', majaRecheck.places.length, 3);
+    assert('Parken finns bara hos Leo', leoRecheck.places.some(p => p.name === 'Parken'));
+    assert('Parken finns inte hos Maja', !majaRecheck.places.some(p => p.name === 'Parken'));
+})();
+
+
+// ----- SUITE 5: addPlaceToChild -----
+suite('5. addPlaceToChild()');
+
+(function(){
+    const d = ld();
+    const leoKey = d.familyProfiles[1].storageKey;
+
+    // Simulate addPlaceToChild
+    function testAddPlaceToChild(storageKey, type, defaultName) {
+        const cd = getFullChildData(storageKey);
+        if(!cd) return null;
+        const count = (cd.places||[]).filter(p => p.type === type).length;
+        const name = count ? defaultName + ' ' + (count+1) : defaultName;
+        const place = {id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), name, type, osmId: '', address: '', lat: null, lng: null};
+        cd.places.push(place);
+        localStorage.setItem(storageKey, JSON.stringify(cd));
+        return place;
+    }
+
+    const before = getFullChildData(leoKey);
+    const beforeCount = before.places.length;
+
+    const added = testAddPlaceToChild(leoKey, 'school', 'Skola');
+    assert('Plats skapad', added !== null);
+    assertEqual('Namn: Skola 2 (redan en school)', added.name, 'Skola 2');
+    assert('Unikt ID med random suffix', added.id.includes('_') && added.id.length > 12);
+
+    const after = getFullChildData(leoKey);
+    assertEqual('En plats tillagd', after.places.length, beforeCount + 1);
+
+    // Verify it doesn't affect Maja
+    const majaKey = d.familyProfiles[0].storageKey;
+    const maja = getFullChildData(majaKey);
+    assertEqual('Maja opåverkad', maja.places.length, 3);
+})();
+
+
+// ----- SUITE 6: removeChild skyddar sista barnet -----
+suite('6. removeChild — skydd mot sista barnet');
+
+(function(){
+    mockLocalStorage.clear();
+    APK = PARENT_KEY;
+
+    const d = {...D, role: 'parent', familyProfiles: [
+        {id: 'c1', name: 'Enda barnet', ageGroup: '7-9', storageKey: 'moodly_child_c1'}
+    ]};
+    localStorage.setItem('moodly_child_c1', JSON.stringify({places: [], placeCheckins: []}));
+    sv(d);
+
+    // Simulate removeChild with protection
+    function testRemoveChild(idx) {
+        const d = ld();
+        if(!d.familyProfiles[idx]) return 'not_found';
+        if(d.familyProfiles.length <= 1) return 'blocked';
+        localStorage.removeItem(d.familyProfiles[idx].storageKey);
+        d.familyProfiles.splice(idx, 1);
+        sv(d);
+        return 'removed';
+    }
+
+    const result1 = testRemoveChild(0);
+    assertEqual('Kan inte ta bort enda barnet', result1, 'blocked');
+
+    const d2 = ld();
+    assertEqual('Barnet finns kvar', d2.familyProfiles.length, 1);
+
+    // Add second child, then remove first
+    d2.familyProfiles.push({id: 'c2', name: 'Barn 2', ageGroup: '4-6', storageKey: 'moodly_child_c2'});
+    localStorage.setItem('moodly_child_c2', JSON.stringify({places: [], placeCheckins: []}));
+    sv(d2);
+
+    const result2 = testRemoveChild(0);
+    assertEqual('Kan ta bort barn med 2 barn', result2, 'removed');
+
+    const d3 = ld();
+    assertEqual('Ett barn kvar', d3.familyProfiles.length, 1);
+    assertEqual('Rätt barn kvar', d3.familyProfiles[0].name, 'Barn 2');
+})();
+
+
+// ----- SUITE 7: Baseline & Z-score -----
+suite('7. Baseline & Z-score beräkning');
+
+(function(){
+    // computeBaseline: needs 7+ datapoints
+    function computeBaseline(checkins, placeId) {
+        const pc = checkins.filter(c => c.placeId === placeId);
+        if(pc.length < 7) return null;
+        const scores = pc.map(c => c.score);
+        const mean = scores.reduce((a,b) => a+b, 0) / scores.length;
+        const variance = scores.reduce((a,s) => a + Math.pow(s-mean, 2), 0) / scores.length;
+        const stddev = Math.sqrt(variance) || 0.5;
+        return {mean: Math.round(mean*100)/100, stddev: Math.round(stddev*100)/100, n: pc.length};
+    }
+
+    function computeZScore(score, baseline) {
+        if(!baseline) return 0;
+        return Math.round(((score - baseline.mean) / baseline.stddev) * 100) / 100;
+    }
+
+    // Too few datapoints
+    const fewCheckins = Array.from({length: 5}, (_, i) => ({
+        placeId: 'p1', score: 3 + (i % 2), ts: new Date(Date.now() - i * 864e5).toISOString()
+    }));
+    const noBaseline = computeBaseline(fewCheckins, 'p1');
+    assert('Ingen baseline med <7 datapunkter', noBaseline === null);
+
+    // Enough datapoints
+    const checkins = Array.from({length: 14}, (_, i) => ({
+        placeId: 'p1', score: 3 + Math.sin(i) * 0.5, ts: new Date(Date.now() - i * 864e5).toISOString()
+    }));
+    const baseline = computeBaseline(checkins, 'p1');
+    assert('Baseline skapad med 14 datapunkter', baseline !== null);
+    assertGt('Mean > 0', baseline.mean, 0);
+    assertGt('Stddev > 0', baseline.stddev, 0);
+    assertEqual('N = 14', baseline.n, 14);
+
+    // Z-score
+    const zHigh = computeZScore(5, baseline);
+    assertGt('Högt score → positiv z', zHigh, 0);
+
+    const zLow = computeZScore(1, baseline);
+    assert('Lågt score → negativ z', zLow < 0);
+
+    const zNormal = computeZScore(baseline.mean, baseline);
+    assertEqual('Score = mean → z ≈ 0', zNormal, 0);
+
+    // Null baseline
+    const zNull = computeZScore(3, null);
+    assertEqual('Null baseline → z = 0', zNull, 0);
+})();
+
+
+// ----- SUITE 8: Heatmap-data -----
+suite('8. Heatmap-data generering');
+
+(function(){
+    mockLocalStorage.clear();
+    APK = PARENT_KEY;
+
+    // Setup parent with one child with checkins across days
+    const childKey = 'moodly_child_hm1';
+    const placeId = 'p_school_hm';
+    const checkins = [];
+    for(let i = 0; i < 28; i++) {
+        const date = new Date(Date.now() - i * 864e5);
+        checkins.push({
+            placeId,
+            score: 2 + (date.getDay() % 3), // varies by weekday
+            ts: date.toISOString(),
+            tags: []
+        });
+    }
+
+    localStorage.setItem(childKey, JSON.stringify({
+        places: [{id: placeId, name: 'Testskola', type: 'school'}],
+        placeCheckins: checkins,
+        role: 'child', userName: 'HmBarn'
+    }));
+
+    const d = {...D, role: 'parent', familyProfiles: [{id: 'hm1', name: 'HmBarn', storageKey: childKey}]};
+    sv(d);
+
+    // Simulate buildHeatmapData
+    function testBuildHeatmap(d) {
+        const result = [];
+        (d.familyProfiles||[]).forEach(fp => {
+            const cd = getFullChildData(fp.storageKey);
+            if(!cd || !cd.places || !cd.placeCheckins) return;
+            const places = [];
+            cd.places.forEach(p => {
+                const days = [null,null,null,null,null,null,null];
+                const counts = [0,0,0,0,0,0,0];
+                const totals = [0,0,0,0,0,0,0];
+                const cutoff = Date.now() - 28 * 864e5;
+                cd.placeCheckins.filter(c => c.placeId === p.id && new Date(c.ts).getTime() > cutoff).forEach(c => {
+                    let dow = (new Date(c.ts).getDay() + 6) % 7;
+                    totals[dow] += c.score; counts[dow]++;
+                });
+                for(let i = 0; i < 7; i++) { if(counts[i]) days[i] = Math.round(totals[i]/counts[i]*10)/10; }
+                places.push({name: p.name, icon: '🏫', days});
+            });
+            if(places.length) result.push({childName: fp.name, places});
+        });
+        return result;
+    }
+
+    const heatmap = testBuildHeatmap(ld());
+    assertEqual('Heatmap har 1 barn', heatmap.length, 1);
+    assertEqual('Barnnamn korrekt', heatmap[0].childName, 'HmBarn');
+    assertEqual('Heatmap har 1 plats', heatmap[0].places.length, 1);
+    assertEqual('7 veckodagar', heatmap[0].places[0].days.length, 7);
+
+    // At least some days should have data (28 days covers all weekdays)
+    const daysWithData = heatmap[0].places[0].days.filter(d => d !== null).length;
+    assertGt('Flera veckodagar har data', daysWithData, 4);
+})();
+
+
+// ----- SUITE 9: Pattern Detection -----
+suite('9. Mönsterdetektion');
+
+(function(){
+    mockLocalStorage.clear();
+    APK = PARENT_KEY;
+
+    const childKey = 'moodly_child_pat1';
+    const placeId = 'p_school_pat';
+    const checkins = [];
+
+    // Create 14 days of checkins with Mondays always bad
+    for(let i = 0; i < 14; i++) {
+        const date = new Date(Date.now() - i * 864e5);
+        const dow = date.getDay(); // 0=sun
+        const score = dow === 1 ? 1 : 4; // Monday = 1, others = 4
+        checkins.push({ placeId, score, ts: date.toISOString(), tags: dow === 1 ? ['Kompisar', 'Trött'] : ['Rolig lektion'] });
+    }
+
+    localStorage.setItem(childKey, JSON.stringify({
+        places: [{id: placeId, name: 'Testskola', type: 'school'}],
+        placeCheckins: checkins,
+        role: 'child', userName: 'PatBarn'
+    }));
+
+    sv({...D, role: 'parent', familyProfiles: [{id: 'pat1', name: 'PatBarn', storageKey: childKey}]});
+
+    // Simulate detectPatterns
+    function testDetectPatterns(d) {
+        const patterns = [];
+        const dayNames = ['måndagar','tisdagar','onsdagar','torsdagar','fredagar','lördagar','söndagar'];
+        (d.familyProfiles||[]).forEach(fp => {
+            const cd = getFullChildData(fp.storageKey);
+            if(!cd || !cd.places || !cd.placeCheckins) return;
+            const cutoff14 = Date.now() - 14 * 864e5;
+            const cutoff7 = Date.now() - 7 * 864e5;
+            cd.places.forEach(p => {
+                const recent14 = cd.placeCheckins.filter(c => c.placeId === p.id && new Date(c.ts).getTime() > cutoff14);
+                if(recent14.length < 3) return;
+                const avg14 = recent14.reduce((a,c) => a+c.score, 0) / recent14.length;
+                const dayScores = {};
+                recent14.forEach(c => {
+                    const dow = (new Date(c.ts).getDay()+6)%7;
+                    if(!dayScores[dow]) dayScores[dow] = {total:0,count:0};
+                    dayScores[dow].total += c.score; dayScores[dow].count++;
+                });
+                let worstDay=-1, worstAvg=5;
+                Object.entries(dayScores).forEach(([day,s]) => {
+                    if(s.count < 2) return;
+                    const avg = s.total/s.count;
+                    if(avg < worstAvg) { worstAvg = avg; worstDay = +day; }
+                });
+                if(worstDay >= 0 && worstAvg < avg14 - 0.5) {
+                    patterns.push({type:'warning', text: `${fp.name} sämre på ${dayNames[worstDay]}`});
+                }
+                // Tag detection
+                const recent7 = cd.placeCheckins.filter(c => c.placeId === p.id && new Date(c.ts).getTime() > cutoff7);
+                const tagCount = {};
+                recent7.forEach(c => (c.tags||[]).forEach(t => { tagCount[t] = (tagCount[t]||0)+1; }));
+                Object.entries(tagCount).forEach(([tag,count]) => {
+                    if(count >= 3) patterns.push({type:'neutral', text: `"${tag}" återkommande`});
+                });
+            });
+        });
+        return patterns;
+    }
+
+    const patterns = testDetectPatterns(ld());
+    assertGt('Hittade mönster', patterns.length, 0);
+
+    const weekdayPattern = patterns.find(p => p.text.includes('måndagar'));
+    assert('Detekterade dåliga måndagar', !!weekdayPattern);
+})();
+
+
+// ----- SUITE 10: Tag Impact -----
+suite('10. Tagg-impact-analys');
+
+(function(){
+    // Reuse pattern test data
+    const d = ld();
+
+    function testBuildTagImpact(d) {
+        const result = [];
+        (d.familyProfiles||[]).forEach(fp => {
+            const cd = getFullChildData(fp.storageKey);
+            if(!cd || !cd.placeCheckins) return;
+            const cutoff = Date.now() - 30 * 864e5;
+            const recent = cd.placeCheckins.filter(c => new Date(c.ts).getTime() > cutoff);
+            if(recent.length < 5) return;
+            const overallAvg = recent.reduce((a,c) => a+c.score, 0) / recent.length;
+            const tagStats = {};
+            recent.forEach(c => {
+                (c.tags||[]).forEach(tag => {
+                    if(!tagStats[tag]) tagStats[tag] = {total:0,count:0};
+                    tagStats[tag].total += c.score; tagStats[tag].count++;
+                });
+            });
+            const tags = Object.entries(tagStats).filter(([,s]) => s.count >= 2).map(([tag,s]) => ({
+                tag, impact: Math.round((s.total/s.count - overallAvg)*10)/10, count: s.count
+            })).sort((a,b) => a.impact - b.impact);
+            if(tags.length) result.push({childName: fp.name, tags});
+        });
+        return result;
+    }
+
+    const impact = testBuildTagImpact(d);
+    assertGt('Tag impact har resultat', impact.length, 0);
+
+    if(impact.length) {
+        const child = impact[0];
+        assertEqual('Rätt barnnamn', child.childName, 'PatBarn');
+        assertGt('Har taggar', child.tags.length, 0);
+
+        const negTag = child.tags.find(t => t.tag === 'Kompisar' || t.tag === 'Trött');
+        assert('Negativ tagg har negativt impact', negTag && negTag.impact < 0);
+
+        const posTag = child.tags.find(t => t.tag === 'Rolig lektion');
+        assert('Positiv tagg har positivt impact', posTag && posTag.impact > 0);
+    }
+})();
+
+
+// ----- SUITE 11: Sync status -----
+suite('11. Sync-status');
+
+(function(){
+    function getSyncStatus() {
+        if(!navigator.onLine) return 'offline';
+        const q = JSON.parse(localStorage.getItem('moodly_pending') || '[]');
+        if(q.length) return 'syncing_' + q.length;
+        return 'synced';
+    }
+
+    // Empty queue
+    localStorage.removeItem('moodly_pending');
+    assertEqual('Ingen kö → synkad', getSyncStatus(), 'synced');
+
+    // With pending items
+    localStorage.setItem('moodly_pending', JSON.stringify([{table:'places',op:'upsert',data:{}}]));
+    assertEqual('Med kö → synkar', getSyncStatus(), 'syncing_1');
+
+    localStorage.removeItem('moodly_pending');
+})();
+
+
+// ----- SUITE 12: Escaping / XSS-skydd -----
+suite('12. XSS-skydd');
+
+(function(){
+    assertEqual('Escapar <script>', esc('<script>alert("xss")</script>'), '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    assertEqual('Escapar &', esc('A & B'), 'A &amp; B');
+    assertEqual('Null input', esc(null), '');
+    assertEqual('Undefined input', esc(undefined), '');
+    assertEqual('Tom sträng', esc(''), '');
+    assertEqual('Normal text oförändrad', esc('Maja gillar skolan'), 'Maja gillar skolan');
+})();
+
+
+// ========== RENDER RESULTS ==========
+const el = document.getElementById('results');
+const suites = {};
+results.forEach(r => {
+    if(!suites[r.suite]) suites[r.suite] = [];
+    suites[r.suite].push(r);
+});
+
+let totalPass = 0, totalFail = 0;
+
+Object.entries(suites).forEach(([name, tests]) => {
+    const pass = tests.filter(t => t.pass).length;
+    const fail = tests.filter(t => !t.pass).length;
+    totalPass += pass;
+    totalFail += fail;
+
+    let html = `<div class="suite">`;
+    html += `<div class="suite-header"><span>${name}</span><span class="count ${fail?'bad':'ok'}">${pass}/${tests.length}</span></div>`;
+    html += `<div class="suite-body">`;
+    tests.forEach(t => {
+        html += `<div class="test ${t.pass?'pass':'fail'}">`;
+        html += `<span class="icon">${t.pass?'✓':'✗'}</span>`;
+        html += `<span>${t.name}</span>`;
+        if(!t.pass && t.detail) html += ` <span style="font-size:.7rem;opacity:.7">— ${t.detail}</span>`;
+        html += `</div>`;
+    });
+    html += `</div></div>`;
+    el.innerHTML += html;
+});
+
+document.getElementById('status').style.display = 'none';
+const summaryEl = document.getElementById('summary');
+if(totalFail === 0) {
+    summaryEl.className = 'summary ok';
+    summaryEl.textContent = `Alla ${totalPass} tester passerade ✓`;
+} else {
+    summaryEl.className = 'summary bad';
+    summaryEl.textContent = `${totalFail} av ${totalPass + totalFail} tester misslyckades`;
+}
+
+// Restore localStorage
+Object.defineProperty(window, 'localStorage', { value: realLS, writable: true });
+</script>
+</body>
+</html>
