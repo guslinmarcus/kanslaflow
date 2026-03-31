@@ -364,6 +364,24 @@
         .hifive-btn{font-size:2.5rem;cursor:pointer;animation:hifive-pulse 1.2s ease infinite;display:inline-block}
         @keyframes hifive-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
         .streak-cheer-card{background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,165,0,.08));border:1px solid rgba(255,215,0,.2);border-radius:var(--r);padding:14px;text-align:center;margin-top:8px}
+
+        /* Reason tags */
+        .place-tags-row{margin-top:6px;overflow:hidden;max-height:0;transition:max-height .3s ease;display:flex;flex-wrap:wrap;gap:6px;padding:0 2px}
+        .place-tags-row.show{max-height:140px;margin-bottom:4px}
+        .reason-tag{padding:5px 12px;border-radius:20px;font-size:.72rem;font-weight:600;border:2px solid transparent;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none}
+        .reason-tag:active{transform:scale(.95)}
+        .reason-tag.neg{background:rgba(225,112,85,.12);color:#e17055;border-color:rgba(225,112,85,.15)}
+        .reason-tag.neg.sel{border-color:#e17055;background:rgba(225,112,85,.25)}
+        .reason-tag.neu{background:rgba(255,255,255,.08);color:var(--t2);border-color:rgba(255,255,255,.08)}
+        .reason-tag.neu.sel{border-color:var(--pl);background:rgba(108,92,231,.18);color:var(--pl)}
+        .reason-tag.pos{background:rgba(0,184,148,.1);color:#00b894;border-color:rgba(0,184,148,.12)}
+        .reason-tag.pos.sel{border-color:#00b894;background:rgba(0,184,148,.22)}
+        .place-tags-hint{font-size:.65rem;color:var(--t2);width:100%;margin-top:2px}
+        .fam-tags{display:flex;flex-wrap:wrap;gap:4px;margin-left:28px;margin-top:-2px;padding-bottom:4px}
+        .fam-tag{display:inline-block;padding:2px 7px;border-radius:12px;font-size:.62rem;font-weight:600}
+        .fam-tag.pos{background:rgba(0,184,148,.12);color:#00b894}
+        .fam-tag.neg{background:rgba(225,112,85,.12);color:#e17055}
+        .fam-tag.neu{background:rgba(255,255,255,.06);color:var(--t2)}
     </style>
 </head>
 <body>
@@ -898,12 +916,13 @@ async function pullRemoteData(){
 }
 
 // Sync a single checkin to Supabase
-function syncCheckin(placeId,score,comment,ts){
+function syncCheckin(placeId,score,comment,ts,tags){
     if(!sbUser)return;
     const checkedAt=new Date(ts).toISOString().slice(0,10);
     enqueue('place_checkins','upsert',{
         user_id:sbUser.id,place_id:placeId,score,
-        comment:comment||null,checked_at:checkedAt,ts
+        comment:comment||null,tags:(tags&&tags.length)?tags:null,
+        checked_at:checkedAt,ts
     });
 }
 
@@ -1063,6 +1082,29 @@ const MOODS=[
     {score:4,emoji:'🙂',label:'Bra'},
     {score:5,emoji:'😄',label:'Jättebra'}
 ];
+const REASON_TAGS={
+    school:{
+        low:['Kompisar','Lärare','Prov/läxor','Trött','Tråkigt','Bråk','Ensam','Stressad'],
+        mid:['Kompisar','Vanlig dag','Trött','Prov/läxor','Okej lektion','Lång dag'],
+        high:['Kompisar','Rolig lektion','Lyckades','Bra betyg','Kul rast','Lärare']
+    },
+    sport:{
+        low:['Förlorade','Ont','Trötthet','Tränaren','Kompisar','Bänkad','Stressad'],
+        mid:['Vanlig träning','Trött','Kompisar','Okej match','Tränaren'],
+        high:['Vann','Bra träning','Kompisar','Lyckades','Kul','Mål/poäng']
+    },
+    home:{
+        low:['Bråk','Ensam','Trött','Skärm','Läxor','Syskon','Ledsen'],
+        mid:['Vanlig dag','Trött','Läxor','Lugnt','Skärm','Uttråkad'],
+        high:['Familj','Mys','Lekte','Bra mat','Lugnt','Husdjur']
+    },
+    _default:{
+        low:['Trött','Stressad','Ensam','Ledsen','Bråk','Tråkigt','Orolig'],
+        mid:['Vanlig dag','Trött','Okej','Lugnt','Inget speciellt'],
+        high:['Kompisar','Kul','Lyckades','Bra dag','Lugnt','Nöjd']
+    }
+};
+function getReasonTags(type,score){const g=REASON_TAGS[type]||REASON_TAGS._default;return score<=2?g.low:score>=4?g.high:g.mid}
 
 // ===== PLACE CHECK-IN =====
 function checkInPlace(placeId,score){
@@ -1073,11 +1115,16 @@ function checkInPlace(placeId,score){
     const idx=d.placeCheckins.findIndex(c=>c.placeId===placeId&&new Date(c.ts).toDateString()===today);
     let pts=0;
     if(idx>=0){
+        const oldScore=d.placeCheckins[idx].score;
         d.placeCheckins[idx].score=score;
         d.placeCheckins[idx].ts=new Date().toISOString();
         if(comment)d.placeCheckins[idx].comment=comment;
+        // Clear tags if score range changed
+        const oldR=oldScore<=2?0:oldScore>=4?2:1;
+        const newR=score<=2?0:score>=4?2:1;
+        if(oldR!==newR){d.placeCheckins[idx].tags=[];delete d.placeCheckins[idx]._tagPtsAwarded}
     }else{
-        d.placeCheckins.push({ts:new Date().toISOString(),placeId,score,comment});
+        d.placeCheckins.push({ts:new Date().toISOString(),placeId,score,comment,tags:[]});
         d.xp=(d.xp||0)+5;
         pts+=5;
         if(comment)pts+=2;
@@ -1096,7 +1143,8 @@ function checkInPlace(placeId,score){
     d.points=(d.points||0)+pts;
     if(d.placeCheckins.length>5000)d.placeCheckins=d.placeCheckins.slice(-5000);
     sv(d);
-    syncCheckin(placeId,score,comment,new Date().toISOString());
+    const ci=d.placeCheckins.find(c=>c.placeId===placeId&&new Date(c.ts).toDateString()===today);
+    syncCheckin(placeId,score,comment,new Date().toISOString(),ci?.tags||[]);
     if(pts>0)syncProfile(d);
     renderHome();
     if(allDoneNow&&!wasAllDone){showCelebration('Alla platser klara! 🎉 +'+pts+' poäng')}
@@ -1377,6 +1425,17 @@ function renderHome(){
             html+=`<div class="emoji-btn ${sel}" onclick="checkInPlace('${place.id}',${m.score})">
                 <span class="em">${m.emoji}</span><span class="el">${m.label}</span></div>`;
         });
+        html+=`</div>`;
+        // Reason tags row
+        const sentCls=currentScore<=2?'neg':currentScore>=4?'pos':'neu';
+        const availTags=currentScore?getReasonTags(place.type,currentScore):[];
+        const selTags=todayCheck?.tags||[];
+        html+=`<div class="place-tags-row${currentScore?' show':''}">`;
+        if(currentScore)html+=`<div class="place-tags-hint">Vad berodde det på? (+3p)</div>`;
+        availTags.forEach(tag=>{
+            const isSel=selTags.includes(tag);
+            html+=`<div class="reason-tag ${sentCls}${isSel?' sel':''}" onclick="toggleReasonTag('${place.id}','${tag.replace(/'/g,"\\'")}')">${isSel?'✓ ':''}${tag}</div>`;
+        });
         html+=`</div>
             <div class="place-comment-row${currentScore?' show':''}">
                 <input class="place-comment" id="comment-${place.id}" placeholder="Kort kommentar (valfritt)..." maxlength="100" value="${prevComment.replace(/"/g,'&quot;')}"
@@ -1466,6 +1525,7 @@ function renderParentView(){
                 const avg=last30.length?Math.round(last30.reduce((a,c)=>a+c.score,0)/last30.length*10)/10:null;
                 const col=avg?avg>=4?'var(--ok)':avg>=3?'var(--w)':'var(--bad)':'var(--t2)';
                 html+=`<div class="fam-place-row"><span>${pt.icon}</span><span style="flex:1">${p.name}</span><span style="font-size:1.1rem">${mood?mood.emoji:'⬜'}</span>${avg?`<span class="fam-place-score" style="color:${col}">${avg}</span>`:''}</div>`;
+                if(tc?.tags&&tc.tags.length){const sc=tc.score<=2?'neg':tc.score>=4?'pos':'neu';html+=`<div class="fam-tags">${tc.tags.map(t=>`<span class="fam-tag ${sc}">${t}</span>`).join('')}</div>`}
                 if(tc?.comment)html+=`<div class="fam-place-comment">"${tc.comment}"</div>`;
                 if(tc)html+=renderReactRow(fp.storageKey,'',p.id);
             });
@@ -1532,7 +1592,7 @@ async function loadRemoteChildrenToDashboard(container){
             const{data:prof}=await sb.from('profiles').select('user_name,selected_avatar,points,streak').eq('id',m.user_id).single();
             const since=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
             const today=new Date().toISOString().slice(0,10);
-            const{data:checkins}=await sb.from('place_checkins').select('place_id,score,comment,checked_at').eq('user_id',m.user_id).gte('checked_at',since);
+            const{data:checkins}=await sb.from('place_checkins').select('place_id,score,comment,tags,checked_at').eq('user_id',m.user_id).gte('checked_at',since);
             const{data:memberPlaces}=await sb.from('places').select('id,name,type').eq('user_id',m.user_id);
             const avatar=AVATARS[prof?.selected_avatar||'default']?.emoji||'😊';
             const name=m.display_name||prof?.user_name||'Barn';
@@ -1557,6 +1617,7 @@ async function loadRemoteChildrenToDashboard(container){
                     const todayScore=todayChecks.find(c=>c.place_id===mp.id);
                     const mood=todayScore?MOODS[todayScore.score-1]:null;
                     html+=`<div class="fam-place-row"><span>${(PT[mp.type]||PT.other).icon}</span><span style="flex:1">${mp.name}</span><span style="font-size:1.1rem">${mood?mood.emoji:'⬜'}</span><span class="fam-place-score" style="color:${col}">${avg}</span></div>`;
+                    if(todayScore?.tags&&todayScore.tags.length){const sc=todayScore.score<=2?'neg':todayScore.score>=4?'pos':'neu';html+=`<div class="fam-tags">${todayScore.tags.map(t=>`<span class="fam-tag ${sc}">${t}</span>`).join('')}</div>`}
                     if(todayScore)html+=renderReactRow('',m.user_id,mp.id);
                     // Low mood alert
                     const recent=pc.slice(-3);
@@ -1722,8 +1783,29 @@ function saveComment(placeId,comment){
     const idx=d.placeCheckins.findIndex(c=>c.placeId===placeId&&new Date(c.ts).toDateString()===today);
     if(idx>=0){
         d.placeCheckins[idx].comment=comment.trim();sv(d);
-        syncCheckin(placeId,d.placeCheckins[idx].score,comment.trim(),d.placeCheckins[idx].ts);
+        syncCheckin(placeId,d.placeCheckins[idx].score,comment.trim(),d.placeCheckins[idx].ts,d.placeCheckins[idx].tags);
     }
+}
+
+function toggleReasonTag(placeId,tag){
+    const d=ld();const today=new Date().toDateString();
+    const idx=d.placeCheckins.findIndex(c=>c.placeId===placeId&&new Date(c.ts).toDateString()===today);
+    if(idx<0)return;
+    const ci=d.placeCheckins[idx];
+    if(!ci.tags)ci.tags=[];
+    const hadTags=ci.tags.length>0;
+    const ti=ci.tags.indexOf(tag);
+    if(ti>=0)ci.tags.splice(ti,1);else ci.tags.push(tag);
+    // +3 points first time tags are added
+    if(!hadTags&&ci.tags.length>0&&!ci._tagPtsAwarded){
+        d.points=(d.points||0)+3;
+        ci._tagPtsAwarded=true;
+        toast('+3 poäng!');
+        syncProfile(d);
+    }
+    sv(d);
+    syncCheckin(placeId,ci.score,ci.comment,ci.ts,ci.tags);
+    renderHome();
 }
 
 function claimDailyReward(){
@@ -2454,7 +2536,7 @@ async function loadRemoteFamilyMembers(){
             const{data:prof}=await sb.from('profiles').select('user_name,selected_avatar,points,streak').eq('id',m.user_id).single();
             // Get member's recent checkins
             const since=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
-            const{data:checkins}=await sb.from('place_checkins').select('place_id,score,comment,checked_at').eq('user_id',m.user_id).gte('checked_at',since);
+            const{data:checkins}=await sb.from('place_checkins').select('place_id,score,comment,tags,checked_at').eq('user_id',m.user_id).gte('checked_at',since);
             const{data:memberPlaces}=await sb.from('places').select('id,name,type').eq('user_id',m.user_id);
 
             const avatar=AVATARS[prof?.selected_avatar||'default']?.emoji||'😊';
