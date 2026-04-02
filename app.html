@@ -4095,6 +4095,14 @@ function renderFamily(){
         html+=`<div class="cd"><div class="ct">👤 Profil</div>
             <div class="sett-row"><span>Ditt namn</span><input class="sett-input" id="sett-username" value="${esc(d.userName||'')}"></div>
             <button class="btn bp" onclick="saveProfile()" style="margin-top:10px">Spara</button></div>`;
+        // Notifications
+        const notifOn=localStorage.getItem('moodly_notif')==='on';
+        html+=`<div class="cd"><div class="ct">🔔 Påminnelser</div>
+            <div class="notif-toggle">
+                <div class="nt-label">Daglig quiz-påminnelse<small>Kl 18:00 — Nytt quiz väntar!</small></div>
+                <label class="toggle-switch"><input type="checkbox" id="notif-toggle" ${notifOn?'checked':''} onchange="toggleNotifications(this.checked)"><span class="toggle-slider"></span></label>
+            </div>
+        </div>`;
         if(sbUser){
             html+=`<div class="cd"><button class="btn bs" onclick="signOut()">Logga ut</button></div>`;
         }
@@ -4205,29 +4213,41 @@ function renderFamily(){
 
         // Network invites per child
         html+=`<div class="cd"><div class="ct">💜 Trygghetsnätverk</div>
-            <p style="font-size:.78rem;color:var(--t2);margin-bottom:12px;line-height:1.5">Bjud in familj och släkt att lära känna dina barn bättre. De får göra quiz och bygga sin förståelse — ju fler som förstår, desto tryggare barn.</p>`;
+            <p style="font-size:.78rem;color:var(--t2);margin-bottom:12px;line-height:1.5">Bjud in familj och släkt — ju fler som engagerar sig, desto tryggare barn.</p>`;
         d.familyProfiles.forEach(fp=>{
             const emoji=childEmoji(fp);
-            const network=(d.childNetwork||{})[fp.id]||[];
+            // Count engagement from quiz history
+            const allHistory=d._quizHistory||[];
+            const childHistory=allHistory.filter(h=>h.childKey&&h.childKey.includes(fp.id));
+            // Admin's own engagement
+            const adminQuizCount=childHistory.length;
+            const adminThisWeek=childHistory.filter(h=>{try{return Date.now()-new Date(h.date).getTime()<7*864e5}catch(e){return false}}).length;
+            // Engagement score: 10 pts per quiz done
+            const adminEngagement=adminQuizCount*10;
+            // Total network (admin counts as 1)
+            const networkMembers=1+(d.childNetwork?.[fp.id]?.length||0);
+
             html+=`<div style="background:rgba(108,92,231,.06);border-radius:12px;padding:14px;margin-bottom:10px">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
                     <span style="font-size:1.2rem">${emoji}</span>
-                    <span style="font-weight:600;font-size:.88rem">${esc(fp.name)}s trygghetsnätverk</span>
+                    <span style="font-weight:600;font-size:.88rem;flex:1">${esc(fp.name)}s trygghetsnätverk</span>
                 </div>`;
-            if(network.length){
-                network.forEach(n=>{
-                    const roleEmoji=n.role==='mamma'?'👩':n.role==='pappa'?'👨':n.role==='mormor'||n.role==='farmor'?'👵':n.role==='morfar'||n.role==='farfar'?'👴':'👤';
-                    const quizPct=n.quizPct!==undefined?n.quizPct+'%':'—';
-                    const col=n.quizPct>=70?'var(--ok)':n.quizPct>=40?'var(--w)':'var(--t2)';
-                    html+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.82rem">
-                        <span>${roleEmoji}</span><span style="flex:1">${esc(n.name)} <span style="color:var(--t2);font-size:.72rem">${esc(n.role)}</span></span>
-                        <span style="font-weight:600;color:${col}">${quizPct}</span>
-                    </div>`;
-                });
-            }else{
-                html+=`<div style="font-size:.78rem;color:var(--t2);text-align:center;padding:4px 0">Ingen inbjuden ännu</div>`;
-            }
-            html+=`<button class="btn ba" onclick="shareNetworkInvite('${esc(fp.id)}','${esc(fp.name)}')" style="margin-top:8px;width:100%;font-size:.82rem;padding:10px">Bjud in till ${esc(fp.name)}s nätverk</button>
+
+            // Collective engagement visualization
+            const hearts=networkMembers>=4?'❤️❤️❤️❤️':networkMembers>=3?'❤️❤️❤️':networkMembers>=2?'❤️❤️':'❤️';
+            html+=`<div style="text-align:center;margin-bottom:12px">
+                <div style="font-size:1.3rem;letter-spacing:4px;margin-bottom:4px">${hearts}</div>
+                <div style="font-size:.85rem;color:var(--t)">${networkMembers} ${networkMembers===1?'person engagerad':'personer engagerade'}</div>
+                ${adminThisWeek>0?`<div style="font-size:.72rem;color:var(--ok);margin-top:2px">Du har gjort quiz ${adminThisWeek}x denna vecka ✨</div>`:'<div style="font-size:.72rem;color:var(--t2);margin-top:2px">Gör ett quiz för att öka engagemanget!</div>'}
+            </div>`;
+
+            // Engagement score
+            html+=`<div style="display:flex;justify-content:center;gap:16px;margin-bottom:12px;padding:10px;background:rgba(255,255,255,.03);border-radius:10px">
+                <div style="text-align:center"><div style="font-size:1.1rem;font-weight:700;color:var(--a)">${adminEngagement}</div><div style="font-size:.68rem;color:var(--t2)">Engagemangspoäng</div></div>
+                <div style="text-align:center"><div style="font-size:1.1rem;font-weight:700;color:var(--ok)">${adminQuizCount}</div><div style="font-size:.68rem;color:var(--t2)">Quiz gjorda</div></div>
+            </div>`;
+
+            html+=`<button class="btn ba" onclick="shareNetworkInvite('${esc(fp.id)}','${esc(fp.name)}')" style="width:100%;font-size:.82rem;padding:10px">Bjud in fler till ${esc(fp.name)}s nätverk</button>
             </div>`;
         });
         html+=`</div>`;
@@ -5617,21 +5637,39 @@ function renderMoodisNetwork(){
     const tempKey='_network_child_'+d.networkChildId;
     const quizResult=quizDone[tempKey+'_'+today]||quizDone[d.networkChildId+'_'+today]||quizDone['moodly_child_'+d.networkChildId+'_'+today];
 
+    // Engagement stats
+    const myHistory=(d._quizHistory||[]).filter(h=>h.childKey&&(h.childKey.includes(d.networkChildId)||h.childKey===tempKey));
+    const totalQuizzes=myHistory.length;
+    const thisWeek=myHistory.filter(h=>{try{return Date.now()-new Date(h.date).getTime()<7*864e5}catch(e){return false}}).length;
+    const engagementPts=totalQuizzes*10;
+    // Quiz streak
+    const quizDates=[...new Set(myHistory.map(h=>h.date))].sort().reverse();
+    let quizStreak=0;
+    const todayStr=new Date().toDateString();
+    for(let i=0;i<quizDates.length;i++){
+        const expected=new Date();expected.setDate(expected.getDate()-i);
+        if(quizDates[i]===expected.toDateString()||quizDates[i]===todayStr)quizStreak++;
+        else break;
+    }
+
+    // Engagement card (always shown)
+    html+=`<div style="background:linear-gradient(135deg,rgba(108,92,231,.08),rgba(162,155,254,.05));border-radius:14px;padding:18px;text-align:center;margin-bottom:16px">
+        <div style="font-size:.7rem;color:var(--a);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">💜 Ditt engagemang</div>
+        <div style="display:flex;justify-content:center;gap:20px">
+            <div><div style="font-size:1.5rem;font-weight:800;color:var(--a)">${engagementPts}</div><div style="font-size:.68rem;color:var(--t2)">Poäng</div></div>
+            <div><div style="font-size:1.5rem;font-weight:800;color:var(--ok)">${totalQuizzes}</div><div style="font-size:.68rem;color:var(--t2)">Quiz</div></div>
+            ${quizStreak>1?`<div><div style="font-size:1.5rem;font-weight:800;color:var(--w)">🔥${quizStreak}</div><div style="font-size:.68rem;color:var(--t2)">Dagar i rad</div></div>`:''}
+        </div>
+        ${thisWeek>0?`<div style="font-size:.75rem;color:var(--ok);margin-top:8px">${thisWeek} quiz denna vecka ✨</div>`:''}
+    </div>`;
+
     if(quizResult){
-        const pctCol=quizResult.pct>=70?'var(--ok)':quizResult.pct>=40?'var(--w)':'var(--bad)';
-        html+=`<div style="background:linear-gradient(135deg,rgba(108,92,231,.08),rgba(162,155,254,.05));border-radius:14px;padding:18px;text-align:center;margin-bottom:16px">
-            <div style="font-size:.7rem;color:var(--a);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">🧩 Din förståelse för ${esc(childName)}</div>
-            <div style="font-size:2.2rem;font-weight:800;color:${pctCol}">${quizResult.pct}%</div>
-            <div style="font-size:.78rem;color:var(--t2);margin:4px 0">${quizResult.correct}/${quizResult.total} rätt</div>
+        html+=`<div style="text-align:center;margin-bottom:12px">
+            <div style="font-size:.82rem;color:var(--t)">Senaste quiz: <strong>${quizResult.correct}/${quizResult.total} rätt</strong></div>
         </div>`;
 
-        if(quizResult.pct<70){
-            html+=`<div style="background:rgba(108,92,231,.08);border-radius:12px;padding:14px;margin-bottom:16px;font-size:.82rem;color:var(--t2);line-height:1.5">
-                💡 Prata med ${esc(childName)} om svaren du missade — det stärker er relation! Kom tillbaka imorgon för ett nytt quiz.</div>`;
-        }else{
-            html+=`<div style="background:rgba(0,184,148,.08);border-radius:12px;padding:14px;margin-bottom:16px;font-size:.82rem;color:var(--ok);line-height:1.5">
-                🌟 Bra koll! Du har stark förståelse för ${esc(childName)}. Fortsätt göra quiz för att hålla dig uppdaterad!</div>`;
-        }
+        html+=`<div style="background:rgba(108,92,231,.08);border-radius:12px;padding:14px;margin-bottom:16px;font-size:.82rem;color:var(--t2);line-height:1.5">
+            💡 Varje quiz stärker din relation till ${esc(childName)}. Kom tillbaka imorgon för nya frågor!</div>`;
 
         // Show place insights for network member
         const tempCd=getFullChildData(tempKey);
