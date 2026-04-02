@@ -3106,54 +3106,80 @@ function renderMoodisParent(){
                 <button style="background:none;border:none;color:var(--pl);font-size:.75rem;cursor:pointer;margin-top:6px" onclick="showQuizHistory('${esc(fp.storageKey)}','${esc(fp.name)}')">Visa detaljer →</button>
             </div>`;
 
-            // === INSIGHTS (unlocked after quiz) ===
-            html+=`<div style="font-size:.72rem;color:var(--a);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 10px;font-weight:600">💡 Insikter från Moodis</div>`;
+            // === INSIGHTS — PLACE-FOCUSED ===
+            html+=`<div style="font-size:.72rem;color:var(--a);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 10px;font-weight:600">💡 Så känner ${esc(fp.name)} för sina platser</div>`;
 
-            // Build rich insights
-            const avgScore=todayCheckins.reduce((a,c)=>a+c.score,0)/todayCheckins.length;
-
-            // Overall mood card
-            const moodEmoji=avgScore>=4?'😄':avgScore>=3?'😐':avgScore<=2?'😢':'😕';
-            const moodText=avgScore>=4?'verkar ha mått bra':avgScore>=3?'har haft en helt okej dag':avgScore<=2?'verkar ha haft det tufft':'har haft en blandad dag';
-            html+=`<div style="background:rgba(255,255,255,.04);border-radius:12px;padding:14px;margin-bottom:10px">
-                <div style="display:flex;align-items:center;gap:10px">
-                    <span style="font-size:1.5rem">${moodEmoji}</span>
-                    <div style="font-size:.88rem;color:var(--t);line-height:1.5"><strong>${esc(fp.name)}</strong> ${moodText}.</div>
-                </div>
-            </div>`;
-
-            // Per place cards
-            todayCheckins.forEach(ci=>{
-                const place=places.find(p=>p.id===ci.placeId);
-                if(!place)return;
+            // Per place cards — with historical context
+            places.forEach(place=>{
                 const pt=PT[place.type]||PT.other;
-                const mood=MOODS[ci.score-1];
-                const tags=(ci.tags||[]).join(', ');
-                const who=ci.who||'';
-                const body=ci.body||'';
-                const isLow=ci.score<=2;
-                const isHigh=ci.score>=4;
+                const allCheckins=(cd.placeCheckins||[]).filter(c=>c.placeId===place.id);
+                const last7=allCheckins.filter(c=>Date.now()-new Date(c.ts).getTime()<7*864e5);
+                const latest=todayCheckins.find(c=>c.placeId===place.id);
+                if(!allCheckins.length)return;
+
+                const avg7=last7.length?Math.round(last7.reduce((a,c)=>a+c.score,0)/last7.length*10)/10:null;
+                const latestScore=latest?.score||null;
+                const displayScore=avg7||latestScore;
+                if(!displayScore)return;
+
+                const isLow=displayScore<=2.5;
+                const isHigh=displayScore>=3.8;
                 const bg=isLow?'rgba(225,112,85,.06)':isHigh?'rgba(0,184,148,.06)':'rgba(255,255,255,.04)';
                 const border=isLow?'border-left:3px solid var(--bad)':isHigh?'border-left:3px solid var(--ok)':'border-left:3px solid var(--t2)';
+                const moodEmoji=displayScore>=4?'😄':displayScore>=3?'🙂':displayScore>=2?'😕':'😢';
+
+                // Trend
+                const prev7=allCheckins.filter(c=>{const age=Date.now()-new Date(c.ts).getTime();return age>=7*864e5&&age<14*864e5});
+                const prevAvg=prev7.length?prev7.reduce((a,c)=>a+c.score,0)/prev7.length:null;
+                const trend=prevAvg&&avg7?(avg7-prevAvg>=0.4?'↑ Uppåt':prevAvg-avg7>=0.4?'↓ Nedåt':'→ Stabilt'):'';
+                const trendCol=trend.includes('Uppåt')?'var(--ok)':trend.includes('Nedåt')?'var(--bad)':'var(--t2)';
 
                 html+=`<div style="background:${bg};${border};border-radius:0 12px 12px 0;padding:14px;margin-bottom:8px">`;
-                html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-                    <span>${pt.icon}</span><span style="font-weight:600;font-size:.88rem">${esc(place.name)}</span>
-                    <span style="margin-left:auto;font-size:1.1rem">${mood.emoji}</span>
+
+                // Header with place name + score
+                html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                    <span>${pt.icon}</span><span style="font-weight:600;font-size:.88rem;flex:1">${esc(place.name)}</span>
+                    <span style="font-size:1.1rem">${moodEmoji}</span>
+                    <span style="font-size:.8rem;font-weight:700;color:${isHigh?'var(--ok)':isLow?'var(--bad)':'var(--t2)'}">${displayScore}/5</span>
                 </div>`;
 
-                // What happened
-                if(tags){
-                    const label=isHigh?'Det bästa':isLow?'Vad som hände':'Hur det var';
-                    html+=`<div style="font-size:.8rem;color:var(--t2);line-height:1.5"><span style="color:var(--t)">${label}:</span> ${esc(tags)}</div>`;
+                // How child feels about this place
+                if(isHigh){
+                    html+=`<div style="font-size:.84rem;color:var(--t);line-height:1.5;margin-bottom:6px">${esc(fp.name)} <strong>trivs bra</strong> på ${esc(place.name).toLowerCase()}</div>`;
+                }else if(isLow){
+                    html+=`<div style="font-size:.84rem;color:var(--t);line-height:1.5;margin-bottom:6px">${esc(fp.name)} verkar <strong>ha det tufft</strong> på ${esc(place.name).toLowerCase()}</div>`;
+                }else{
+                    html+=`<div style="font-size:.84rem;color:var(--t);line-height:1.5;margin-bottom:6px">${esc(fp.name)} tycker att ${esc(place.name).toLowerCase()} är <strong>okej</strong></div>`;
                 }
-                if(who)html+=`<div style="font-size:.8rem;color:var(--t2)"><span style="color:var(--t)">Med:</span> ${esc(who)}</div>`;
-                if(body)html+=`<div style="font-size:.8rem;color:var(--t2)"><span style="color:var(--t)">Kroppen:</span> ${esc(body)}</div>`;
 
-                // Action suggestion for low moods
-                if(isLow){
-                    html+=`<div style="font-size:.78rem;color:var(--bad);margin-top:8px;font-style:italic">💬 Kanske värt att fråga ${esc(fp.name)} om ${esc(place.name).toLowerCase()}</div>`;
+                // Latest check-in details
+                if(latest){
+                    const tags=(latest.tags||[]).join(', ');
+                    const who=latest.who||'';
+                    const body=latest.body||'';
+                    if(tags)html+=`<div style="font-size:.78rem;color:var(--t2);line-height:1.4"><span style="color:var(--t)">Senast:</span> ${esc(tags)}</div>`;
+                    if(who)html+=`<div style="font-size:.78rem;color:var(--t2)"><span style="color:var(--t)">Med:</span> ${esc(who)}</div>`;
+                    if(body)html+=`<div style="font-size:.78rem;color:var(--t2)"><span style="color:var(--t)">Kroppen:</span> ${esc(body)}</div>`;
                 }
+
+                // Trend
+                if(trend)html+=`<div style="font-size:.75rem;color:${trendCol};margin-top:6px">${trend} senaste veckan</div>`;
+
+                // Most common reasons (from all check-ins)
+                const tagCounts={};
+                last7.forEach(c=>(c.tags||[]).forEach(t=>{tagCounts[t]=(tagCounts[t]||0)+1}));
+                const topTags=Object.entries(tagCounts).sort((a,b)=>b[1]-a[1]).slice(0,3);
+                if(topTags.length){
+                    html+=`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${topTags.map(([t])=>`<span style="font-size:.68rem;padding:3px 8px;background:rgba(255,255,255,.06);border-radius:10px;color:var(--t2)">${esc(t)}</span>`).join('')}</div>`;
+                }
+
+                // Action suggestion
+                if(isLow){
+                    html+=`<div style="font-size:.78rem;color:var(--bad);margin-top:8px;font-style:italic">💬 Prata med ${esc(fp.name)} om ${esc(place.name).toLowerCase()} — det verkar finnas något att ta tag i</div>`;
+                }else if(isHigh){
+                    html+=`<div style="font-size:.78rem;color:var(--ok);margin-top:8px;font-style:italic">🌟 ${esc(place.name)} är en trygg plats — uppmuntra det som fungerar</div>`;
+                }
+
                 html+=`</div>`;
             });
 
