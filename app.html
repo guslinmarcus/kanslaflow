@@ -3172,7 +3172,6 @@ function addChild(){
 
 function removeChild(idx){
     const d=ld();if(!d.familyProfiles[idx])return;
-    if(d.familyProfiles.length<=1){toast('Du måste ha minst ett barn');return}
     if(sok)localStorage.removeItem(d.familyProfiles[idx].storageKey);
     d.familyProfiles.splice(idx,1);sv(d);
 }
@@ -3626,7 +3625,7 @@ async function finishChildOnboarding(){
     document.getElementById('ob').classList.add('h');
     document.getElementById('app').style.display='';
     const cd=ld();
-    go(cd.role==='child'?'moodis':'home');
+    go(cd.role==='parent'||(cd.familyProfiles&&cd.familyProfiles.length)?'home':'moodis');
     showCelebration('Välkommen till Moodly! 🎉');
 }
 
@@ -4850,7 +4849,7 @@ async function tryRestoreFromRemote(){
             await pullRemoteData();
             document.getElementById('ob').classList.add('h');
             document.getElementById('app').style.display='';
-            go(d.role==='child'?'moodis':'home');
+            go(d.role==='parent'||(d.familyProfiles&&d.familyProfiles.length)?'home':'moodis');
             processJoinCode();
             return;
         }
@@ -4877,7 +4876,7 @@ function initApp(){
         }
         document.getElementById('ob').classList.add('h');
         document.getElementById('app').style.display='';
-        go(d0.role==='child'?'moodis':'home');
+        go(d0.role==='parent'||(d0.familyProfiles&&d0.familyProfiles.length)?'home':'moodis');
         // Process pending join code after login
         processJoinCode();
     }else if(isChildJoin){
