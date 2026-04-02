@@ -556,8 +556,6 @@
         <input type="email" id="auth-email" placeholder="E-post">
         <input type="password" id="auth-pass" placeholder="Lösenord (minst 6 tecken)">
         <button class="btn bp" id="auth-submit" onclick="authSubmit()">Logga in</button>
-        <div class="auth-divider">eller</div>
-        <button class="btn bs" onclick="authMagicLink()" style="margin-bottom:8px">Skicka magisk länk via e-post</button>
         <div style="margin-top:16px;display:flex;gap:12px;justify-content:center">
             <a href="https://moodlyapp.se/privacy" target="_blank" style="font-size:.68rem;color:var(--t2)">Integritetspolicy</a>
             <a href="https://moodlyapp.se/terms" target="_blank" style="font-size:.68rem;color:var(--t2)">Användarvillkor</a>
@@ -852,19 +850,6 @@ async function authSubmit(){
     }
 }
 
-async function authMagicLink(){
-    const email=document.getElementById('auth-email').value.trim();
-    const errEl=document.getElementById('auth-err');
-    if(!email){errEl.textContent='Fyll i din e-post';return}
-    try{
-        const{error}=await sb.auth.signInWithOtp({email});
-        if(error)throw error;
-        errEl.style.color='var(--ok)';
-        errEl.textContent='Kolla din e-post — klicka på länken för att logga in!';
-    }catch(e){
-        errEl.textContent=e.message||'Kunde inte skicka länk';
-    }
-}
 
 
 async function onAuthReady(session){
