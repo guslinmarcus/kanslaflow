@@ -96,6 +96,15 @@
         .section-title{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:800;text-align:center;margin-bottom:12px}
         .section-sub{font-size:.95rem;color:var(--t2);text-align:center;max-width:600px;margin:0 auto 8px;line-height:1.6}
 
+        .nav-link{transition:color .2s}.nav-link:hover{color:var(--t)!important}
+        @media(min-width:769px){.nav-link{display:inline-block!important}}
+        .faq-item{background:var(--c1);border:1px solid rgba(255,255,255,.05);border-radius:12px;margin-bottom:10px;overflow:hidden}
+        .faq-q{padding:18px 20px;font-size:.9rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .2s}
+        .faq-q:hover{background:rgba(255,255,255,.02)}
+        .faq-a{padding:0 20px;max-height:0;overflow:hidden;transition:all .3s ease;font-size:.84rem;color:var(--t2);line-height:1.6}
+        .faq-item.open .faq-a{max-height:200px;padding:0 20px 18px}
+        .faq-item.open .faq-arrow{transform:rotate(180deg)}
+        .faq-arrow{transition:transform .3s;color:var(--t2);font-size:.8rem}
         @media(max-width:768px){
             .problem-grid,.privacy-grid,.data-examples{grid-template-columns:1fr}
             .how-step{flex-direction:column;align-items:center;text-align:center}
@@ -109,7 +118,12 @@
 <nav>
     <div class="container">
         <a href="#" class="logo"><span>🧒</span> Moodly</a>
-        <a href="app.html" class="nav-cta">Kom igång gratis</a>
+        <div style="display:flex;align-items:center;gap:20px">
+            <a href="#hur" style="color:var(--t2);text-decoration:none;font-size:.82rem;display:none" class="nav-link">Hur det fungerar</a>
+            <a href="#integritet" style="color:var(--t2);text-decoration:none;font-size:.82rem;display:none" class="nav-link">Integritet</a>
+            <a href="#faq" style="color:var(--t2);text-decoration:none;font-size:.82rem;display:none" class="nav-link">FAQ</a>
+            <a href="app.html" class="nav-cta">Kom igång gratis</a>
+        </div>
     </div>
 </nav>
 
@@ -209,7 +223,7 @@
 </section>
 
 <!-- PRIVACY -->
-<section>
+<section id="integritet">
     <div class="container">
         <h2 class="section-title reveal">Integritet först</h2>
         <p class="section-sub reveal reveal-d1">Moodly är byggt med barnets integritet som grund. Alltid.</p>
@@ -243,6 +257,43 @@
             <div class="data-card reveal reveal-d3">
                 <h4>Trygghetsnätverk</h4>
                 <p>"Barn med 3+ engagerade vuxna i sitt nätverk rapporterar 35% högre välmående."</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+    <div class="container" style="max-width:700px">
+        <h2 class="section-title reveal">Vanliga frågor</h2>
+        <div style="margin-top:28px">
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+                <div class="faq-q">Är Moodly gratis?<span class="faq-arrow">▼</span></div>
+                <div class="faq-a">Ja, Moodly är helt gratis att använda. Vi är en ideell förening som drivs av viljan att förbättra barns miljöer. I framtiden kan vi erbjuda premiumfunktioner, men grundtjänsten kommer alltid vara gratis.</div>
+            </div>
+            <div class="faq-item reveal reveal-d1" onclick="this.classList.toggle('open')">
+                <div class="faq-q">Från vilken ålder fungerar det?<span class="faq-arrow">▼</span></div>
+                <div class="faq-a">Moodly är designat för barn 6-17 år. Moodis använder enkla emojis och tryck-baserade svar som fungerar bra redan från 6 års ålder. Äldre barn får mer nyanserade frågor.</div>
+            </div>
+            <div class="faq-item reveal reveal-d2" onclick="this.classList.toggle('open')">
+                <div class="faq-q">Vem kan se mitt barns data?<span class="faq-arrow">▼</span></div>
+                <div class="faq-a">Bara du och de familjemedlemmar du bjuder in. Moodly ser aldrig individuell data. All aggregerad statistik kräver minst 10 barn per grupp och kan aldrig spåras till enskilda individer.</div>
+            </div>
+            <div class="faq-item reveal reveal-d3" onclick="this.classList.toggle('open')">
+                <div class="faq-q">Kan mitt barn se vad jag svarar i quizet?<span class="faq-arrow">▼</span></div>
+                <div class="faq-a">Nej. Quizet är bara för dig som vuxen. Barnet ser inte dina svar och vet inte hur du presterade. Barnet ser bara ett varmt meddelande om att många bryr sig.</div>
+            </div>
+            <div class="faq-item reveal" onclick="this.classList.toggle('open')">
+                <div class="faq-q">Vad händer med datan om jag slutar använda Moodly?<span class="faq-arrow">▼</span></div>
+                <div class="faq-a">Du kan exportera all din data eller radera ditt konto och all data permanent — när som helst, direkt i appen. Vi sparar aldrig data efter att du raderat ditt konto.</div>
+            </div>
+            <div class="faq-item reveal reveal-d1" onclick="this.classList.toggle('open')">
+                <div class="faq-q">Behöver mitt barn en egen telefon?<span class="faq-arrow">▼</span></div>
+                <div class="faq-a">Nej. Du kan ge din telefon till barnet när det är dags att prata med Moodis — det tar bara en minut. Om barnet har en egen telefon kan du dela en inbjudningslänk så de får ett eget konto kopplat till ditt.</div>
+            </div>
+            <div class="faq-item reveal reveal-d2" onclick="this.classList.toggle('open')">
+                <div class="faq-q">Vad är trygghetsnätverket?<span class="faq-arrow">▼</span></div>
+                <div class="faq-a">Du kan bjuda in mormor, farfar och andra som bryr sig om ditt barn. De får göra quiz för att testa sin förståelse. Ju fler som engagerar sig regelbundet, desto högre trygghetsgrad — en levande poäng som visar hur starkt nätverket runt barnet är.</div>
             </div>
         </div>
     </div>
