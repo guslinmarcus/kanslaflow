@@ -5576,6 +5576,8 @@ function detectNetworkJoin(){
     try{
         const data=JSON.parse(atob(code));
         localStorage.setItem('moodly_network_join',JSON.stringify(data));
+        // Clean URL to prevent re-triggering on refresh
+        history.replaceState(null,'',window.location.pathname);
         // Update auth screen for network invite
         const badge=document.getElementById('auth-badge');
         if(badge){badge.style.display='inline-flex';badge.className='auth-child-badge';badge.innerHTML='💜 Du har blivit inbjuden!';}
@@ -5628,7 +5630,7 @@ async function processNetworkJoin(){
         sv(d);
         localStorage.removeItem('moodly_network_join');
         toast('Du gick med i '+data.childName+'s trygghetsnätverk!');
-    }catch(e){}
+    }catch(e){localStorage.removeItem('moodly_network_join')}
 }
 
 // ===== NETWORK MEMBER VIEW (role=network) =====
