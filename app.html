@@ -504,13 +504,6 @@
         .fb-star{font-size:1.5rem;cursor:pointer;opacity:.3;transition:opacity .15s}
         .fb-star.on{opacity:1}
         .fb-btns{display:flex;gap:8px;margin-top:14px}
-        .demo-banner{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,var(--p),var(--pd));padding:14px 16px;text-align:center;border-radius:0 0 16px 16px;margin:-16px -16px 16px}
-        .demo-banner .db-title{font-size:.88rem;font-weight:700;margin-bottom:8px}
-        .demo-banner .db-sub{font-size:.72rem;color:rgba(255,255,255,.7);margin-bottom:10px}
-        .demo-banner .db-btns{display:flex;gap:8px;justify-content:center}
-        .demo-banner .db-btn{padding:8px 18px;border-radius:20px;font-size:.78rem;font-weight:700;border:none;cursor:pointer}
-        .demo-banner .db-btn.primary{background:#fff;color:var(--pd)}
-        .demo-banner .db-btn.secondary{background:rgba(255,255,255,.15);color:#fff}
 
         /* Quick place buttons */
         .quick-places{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:center}
@@ -565,7 +558,6 @@
         <button class="btn bp" id="auth-submit" onclick="authSubmit()">Logga in</button>
         <div class="auth-divider">eller</div>
         <button class="btn bs" onclick="authMagicLink()" style="margin-bottom:8px">Skicka magisk länk via e-post</button>
-        <button class="btn" onclick="authSkip()" style="background:none;color:var(--t2);font-size:.8rem;margin-top:8px" id="auth-skip-btn">Fortsätt utan konto</button>
         <div style="margin-top:16px;display:flex;gap:12px;justify-content:center">
             <a href="https://moodlyapp.se/privacy" target="_blank" style="font-size:.68rem;color:var(--t2)">Integritetspolicy</a>
             <a href="https://moodlyapp.se/terms" target="_blank" style="font-size:.68rem;color:var(--t2)">Användarvillkor</a>
@@ -897,10 +889,6 @@ async function authMagicLink(){
     }
 }
 
-function authSkip(){
-    document.getElementById('auth-screen').classList.add('h');
-    initApp();
-}
 
 async function onAuthReady(session){
     sbUser=session?.user||null;
@@ -3579,9 +3567,6 @@ function detectChildJoin(){
         if(emojiEl)emojiEl.textContent='🎉';
         // Default to signup
         switchAuthTab('signup');
-        // Hide skip button — child needs an account
-        const skipBtn=document.getElementById('auth-skip-btn');
-        if(skipBtn)skipBtn.style.display='none';
     }
 }
 
@@ -4748,95 +4733,7 @@ function generateSmartSummary(cd,childName){
     return lines.slice(0,4);
 }
 
-// ===== DEMO MODE =====
-let isDemo=false;
-function showDemo(){
-    isDemo=true;
-    document.getElementById('auth-screen').style.display='none';
-    document.getElementById('ob').classList.add('h');
-    document.getElementById('app').style.display='';
 
-    // Generate demo data
-    const today=new Date();
-    const demoChildren=[
-        {name:'Maja',ageGroup:'10-13',storageKey:'_demo_maja'},
-        {name:'Leo',ageGroup:'6-9',storageKey:'_demo_leo'}
-    ];
-    const majaPlaces=[
-        {id:'dp1',name:'Västerskolan',type:'school'},
-        {id:'dp2',name:'IFK Handboll',type:'sport'},
-        {id:'dp3',name:'Hem',type:'home'}
-    ];
-    const leoPlaces=[
-        {id:'dp4',name:'Ekens förskola',type:'school'},
-        {id:'dp5',name:'Fotboll',type:'sport'},
-        {id:'dp6',name:'Hem',type:'home'}
-    ];
-    // 7 days of checkins
-    function genCheckins(places,patterns){
-        const checkins=[];
-        for(let day=6;day>=0;day--){
-            const d=new Date(today);d.setDate(d.getDate()-day);
-            places.forEach((p,i)=>{
-                const base=patterns[i];
-                const score=Math.max(1,Math.min(5,base+Math.round((Math.random()-0.5)*2)));
-                const tags=score<=2?['Kompisar','Trött']:score>=4?['Kompisar','Kul']:['Vanlig dag'];
-                checkins.push({ts:d.toISOString(),placeId:p.id,score,comment:'',tags});
-            });
-        }
-        // Today's checkins with specific tags
-        return checkins;
-    }
-    const majaCheckins=genCheckins(majaPlaces,[2,4,4]);
-    // Override today's with specific tags
-    const todayStr=today.toDateString();
-    majaCheckins.filter(c=>new Date(c.ts).toDateString()===todayStr).forEach(c=>{
-        if(c.placeId==='dp1'){c.score=2;c.tags=['Kompisar','Prov/läxor']}
-        if(c.placeId==='dp2'){c.score=5;c.tags=['Bra träning','Kompisar']}
-        if(c.placeId==='dp3'){c.score=4;c.tags=['Lugnt']}
-    });
-    const leoCheckins=genCheckins(leoPlaces,[4,2,5]);
-    leoCheckins.filter(c=>new Date(c.ts).toDateString()===todayStr).forEach(c=>{
-        if(c.placeId==='dp4'){c.score=4;c.tags=['Rolig lektion','Kompisar']}
-        if(c.placeId==='dp5'){c.score=2;c.tags=['Förlorade','Ont']}
-        if(c.placeId==='dp6'){c.score=5;c.tags=['Familj','Mys']}
-    });
-
-    // Store demo data temporarily
-    const majaData={places:majaPlaces,placeCheckins:majaCheckins,points:145,streak:7,selectedAvatar:'fox',unlockedAvatars:['default','fox'],role:'child',userName:'Maja'};
-    const leoData={places:leoPlaces,placeCheckins:leoCheckins,points:80,streak:4,selectedAvatar:'default',unlockedAvatars:['default'],role:'child',userName:'Leo'};
-    try{
-        localStorage.setItem('_demo_maja',JSON.stringify(majaData));
-        localStorage.setItem('_demo_leo',JSON.stringify(leoData));
-    }catch(e){}
-
-    // Set parent-like data temporarily
-    const demoParent={firstVisit:true,userName:'Demo',role:'parent',familyProfiles:demoChildren,places:[],placeCheckins:[],cheersSent:{},parentReactions:[],points:0,kommun:'Täby'};
-    D=demoParent;
-
-    // Render
-    renderParentView();
-
-    // Add demo banner
-    const summaryEl=document.getElementById('home-summary');
-    summaryEl.insertAdjacentHTML('afterbegin',`<div class="demo-banner">
-        <div class="db-title">Det här är en demo</div>
-        <div class="db-sub">Skapa ett konto för att börja följa ditt barns mående</div>
-        <div class="db-btns">
-            <button class="db-btn primary" onclick="exitDemo();document.getElementById('auth-screen').style.display=''">Skapa konto</button>
-            <button class="db-btn secondary" onclick="exitDemo();obNext(1)">Prova utan konto</button>
-        </div>
-    </div>`);
-}
-
-function exitDemo(){
-    isDemo=false;
-    try{localStorage.removeItem('_demo_maja');localStorage.removeItem('_demo_leo')}catch(e){}
-    // Reset D completely — remove all demo data
-    D={firstVisit:true,userName:'',role:'',kommun:'',familyProfiles:[],places:[],placeCheckins:[],points:0,streak:0,cheersSent:{},parentReactions:[],selectedAvatar:'default',unlockedAvatars:['default']};
-    document.getElementById('app').style.display='none';
-    document.getElementById('ob').classList.remove('h');
-}
 
 async function tryRestoreFromRemote(){
     // Check if user has existing data in Supabase before showing onboarding
@@ -4906,9 +4803,8 @@ function initApp(){
         tryRestoreFromRemote();
         return;
     }else{
-        // New user — show demo dashboard
-        document.getElementById('auth-screen').style.display='none';
-        showDemo();
+        // New user — show auth screen
+        document.getElementById('auth-screen').style.display='';
     }
 }
 
