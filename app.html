@@ -637,12 +637,12 @@
         <div style="font-size:3.2rem;margin-bottom:14px">🧒</div>
         <h1>Välkommen till Moodly</h1>
         <p>Följ hur ditt barn mår — i skolan, på idrotten och hemma.</p>
-        <p style="font-size:.78rem;color:var(--pl);margin:8px 0 16px;font-weight:600">Du skapar kontot. Dina barn checkar sedan in sitt mående dagligen.</p>
+        <p style="font-size:.78rem;color:var(--pl);margin:8px 0 16px;font-weight:600">Förstå hur ditt barn mår — på riktigt.</p>
         <div style="text-align:left;max-width:280px;margin-bottom:24px">
-            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>😊</span> Barnet trycker en emoji per plats — tar 30 sek</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>📈</span> Du ser trender och mönster i din dashboard</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔔</span> Varningar om mående sjunker</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔒</span> Privat — du ser trender, aldrig samtal</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🤗</span> Moodis pratar med barnet genom lek — barnet delar sitt mående</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>💡</span> Du får insikter om varje plats — skola, idrott, hem</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔔</span> Tidiga varningar om något inte stämmer</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.83rem;color:var(--t2)"><span>🔒</span> Integritet — du ser trender, aldrig barnets svar</div>
         </div>
         <button class="btn bp" onclick="obNext(2)" style="max-width:280px">Kom igång</button>
     </div>
@@ -703,7 +703,12 @@
     <div class="ob-step" id="ob5">
         <div style="font-size:2.5rem;margin-bottom:10px">✅</div>
         <h1>Allt klart!</h1>
-        <p id="ob5-summary">Dina barn kan börja checka in. Du ser allt i din dashboard.</p>
+        <div id="ob5-summary" style="font-size:.88rem;color:var(--t2);line-height:1.6;margin-bottom:16px"></div>
+        <div style="text-align:left;max-width:300px;margin:0 auto 20px">
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:.82rem;color:var(--t2);line-height:1.5"><span style="font-size:1.1rem;flex-shrink:0">🤗</span><span><strong>Moodis</strong> blir ditt barns kompis i appen — genom lek och frågor berättar barnet hur det mår på varje plats</span></div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:.82rem;color:var(--t2);line-height:1.5"><span style="font-size:1.1rem;flex-shrink:0">💡</span><span>Du får insikter om hur ditt barn verkligen mår — på skolan, idrotten och hemma — utan att behöva fråga</span></div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:.82rem;color:var(--t2);line-height:1.5"><span style="font-size:1.1rem;flex-shrink:0">🌱</span><span>Tillsammans hjälper vi dig förstå vilka miljöer som får ditt barn att blomstra — och vilka som behöver förändras</span></div>
+        </div>
         <button class="btn ba" onclick="finishOnboarding()">Starta Moodly</button>
     </div>
 
@@ -2401,7 +2406,7 @@ function obNext(step){
     if(step===5){
         const parts=obChildren.map(c=>c.name+' ('+c.places.length+' platser)');
         const names=parts.length>1?parts.slice(0,-1).join(', ')+' och '+parts[parts.length-1]:parts[0];
-        document.getElementById('ob5-summary').textContent=names+' kan börja checka in. Du ser allt i din dashboard.';
+        document.getElementById('ob5-summary').innerHTML='<strong>'+esc(names)+'</strong> — redo att börja! Ge din telefon till barnet eller lägg till Moodly på barnets egen enhet senare under Profil.';
     }
 }
 
@@ -3556,7 +3561,7 @@ function renderFamily(){
     // Share with child
     if(d.role==='parent'&&d.familyProfiles&&d.familyProfiles.length>0){
         html+=`<div class="cd"><div class="ct">📱 Barnets egen enhet</div>
-            <p style="font-size:.78rem;color:var(--t2);margin-bottom:10px;line-height:1.5">Ge ditt barn en egen inloggning så de kan checka in på sin egen telefon. Du ser fortfarande allt i din dashboard.</p>
+            <p style="font-size:.78rem;color:var(--t2);margin-bottom:10px;line-height:1.5">Lägg till Moodly på ditt barns telefon eller surfplatta. Barnet pratar med Moodis på sin enhet och du får insikterna här.</p>
             <button class="btn ba" onclick="shareChildInvite()">Dela inbjudningslänk till barn</button>
         </div>`;
     }
