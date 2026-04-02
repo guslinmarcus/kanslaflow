@@ -203,52 +203,40 @@
         .alert-desc{font-size:.76rem;color:var(--t2);margin-top:2px;line-height:1.4}
         .alert-dismiss{background:none;border:none;color:var(--t2);font-size:1.1rem;cursor:pointer;padding:2px 6px;flex-shrink:0;opacity:.6}
 
-        /* CONVERSATION VIEW */
-        .conv-view{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column}
-        .conv-view.on{display:flex}
-        .conv-top{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)}
-        .conv-top .name{font-weight:700;font-size:.92rem;display:flex;align-items:center;gap:8px}
-        .conv-top .name .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blink 1.5s infinite}
-        .conv-top .timer{font-size:.78rem;color:var(--t2);font-variant-numeric:tabular-nums}
-        @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-        .chat-area{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
-        .chat-msg{max-width:82%;padding:12px 16px;border-radius:18px;font-size:.88rem;line-height:1.5;animation:fu .3s ease}
-        .chat-msg.ai{align-self:flex-start;background:var(--c2);color:var(--t);border-bottom-left-radius:4px}
-        .chat-msg.user{align-self:flex-end;background:var(--p);color:#fff;border-bottom-right-radius:4px}
-        .chat-msg.typing{color:var(--t2);font-style:italic}
-        .typing-dots{display:inline-flex;gap:3px;padding:4px 0}
-        .typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--t2);animation:tdot 1.2s infinite}
-        .typing-dots span:nth-child(2){animation-delay:.2s}
-        .typing-dots span:nth-child(3){animation-delay:.4s}
-        @keyframes tdot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
-        .conv-bottom{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);padding-bottom:calc(12px + env(safe-area-inset-bottom))}
-        .conv-input-row{display:flex;gap:8px;align-items:center}
-        .conv-text-input{flex:1;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:24px;color:var(--t);font-size:.88rem;outline:none}
-        .conv-text-input::placeholder{color:var(--t2)}
-        .mic-btn{width:42px;height:42px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
-        .mic-btn.idle{background:var(--p)}
-        .mic-btn.rec{background:var(--bad);animation:rec-pulse 1.5s infinite}
-        .mic-btn svg{width:20px;height:20px;fill:#fff}
-        @keyframes rec-pulse{0%,100%{box-shadow:0 0 0 0 rgba(225,112,85,.3)}50%{box-shadow:0 0 0 10px rgba(225,112,85,0)}}
-        .send-btn{width:42px;height:42px;border-radius:50%;border:none;background:var(--a);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-        .send-btn svg{width:20px;height:20px;fill:var(--bg)}
-        .conv-actions{display:flex;gap:8px;margin-top:8px;justify-content:center}
-        .end-btn{padding:8px 24px;border:none;border-radius:20px;background:rgba(225,112,85,.15);color:var(--bad);font-size:.8rem;font-weight:600;cursor:pointer}
-        .end-btn:active{transform:scale(.95)}
-        .listening-indicator{font-size:.72rem;color:var(--t2);text-align:center;margin-bottom:6px;min-height:16px}
-
-        /* CHAT PAGE */
-        .avatar-wrap{position:relative;width:120px;height:120px;margin:0 auto}
-        .avatar-orb{width:120px;height:120px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;transition:all .5s}
-        .avatar-orb .glow{position:absolute;inset:-20px;border-radius:50%;filter:blur(25px);opacity:.4;transition:all .5s}
-        .avatar-orb .core{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;transition:all .5s}
-        .avatar-orb .eyes{display:flex;gap:16px;margin-bottom:5px}
-        .avatar-orb .eye{width:7px;height:7px;border-radius:50%;background:#fff;transition:all .3s}
-        .avatar-orb .mouth{width:18px;height:3px;border-radius:3px;background:rgba(255,255,255,.6);transition:all .3s}
-        .avatar-orb.idle .core{animation:breathe 4s ease-in-out infinite}
-        @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
-        .start-conv-btn{width:100%;padding:18px;border:none;border-radius:var(--r);background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-size:1.05rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin:16px 0}
-        .start-conv-btn:active{transform:scale(.97)}
+        /* MOODIS COMPANION */
+        .moodis-wrap{position:relative;width:140px;height:140px;margin:0 auto}
+        .moodis-creature{width:140px;height:140px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;transition:all .5s}
+        .moodis-creature .glow{position:absolute;inset:-20px;border-radius:50%;filter:blur(25px);opacity:.4;transition:all .5s}
+        .moodis-creature .body{border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;transition:all .5s}
+        .moodis-creature .eyes{display:flex;gap:14px;margin-bottom:5px}
+        .moodis-creature .eye{width:8px;height:8px;border-radius:50%;background:#fff;transition:all .3s}
+        .moodis-creature .mouth{width:18px;height:3px;border-radius:3px;background:rgba(255,255,255,.6);transition:all .3s}
+        .moodis-creature.happy .mouth{height:9px;border-radius:0 0 12px 12px;width:16px}
+        .moodis-creature.sad .mouth{height:9px;border-radius:12px 12px 0 0;width:16px;margin-top:2px}
+        .moodis-creature.excited .eye{animation:moodis-blink 2s infinite}
+        .moodis-creature .body{animation:moodis-breathe 4s ease-in-out infinite}
+        @keyframes moodis-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        @keyframes moodis-blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+        .moodis-stage-egg .body{width:70px;height:80px;border-radius:50% 50% 50% 50% / 60% 60% 40% 40%}
+        .moodis-stage-small .body{width:75px;height:75px;border-radius:50%}
+        .moodis-stage-medium .body{width:90px;height:90px;border-radius:50%}
+        .moodis-stage-large .body{width:105px;height:105px;border-radius:50%}
+        .moodis-stage-special .body{width:110px;height:110px;border-radius:50%;box-shadow:0 0 30px rgba(108,92,231,.5)}
+        .moodis-hat{position:absolute;top:-15px;font-size:1.6rem;z-index:2}
+        .moodis-msg{text-align:center;margin-top:12px;font-size:.85rem;color:var(--t2);min-height:24px}
+        .moodis-progress{margin:20px auto;max-width:200px}
+        .moodis-progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+        .moodis-progress-fill{height:100%;background:var(--p);border-radius:3px;transition:width .5s}
+        .moodis-progress-label{font-size:.7rem;color:var(--t2);text-align:center;margin-top:4px}
+        .moodis-shop-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--c2);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:transform .1s}
+        .moodis-shop-item:active{transform:scale(.97)}
+        .moodis-shop-item.owned{opacity:.5}
+        .challenge-card{background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(162,155,254,.1));border-radius:16px;padding:20px;margin:16px 0;text-align:center}
+        .challenge-card .challenge-text{font-size:.92rem;font-weight:600;margin-bottom:12px;line-height:1.4}
+        .challenge-card .challenge-pts{font-size:.75rem;color:var(--a);margin-bottom:12px}
+        .challenge-options{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+        .challenge-opt{padding:8px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t);font-size:.82rem;cursor:pointer;transition:all .15s}
+        .challenge-opt:active,.challenge-opt.selected{background:var(--p);color:#fff;border-color:var(--p)}
 
         /* RESULT */
         .res-hero{text-align:center;padding:16px 0}
@@ -566,6 +554,10 @@
         <div class="auth-divider">eller</div>
         <button class="btn bs" onclick="authMagicLink()" style="margin-bottom:8px">Skicka magisk länk via e-post</button>
         <button class="btn" onclick="authSkip()" style="background:none;color:var(--t2);font-size:.8rem;margin-top:8px" id="auth-skip-btn">Fortsätt utan konto</button>
+        <div style="margin-top:16px;display:flex;gap:12px;justify-content:center">
+            <a href="https://moodlyapp.se/privacy" target="_blank" style="font-size:.68rem;color:var(--t2)">Integritetspolicy</a>
+            <a href="https://moodlyapp.se/terms" target="_blank" style="font-size:.68rem;color:var(--t2)">Användarvillkor</a>
+        </div>
     </div>
 </div>
 
@@ -738,25 +730,6 @@
     </div>
 </div>
 
-<!-- CONVERSATION VIEW -->
-<div class="conv-view" id="conv-view">
-    <div class="conv-top">
-        <span class="name" id="conv-name"><span class="dot"></span></span>
-        <span class="timer" id="conv-timer">0:00</span>
-    </div>
-    <div class="chat-area" id="chat-area"></div>
-    <div class="conv-bottom">
-        <div class="listening-indicator" id="listen-ind"></div>
-        <div class="conv-input-row">
-            <input type="text" class="conv-text-input" id="conv-text" placeholder="Skriv här..." enterkeyhint="send">
-            <button class="mic-btn idle" id="mic-btn"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
-            <button class="send-btn" id="send-btn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
-        </div>
-        <div class="conv-actions">
-            <button class="end-btn" id="end-conv-btn">Avsluta samtal</button>
-        </div>
-    </div>
-</div>
 
 <!-- APP -->
 <div id="app" style="display:none">
@@ -785,28 +758,17 @@
         <div id="family-content"></div>
     </div>
 
-    <!-- SAMTAL -->
-    <div class="pg" id="pg-chat">
+    <!-- MOODIS -->
+    <div class="pg" id="pg-moodis">
         <div style="text-align:center;padding:20px 0 8px">
-            <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;letter-spacing:-.01em">Samtal</h2>
-            <p style="font-size:.8rem;color:var(--t2);margin-bottom:16px">Prata med din AI-kompis om hur du mår</p>
+            <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;letter-spacing:-.01em" id="moodis-title">Moodis</h2>
+            <p style="font-size:.8rem;color:var(--t2);margin-bottom:16px" id="moodis-subtitle">Din kompis som växer med dig</p>
         </div>
-        <div style="margin:16px 0">
-            <div class="avatar-wrap">
-                <div class="avatar-orb idle" id="home-orb">
-                    <div class="glow" id="home-glow" style="background:radial-gradient(circle,#A29BFE,#6C5CE7)"></div>
-                    <div class="core" style="background:radial-gradient(circle,#A29BFE 0%,#6C5CE7 100%)">
-                        <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-            </div>
-            <div style="text-align:center;margin-top:8px;font-size:.82rem;color:var(--t2)" id="home-ai-msg"></div>
-        </div>
-        <button class="start-conv-btn" id="start-conv-btn">
-            <span>Starta samtal</span>
-        </button>
-        <div id="chat-history"></div>
+        <div id="moodis-creature-area"></div>
+        <div class="moodis-msg" id="moodis-msg"></div>
+        <div class="moodis-progress" id="moodis-progress"></div>
+        <div id="moodis-challenge"></div>
+        <div id="moodis-shop"></div>
     </div>
 
     <!-- RESULT (shown after conversation) -->
@@ -827,7 +789,7 @@
     <nav class="nav">
         <div class="ni on" data-p="home"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Hem</div>
         <div class="ni" data-p="insikter"><svg viewBox="0 0 24 24"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>Insikter</div>
-        <div class="ni" data-p="chat"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>Samtal</div>
+        <div class="ni" data-p="moodis"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>Moodis</div>
         <div class="ni" data-p="family"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Familj</div>
     </nav>
 </div>
@@ -1355,7 +1317,7 @@ async function searchNominatim(query,dropdown,input,addrId){
 // Migrate old data
 (function(){if(!sok)return;try{const old=localStorage.getItem('kf3');const nw=localStorage.getItem('moodly');if(old&&!nw)localStorage.setItem('moodly',old)}catch(e){}})();
 
-function ld(){if(!sok)return{...D};try{const r=localStorage.getItem(APK);if(!r)return{...D};const d=JSON.parse(r);if(!d.places)d.places=[];if(!d.placeCheckins)d.placeCheckins=[];if(!d.benchmarks)d.benchmarks=[];if(!d.micro)d.micro=[];if(!d.checkins)d.checkins=[];if(!d.alertsSeen)d.alertsSeen=[];if(!d.familyProfiles)d.familyProfiles=[];if(!d.points)d.points=0;if(!d.unlockedAvatars)d.unlockedAvatars=['default'];if(!d.selectedAvatar)d.selectedAvatar='default';if(!d.kommun)d.kommun='';if(!d.parentReactions)d.parentReactions=[];if(!d.cheersSent)d.cheersSent={};return d}catch(e){return{...D}}}
+function ld(){if(!sok)return{...D};try{const r=localStorage.getItem(APK);if(!r)return{...D};const d=JSON.parse(r);if(!d.places)d.places=[];if(!d.placeCheckins)d.placeCheckins=[];if(!d.benchmarks)d.benchmarks=[];if(!d.micro)d.micro=[];if(!d.checkins)d.checkins=[];if(!d.alertsSeen)d.alertsSeen=[];if(!d.familyProfiles)d.familyProfiles=[];if(!d.points)d.points=0;if(!d.unlockedAvatars)d.unlockedAvatars=['default'];if(!d.selectedAvatar)d.selectedAvatar='default';if(!d.kommun)d.kommun='';if(!d.parentReactions)d.parentReactions=[];if(!d.cheersSent)d.cheersSent={};if(!d.moodis)d.moodis={stage:'egg',hat:null,color:'purple',ownedHats:[],mood:'neutral',_lastStage:null};if(!d.dailyChallengeDate)d.dailyChallengeDate='';return d}catch(e){return{...D}}}
 function sv(d){D=d;if(sok)try{localStorage.setItem(APK,JSON.stringify(d))}catch(e){}}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
@@ -1594,9 +1556,9 @@ function renderHome(){
     const avatar=AVATARS[d.selectedAvatar||'default']?.emoji||'😊';
     const isChild=d.role==='child';
     if(isChild){
-        document.getElementById('home-greeting').innerHTML=`<span style="font-size:1.6rem">${avatar}</span> ${greet}, ${d.userName||'du'}!`;
+        document.getElementById('home-greeting').innerHTML=`<span style="font-size:1.6rem">${avatar}</span> ${greet}, ${esc(d.userName)||'du'}!`;
     }else{
-        document.getElementById('home-greeting').innerHTML=`${avatar} ${greet}, ${d.userName||'du'}!`;
+        document.getElementById('home-greeting').innerHTML=`${avatar} ${greet}, ${esc(d.userName)||'du'}!`;
     }
 
     const todayChecks=getTodayCheckins(d);
@@ -1669,9 +1631,9 @@ function renderHome(){
             let reactHtml='';
             unseen.slice(0,3).forEach(r=>{
                 const emoji=r.reactionType==='high_five'?'🖐️':(r.emoji||'❤️');
-                const from=r.fromName||'Förälder';
-                const msg=r.message?`"${r.message}"`:'';
-                reactHtml+=`<div class="reaction-banner" onclick="markReactionsSeen(['${r.id}']);this.remove();renderHome()">
+                const from=esc(r.fromName||'Förälder');
+                const msg=r.message?`"${esc(r.message)}"`:'';
+                reactHtml+=`<div class="reaction-banner" onclick="markReactionsSeen(['${esc(r.id)}']);this.remove();renderHome()">
                     <div class="rb-emoji">${emoji}</div>
                     <div class="rb-from">${from} skickade</div>
                     ${msg?`<div class="rb-msg">${msg}</div>`:''}
@@ -1763,7 +1725,7 @@ function renderParentView(){
     const d=ld();
     const hr=new Date().getHours();
     const greet=hr<10?'God morgon':hr<17?'Hej':hr<21?'God kväll':'God natt';
-    document.getElementById('home-greeting').innerHTML=`${greet}, ${d.userName||'du'}!`;
+    document.getElementById('home-greeting').innerHTML=`${greet}, ${esc(d.userName)||'du'}!`;
     const childCount=(d.familyProfiles||[]).length;
     document.getElementById('home-sub').textContent=childCount?`${childCount} barn · Förälder-dashboard`:'Förälder-dashboard';
     document.querySelector('.streak-row').style.display='none';
@@ -1811,7 +1773,7 @@ function renderParentView(){
         cd.places.forEach(p=>{
             const recent=(cd.placeCheckins||[]).filter(c=>c.placeId===p.id).slice(-3);
             if(recent.length>=3&&recent.every(c=>c.score<=2)){
-                alertsHtml+=`<div class="alert-card bad"><div class="alert-icon">📉</div><div class="alert-body"><div class="alert-title">${fp.name}: Lågt mående på ${p.name}</div><div class="alert-desc">Rapporterat lågt 3+ dagar i rad</div></div></div>`;
+                alertsHtml+=`<div class="alert-card bad"><div class="alert-icon">📉</div><div class="alert-body"><div class="alert-title">${esc(fp.name)}: Lågt mående på ${esc(p.name)}</div><div class="alert-desc">Rapporterat lågt 3+ dagar i rad</div></div></div>`;
             }
         });
     });
@@ -1835,7 +1797,7 @@ function renderParentView(){
                     <div class="fam-child-name">${esc(fp.name)}</div>
                     <div class="fam-child-meta"><span>${fp.ageGroup}</span><span>🔥 ${streak}</span></div>
                 </div>
-                <button class="btn bs" style="width:auto;padding:8px 14px;font-size:.75rem;border-radius:10px" onclick="switchToProfile('${fp.storageKey}','${fp.name}')">Öppna</button>
+                <button class="btn bs" style="width:auto;padding:8px 14px;font-size:.75rem;border-radius:10px" onclick="switchToProfile('${esc(fp.storageKey)}','${esc(fp.name)}')">Öppna</button>
             </div>`;
 
         if(cd&&cd.places&&cd.places.length){
@@ -1848,7 +1810,7 @@ function renderParentView(){
             });
             html+=`</span></div>`;
             html+=`<div class="fam-child-body">`;
-            if(checkedCount===0)html+=`<div style="font-size:.78rem;color:var(--t2);padding:8px 0;text-align:center">💡 Ge din telefon till ${fp.name} och låt hen trycka på en emoji för varje plats</div>`;
+            if(checkedCount===0)html+=`<div style="font-size:.78rem;color:var(--t2);padding:8px 0;text-align:center">💡 Ge din telefon till ${esc(fp.name)} och låt hen trycka på en emoji för varje plats</div>`;
             cd.places.forEach(p=>{
                 const pt=PT[p.type]||PT.other;
                 const tc=todayChecks.find(c=>c.placeId===p.id);
@@ -1863,11 +1825,11 @@ function renderParentView(){
                 const trend=avg7&&avgPrev?(avg7-avgPrev>=0.5?'↑':avgPrev-avg7>=0.5?'↓':'→'):null;
                 const trendCol=trend==='↑'?'var(--ok)':trend==='↓'?'var(--bad)':'var(--t2)';
                 const col=avg?avg>=4?'var(--ok)':avg>=3?'var(--w)':'var(--bad)':'var(--t2)';
-                html+=`<div class="fam-place-row"><span class="fam-place-icon" style="background:${pt.bg}">${pt.icon}</span><span style="flex:1">${p.name}</span><span style="font-size:1.1rem">${mood?mood.emoji:'⬜'}</span>${avg?`<span class="fam-place-score" style="color:${col}">${avg}${trend?` <span style="color:${trendCol}">${trend}</span>`:''}</span>`:''}</div>`;
+                html+=`<div class="fam-place-row"><span class="fam-place-icon" style="background:${pt.bg}">${pt.icon}</span><span style="flex:1">${esc(p.name)}</span><span style="font-size:1.1rem">${mood?mood.emoji:'⬜'}</span>${avg?`<span class="fam-place-score" style="color:${col}">${avg}${trend?` <span style="color:${trendCol}">${trend}</span>`:''}</span>`:''}</div>`;
                 // Show today's tags or top weekly tags
-                if(tc?.tags&&tc.tags.length){const sc=tc.score<=2?'neg':tc.score>=4?'pos':'neu';html+=`<div class="fam-tags">${tc.tags.map(t=>`<span class="fam-tag ${sc}">${t}</span>`).join('')}</div>`}
-                else if(last7.length){const tagC={};last7.forEach(c=>(c.tags||[]).forEach(t=>{tagC[t]=(tagC[t]||0)+1}));const top=Object.entries(tagC).sort((a,b)=>b[1]-a[1]).slice(0,2);if(top.length)html+=`<div class="fam-tags"><span style="font-size:.6rem;color:var(--t2);margin-right:2px">Veckan:</span>${top.map(([t])=>`<span class="fam-tag neu">${t}</span>`).join('')}</div>`}
-                if(tc?.comment)html+=`<div class="fam-place-comment">"${tc.comment}"</div>`;
+                if(tc?.tags&&tc.tags.length){const sc=tc.score<=2?'neg':tc.score>=4?'pos':'neu';html+=`<div class="fam-tags">${tc.tags.map(t=>`<span class="fam-tag ${sc}">${esc(t)}</span>`).join('')}</div>`}
+                else if(last7.length){const tagC={};last7.forEach(c=>(c.tags||[]).forEach(t=>{tagC[t]=(tagC[t]||0)+1}));const top=Object.entries(tagC).sort((a,b)=>b[1]-a[1]).slice(0,2);if(top.length)html+=`<div class="fam-tags"><span style="font-size:.6rem;color:var(--t2);margin-right:2px">Veckan:</span>${top.map(([t])=>`<span class="fam-tag neu">${esc(t)}</span>`).join('')}</div>`}
+                if(tc?.comment)html+=`<div class="fam-place-comment">"${esc(tc.comment)}"</div>`;
                 if(tc)html+=renderReactRow(fp.storageKey,'',p.id);
             });
             html+=`</div>`;
@@ -1882,7 +1844,7 @@ function renderParentView(){
         if([3,7,14,30].includes(streak)){
             const cheerKey=fp.storageKey+'_streak_'+streak;
             if(!d.cheersSent[cheerKey]){
-                html+=`<div class="streak-cheer-card"><div style="font-size:1.3rem">🔥 ${streak} dagars streak!</div><div style="font-size:.78rem;color:var(--t2);margin:4px 0 8px">Skicka en uppmuntran till ${fp.name}!</div><button class="btn bg" style="padding:8px 16px;font-size:.82rem;width:auto" onclick="sendStreakCheer('${fp.storageKey}','','${fp.name}',${streak},'${cheerKey}')">🎉 Heja ${fp.name}!</button></div>`;
+                html+=`<div class="streak-cheer-card"><div style="font-size:1.3rem">🔥 ${streak} dagars streak!</div><div style="font-size:.78rem;color:var(--t2);margin:4px 0 8px">Skicka en uppmuntran till ${esc(fp.name)}!</div><button class="btn bg" style="padding:8px 16px;font-size:.82rem;width:auto" onclick="sendStreakCheer('${esc(fp.storageKey)}','','${esc(fp.name)}',${streak},'${esc(cheerKey)}')">🎉 Heja ${esc(fp.name)}!</button></div>`;
             }
         }
         html+=`</div>`;
@@ -2293,7 +2255,7 @@ function renderBenchmarks(d){
             const youClass=p.isYou?' is-you':'';
 
             html+=`<div class="bench-row${youClass}">
-                <span class="b-name">${p.isYou?'⭐ ':''}<span>${p.name}</span></span>
+                <span class="b-name">${p.isYou?'⭐ ':''}<span>${esc(p.name)}</span></span>
                 <span class="b-bar-wrap"><span class="b-bar" style="width:${pct}%;background:${col}"></span></span>
                 <span class="b-score" style="color:${col}">${scoreText}</span>
             </div>`;
@@ -2320,7 +2282,7 @@ function detectAlerts(d){
     d.places.forEach(p=>{
         const recent=getPlaceCheckins(d,p.id,5).slice(-3);
         if(recent.length>=3&&recent.every(c=>c.score<=2)){
-            alerts.push({id:'low-'+p.id+'-'+today,sev:'bad',ico:'📉',title:`Lågt mående: ${p.name}`,desc:`Du har rapporterat lågt mående på ${p.name} 3 dagar i rad.`});
+            alerts.push({id:'low-'+p.id+'-'+today,sev:'bad',ico:'📉',title:`Lågt mående: ${esc(p.name)}`,desc:`Du har rapporterat lågt mående på ${esc(p.name)} 3 dagar i rad.`});
         }
     });
 
@@ -2331,7 +2293,7 @@ function detectAlerts(d){
         const first3=checks.slice(0,3).reduce((a,c)=>a+c.score,0)/3;
         const last3=checks.slice(-3).reduce((a,c)=>a+c.score,0)/3;
         if(last3-first3>=1){
-            alerts.push({id:'improve-'+p.id,sev:'good',ico:'🎉',title:`${p.name} förbättras!`,desc:`Ditt snitt har ökat från ${first3.toFixed(1)} till ${last3.toFixed(1)} de senaste 2 veckorna.`});
+            alerts.push({id:'improve-'+p.id,sev:'good',ico:'🎉',title:`${esc(p.name)} förbättras!`,desc:`Ditt snitt har ökat från ${first3.toFixed(1)} till ${last3.toFixed(1)} de senaste 2 veckorna.`});
         }
     });
 
@@ -2506,7 +2468,7 @@ function renderOb4Places(){
     const el=document.getElementById('ob4-places-list');
     if(!child.places.length){el.innerHTML='<p style="font-size:.78rem;color:var(--t2);text-align:center;margin-bottom:8px">Inga platser tillagda ännu</p>';return}
     el.innerHTML=child.places.map((p,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--c2);border-radius:8px;margin-bottom:6px;font-size:.84rem">
-        <span>${PT[p.type]?.icon||'📍'}</span><span style="flex:1">${p.name}</span>
+        <span>${PT[p.type]?.icon||'📍'}</span><span style="flex:1">${esc(p.name)}</span>
         <button style="background:none;border:none;color:var(--bad);font-size:1rem;cursor:pointer" onclick="obRemovePlace(${i})">×</button></div>`).join('');
 }
 
@@ -2608,26 +2570,193 @@ function go(p){
     document.querySelectorAll('.pg').forEach(pg=>pg.classList.toggle('on',pg.id==='pg-'+p));
     if(p==='home')renderHome();
     if(p==='family')renderFamily();
-    if(p==='chat')renderChat();
+    if(p==='moodis')renderMoodis();
     if(p==='insikter')renderInsikter();
     window.scrollTo(0,0);
 }
 
-// ===== RENDER CHAT PAGE =====
-function renderChat(){
-    const d=ld();
-    const msgs=['Jag är redo när du är — tryck för att prata','Hur har din dag varit? Jag lyssnar','Ta en stund för dig själv'];
-    document.getElementById('home-ai-msg').textContent=pick(msgs);
+// ===== MOODIS COMPANION =====
+const MOODIS_STAGES=[
+    {id:'egg',label:'Ägg',minStreak:0,size:70,emoji:'🥚'},
+    {id:'small',label:'Liten',minStreak:3,size:75,emoji:'🐣'},
+    {id:'medium',label:'Medium',minStreak:7,size:90,emoji:'🐥'},
+    {id:'large',label:'Stor',minStreak:14,size:105,emoji:'🐤'},
+    {id:'special',label:'Stjärna',minStreak:30,size:110,emoji:'⭐'}
+];
+const MOODIS_COLORS={purple:'#6C5CE7',blue:'#0984E3',green:'#00B894',pink:'#FD79A8',orange:'#E17055'};
+const MOODIS_HATS=[
+    {id:'crown',emoji:'👑',label:'Krona',cost:100},
+    {id:'cap',emoji:'🧢',label:'Keps',cost:50},
+    {id:'tophat',emoji:'🎩',label:'Hög hatt',cost:80},
+    {id:'flower',emoji:'🌸',label:'Blomma',cost:40},
+    {id:'star_hat',emoji:'💫',label:'Stjärna',cost:120},
+    {id:'bow',emoji:'🎀',label:'Rosett',cost:60}
+];
+const DAILY_CHALLENGES=[
+    {id:'c1',text:'Ge en kompis en komplimang idag',pts:10,type:'action'},
+    {id:'c2',text:'Om din dag var en färg — vilken?',pts:5,type:'choice',options:['🔴 Röd','🔵 Blå','🟡 Gul','🟢 Grön','🟣 Lila','🟠 Orange']},
+    {id:'c3',text:'Vad var bäst med din dag?',pts:10,type:'choice',options:['Kompisar','Maten','Något roligt','Lärde mig nåt','Fick vila','Annat']},
+    {id:'c4',text:'Gör något snällt för någon idag',pts:10,type:'action'},
+    {id:'c5',text:'Hur känns din kropp just nu?',pts:5,type:'choice',options:['😊 Pigg','😴 Trött','💪 Stark','🤒 Sjuk','😌 Lugn','⚡ Energisk']},
+    {id:'c6',text:'Ta tre djupa andetag och känn efter',pts:5,type:'action'},
+    {id:'c7',text:'Tänk på något du är tacksam för',pts:10,type:'action'},
+    {id:'c8',text:'Om du kunde ha en superkraft — vilken?',pts:5,type:'choice',options:['🦸 Flyga','🦸 Osynlig','🦸 Supersnabb','🦸 Superstark','🦸 Läsa tankar','🦸 Tidsresa']},
+    {id:'c9',text:'Sjung eller nynna en låt du gillar',pts:5,type:'action'},
+    {id:'c10',text:'Vad gör dig glad på riktigt?',pts:10,type:'choice',options:['Familj','Kompisar','Idrott','Spel','Djur','Musik','Natur','Mat']},
+    {id:'c11',text:'Berätta något roligt som hänt',pts:10,type:'action'},
+    {id:'c12',text:'Vilken emoji beskriver din vecka?',pts:5,type:'choice',options:['😄','😊','😐','😕','😢','🤩','😴','🔥']},
+    {id:'c13',text:'Gå ut och titta på himlen i 1 minut',pts:5,type:'action'},
+    {id:'c14',text:'Skriv ner en sak du vill göra i helgen',pts:10,type:'action'},
+    {id:'c15',text:'Om du var ett djur — vilket?',pts:5,type:'choice',options:['🐶 Hund','🐱 Katt','🦊 Räv','🐬 Delfin','🦅 Örn','🐉 Drake']},
+    {id:'c16',text:'Le mot dig själv i spegeln',pts:5,type:'action'},
+    {id:'c17',text:'Vad är din favoritplats i hela världen?',pts:10,type:'action'},
+    {id:'c18',text:'Vilken årstid passar dig bäst?',pts:5,type:'choice',options:['🌸 Vår','☀️ Sommar','🍂 Höst','❄️ Vinter']},
+    {id:'c19',text:'Gör 10 hopp på stället!',pts:5,type:'action'},
+    {id:'c20',text:'Tänk på tre saker som gick bra idag',pts:10,type:'action'}
+];
 
-    // Show recent conversations
-    const el=document.getElementById('chat-history');
-    if(!d.checkins.length){el.innerHTML='';return}
-    const recent=d.checkins.slice(-5).reverse();
-    el.innerHTML=`<div class="cd"><div class="ct">Senaste samtal</div>${recent.map(c=>{
-        const dt=new Date(c.ts).toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short'});
-        const col=c.score>=65?'var(--ok)':c.score>=40?'var(--w)':'var(--bad)';
-        return`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem"><span style="color:var(--t2)">${dt}</span><span style="font-weight:700;color:${col}">${c.score}</span></div>`;
-    }).join('')}</div>`;
+function getMoodisData(d){
+    if(!d.moodis)d.moodis={stage:'egg',hat:null,color:'purple',ownedHats:[],mood:'neutral'};
+    return d.moodis;
+}
+
+function getMoodisStage(d){
+    const streak=calcPlaceStreak(d);
+    let stage=MOODIS_STAGES[0];
+    for(const s of MOODIS_STAGES){if(streak>=s.minStreak)stage=s}
+    return stage;
+}
+
+function getMoodisMood(d){
+    const today=new Date().toDateString();
+    const todayCheckins=(d.placeCheckins||[]).filter(c=>new Date(c.ts).toDateString()===today);
+    if(!todayCheckins.length)return'neutral';
+    const avg=todayCheckins.reduce((a,c)=>a+c.score,0)/todayCheckins.length;
+    if(avg>=4)return'happy';
+    if(avg<=2)return'sad';
+    return'neutral';
+}
+
+function getMoodisMessage(d,stage,mood){
+    const streak=calcPlaceStreak(d);
+    const today=new Date().toDateString();
+    const todayCheckins=(d.placeCheckins||[]).filter(c=>new Date(c.ts).toDateString()===today);
+    const name=d.userName?esc(d.userName):'du';
+    // Evolution messages
+    const prevStage=d.moodis?._lastStage;
+    if(prevStage&&prevStage!==stage.id){
+        d.moodis._lastStage=stage.id;sv(d);
+        return`🎉 Moodis har växt till ${stage.label}!`;
+    }
+    if(d.moodis)d.moodis._lastStage=stage.id;
+    if(!todayCheckins.length)return`Moodis väntar på dig, ${name}...`;
+    if(todayCheckins.length>=d.places.length&&d.places.length>0)return pick(['Alla platser klara! Moodis är stolt 🌟','Bra jobbat idag! 🎉','Du är grym, '+name+'! 💪']);
+    if(streak>=7)return`🔥 ${streak} dagars streak! Moodis är superglad!`;
+    if(streak>=3)return`🔥 ${streak} dagar i rad — fortsätt så!`;
+    if(mood==='happy')return pick(['Moodis märker att du mår bra! 😊','Vilken bra dag! ✨','Moodis ler med dig 😄']);
+    if(mood==='sad')return pick(['Moodis finns här för dig ❤️','Alla dagar är inte lätta — du är modig som delar 💜','Imorgon blir bättre 🌈']);
+    return pick(['Bra att du checkar in! ⭐','Moodis är glad att se dig 😊','Fortsätt checka in — Moodis växer! 🌱']);
+}
+
+function getTodayChallenge(){
+    const dateStr=new Date().toDateString();
+    let hash=0;for(let i=0;i<dateStr.length;i++){hash=((hash<<5)-hash)+dateStr.charCodeAt(i);hash|=0}
+    return DAILY_CHALLENGES[Math.abs(hash)%DAILY_CHALLENGES.length];
+}
+
+function completeChallenge(choiceLabel){
+    const d=ld();
+    const challenge=getTodayChallenge();
+    d.dailyChallengeDate=new Date().toDateString();
+    d.points=(d.points||0)+challenge.pts;
+    sv(d);syncProfile(d);
+    toast(`+${challenge.pts} poäng! 🎉`);
+    renderMoodis();
+}
+
+function buyMoodisHat(hatId){
+    const d=ld();
+    const hat=MOODIS_HATS.find(h=>h.id===hatId);
+    if(!hat)return;
+    const m=getMoodisData(d);
+    if(m.ownedHats.includes(hatId)){m.hat=hatId;sv(d);renderMoodis();return}
+    if((d.points||0)<hat.cost){toast('Inte tillräckligt med poäng');return}
+    d.points-=hat.cost;
+    m.ownedHats.push(hatId);
+    m.hat=hatId;
+    sv(d);syncProfile(d);
+    toast(`${hat.emoji} ${hat.label} köpt!`);
+    renderMoodis();
+}
+
+function renderMoodis(){
+    const d=ld();
+    const m=getMoodisData(d);
+    const stage=getMoodisStage(d);
+    const mood=getMoodisMood(d);
+    const streak=calcPlaceStreak(d);
+    const color=MOODIS_COLORS[m.color]||MOODIS_COLORS.purple;
+    const colorLight=color+'33';
+    const hat=m.hat?MOODIS_HATS.find(h=>h.id===m.hat):null;
+    const moodClass=mood==='happy'?'happy':mood==='sad'?'sad':streak>=7?'excited':'';
+
+    // Creature
+    const creatureEl=document.getElementById('moodis-creature-area');
+    creatureEl.innerHTML=`<div class="moodis-wrap">
+        <div class="moodis-creature moodis-stage-${stage.id} ${moodClass}">
+            <div class="glow" style="background:radial-gradient(circle,${color},${colorLight})"></div>
+            ${hat?`<div class="moodis-hat">${hat.emoji}</div>`:''}
+            <div class="body" style="background:radial-gradient(circle,${color}88,${color})">
+                <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+                <div class="mouth"></div>
+            </div>
+        </div>
+    </div>`;
+
+    // Message
+    document.getElementById('moodis-msg').textContent=getMoodisMessage(d,stage,mood);
+
+    // Progress to next stage
+    const nextStage=MOODIS_STAGES.find(s=>s.minStreak>streak);
+    const progEl=document.getElementById('moodis-progress');
+    if(nextStage){
+        const prevMin=stage.minStreak;
+        const pct=Math.min(100,Math.round((streak-prevMin)/(nextStage.minStreak-prevMin)*100));
+        progEl.innerHTML=`<div class="moodis-progress-bar"><div class="moodis-progress-fill" style="width:${pct}%"></div></div>
+            <div class="moodis-progress-label">${stage.emoji} ${stage.label} → ${nextStage.emoji} ${nextStage.label} (${streak}/${nextStage.minStreak} dagars streak)</div>`;
+    }else{
+        progEl.innerHTML=`<div class="moodis-progress-label">⭐ Max nivå! ${streak} dagars streak</div>`;
+    }
+
+    // Daily challenge
+    const challengeEl=document.getElementById('moodis-challenge');
+    const challenge=getTodayChallenge();
+    const challengeDone=d.dailyChallengeDate===new Date().toDateString();
+    if(challengeDone){
+        challengeEl.innerHTML=`<div class="challenge-card"><div style="font-size:1.5rem;margin-bottom:8px">✅</div><div class="challenge-text">Dagens utmaning klar!</div><div style="font-size:.75rem;color:var(--t2)">Kom tillbaka imorgon för en ny</div></div>`;
+    }else{
+        let actionHtml='';
+        if(challenge.type==='action'){
+            actionHtml=`<button class="btn bg" style="padding:10px 24px;font-size:.85rem;width:auto" onclick="completeChallenge()">Klart! ✅</button>`;
+        }else if(challenge.type==='choice'){
+            actionHtml=`<div class="challenge-options">${challenge.options.map(o=>`<button class="challenge-opt" onclick="completeChallenge('${esc(o)}')">${esc(o)}</button>`).join('')}</div>`;
+        }
+        challengeEl.innerHTML=`<div class="challenge-card"><div style="font-size:.7rem;color:var(--a);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Dagens utmaning</div><div class="challenge-text">${esc(challenge.text)}</div><div class="challenge-pts">+${challenge.pts} poäng</div>${actionHtml}</div>`;
+    }
+
+    // Moodis shop
+    const shopEl=document.getElementById('moodis-shop');
+    let shopHtml=`<div class="cd" style="margin-top:16px"><div class="ct">🎨 Moodis-shop <span style="font-size:.75rem;font-weight:400;color:var(--t2)">🪙 ${d.points||0} poäng</span></div>`;
+    MOODIS_HATS.forEach(h=>{
+        const owned=m.ownedHats.includes(h.id);
+        const equipped=m.hat===h.id;
+        const canBuy=(d.points||0)>=h.cost;
+        const label=equipped?'✅ Påtagen':owned?'Byt till':`${h.cost} 🪙`;
+        const cls=equipped?'owned':'';
+        shopHtml+=`<div class="moodis-shop-item ${cls}" onclick="buyMoodisHat('${h.id}')"><span style="font-size:1.3rem">${h.emoji}</span><span style="flex:1;font-size:.82rem">${esc(h.label)}</span><span style="font-size:.75rem;color:${canBuy||owned?'var(--ok)':'var(--t2)'}">${label}</span></div>`;
+    });
+    shopHtml+=`</div>`;
+    shopEl.innerHTML=shopHtml;
 }
 
 function saveProfile(){
@@ -2654,9 +2783,32 @@ function exportData(){
 function confirmDeleteAll(){
     if(!confirm('Är du säker? All data raderas permanent.'))return;
     if(sok){const d=ld();if(d.familyProfiles)d.familyProfiles.forEach(fp=>localStorage.removeItem(fp.storageKey));localStorage.removeItem(APK)}
-    D={places:[],placeCheckins:[],benchmarks:[],checkins:[],micro:[],xp:0,level:1,points:0,streak:0,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:'',unlockedAvatars:['default'],selectedAvatar:'default',dailyRewardClaimed:null,kommun:'',parentReactions:[],cheersSent:{},_claimedStreakBonuses:{}};
+    D={places:[],placeCheckins:[],benchmarks:[],checkins:[],micro:[],xp:0,level:1,points:0,streak:0,firstVisit:true,baseline:null,userName:'',aiName:'Luna',personality:'warm',onboarded:null,alertsSeen:[],familyId:'',role:'self',familyProfiles:[],parentKey:'',unlockedAvatars:['default'],selectedAvatar:'default',dailyRewardClaimed:null,kommun:'',parentReactions:[],cheersSent:{},_claimedStreakBonuses:{},moodis:{stage:'egg',hat:null,color:'purple',ownedHats:[],mood:'neutral',_lastStage:null},dailyChallengeDate:''};
     if(sok)localStorage.setItem(APK,JSON.stringify(D));
     toast('All data raderad.');renderHome();
+}
+
+async function deleteAccount(){
+    if(!confirm('Vill du radera ditt konto och ALL data? Detta kan inte ångras.'))return;
+    if(!confirm('Är du helt säker? All data försvinner permanent.'))return;
+    // Delete remote data if logged in
+    if(sbUser){
+        try{
+            const uid=sbUser.id;
+            await sb.from('place_checkins').delete().eq('user_id',uid);
+            await sb.from('places').delete().eq('user_id',uid);
+            await sb.from('parent_reactions').delete().or(`from_user_id.eq.${uid},to_user_id.eq.${uid}`);
+            await sb.from('family_members').delete().eq('user_id',uid);
+            await sb.from('chat_sessions').delete().eq('user_id',uid);
+            await sb.from('feedback').delete().eq('user_id',uid);
+            await sb.from('profiles').delete().eq('id',uid);
+            await sb.auth.signOut();
+        }catch(e){}
+    }
+    // Clear all local data
+    confirmDeleteAll();
+    toast('Konto och all data raderad.');
+    location.reload();
 }
 
 // ===== FAMILY =====
@@ -2699,8 +2851,8 @@ function addChildStep1(){
     document.getElementById('add-child-step1').classList.add('h');
     const step2=document.getElementById('add-child-step2');
     step2.classList.remove('h');
-    step2.innerHTML=`<div class="ct">📍 Lägg till platser för ${name}</div>
-        <p style="font-size:.78rem;color:var(--t2);margin-bottom:12px">Vilka miljöer ska ${name} checka in på?</p>
+    step2.innerHTML=`<div class="ct">📍 Lägg till platser för ${esc(name)}</div>
+        <p style="font-size:.78rem;color:var(--t2);margin-bottom:12px">Vilka miljöer ska ${esc(name)} checka in på?</p>
         <div id="step2-places"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="step2-quick">
             <button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${storageKey}','school','Skola');refreshStep2('${storageKey}','${name}')">+ 🏫 Skola</button>
@@ -2726,10 +2878,10 @@ function refreshStep2(storageKey,name){
     const types=new Set(places.map(p=>p.type));
     const quickEl=document.getElementById('step2-quick');
     quickEl.innerHTML='';
-    if(!types.has('school'))quickEl.innerHTML+=`<button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${storageKey}','school','Skola');refreshStep2('${storageKey}','${name}')">+ 🏫 Skola</button>`;
-    if(!types.has('sport'))quickEl.innerHTML+=`<button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${storageKey}','sport','Idrott');refreshStep2('${storageKey}','${name}')">+ ⚽ Idrott</button>`;
-    if(!types.has('home'))quickEl.innerHTML+=`<button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${storageKey}','home','Hem');refreshStep2('${storageKey}','${name}')">+ 🏠 Hem</button>`;
-    if(!types.has('hobby'))quickEl.innerHTML+=`<button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${storageKey}','hobby','Hobby');refreshStep2('${storageKey}','${name}')">+ 🎨 Hobby</button>`;
+    if(!types.has('school'))quickEl.innerHTML+=`<button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${esc(storageKey)}','school','Skola');refreshStep2('${esc(storageKey)}','${esc(name)}')">+ 🏫 Skola</button>`;
+    if(!types.has('sport'))quickEl.innerHTML+=`<button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${esc(storageKey)}','sport','Idrott');refreshStep2('${esc(storageKey)}','${esc(name)}')">+ ⚽ Idrott</button>`;
+    if(!types.has('home'))quickEl.innerHTML+=`<button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${esc(storageKey)}','home','Hem');refreshStep2('${esc(storageKey)}','${esc(name)}')">+ 🏠 Hem</button>`;
+    if(!types.has('hobby'))quickEl.innerHTML+=`<button class="btn bs" style="padding:8px 14px;font-size:.8rem" onclick="addPlaceToChild('${esc(storageKey)}','hobby','Hobby');refreshStep2('${esc(storageKey)}','${esc(name)}')">+ 🎨 Hobby</button>`;
 }
 
 function addChild(){
@@ -2798,12 +2950,12 @@ function showFamilyDashboard(){
         d.familyProfiles.forEach(fp=>{
             const safe=getChildSafeData(fp.storageKey);
             if(!safe){
-                html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup} — Ingen data</div></div></div>`;
+                html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${esc(fp.name)}</div><div class="fam-stat">${esc(fp.ageGroup)} — Ingen data</div></div></div>`;
                 return;
             }
             const col=safe.avg>=4?'var(--ok)':safe.avg>=3?'var(--w)':'var(--bad)';
             const tCol=safe.trend==='↑'?'color:var(--ok)':safe.trend==='↓'?'color:var(--bad)':'color:var(--t2)';
-            html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${fp.name}</div><div class="fam-stat">${fp.ageGroup} — ${safe.count} checkins</div></div><div class="fam-score"><div class="v" style="color:${col}">${safe.avg||'—'}</div><div class="trend" style="${tCol}">${safe.trend}</div></div></div>`;
+            html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${esc(fp.name)}</div><div class="fam-stat">${esc(fp.ageGroup)} — ${safe.count} checkins</div></div><div class="fam-score"><div class="v" style="color:${col}">${safe.avg||'—'}</div><div class="trend" style="${tCol}">${safe.trend}</div></div></div>`;
         });
     }
     document.getElementById('fam-overlay-content').innerHTML=html;
@@ -2843,30 +2995,30 @@ function renderFamily(){
                     <div class="fam-child-header">
                         <div class="fam-child-avatar">${avatar}</div>
                         <div class="fam-child-info">
-                            <div class="fam-child-name">${fp.name}</div>
-                            <div class="fam-child-meta"><span>${fp.ageGroup}</span>${childData?`<span>🔥 ${childData.streak}</span><span>🪙 ${childData.points}</span>`:''}</div>
+                            <div class="fam-child-name">${esc(fp.name)}</div>
+                            <div class="fam-child-meta"><span>${esc(fp.ageGroup)}</span>${childData?`<span>🔥 ${childData.streak}</span><span>🪙 ${childData.points}</span>`:''}</div>
                         </div>
-                        <button class="btn bs" style="width:auto;padding:6px 12px;font-size:.72rem" onclick="switchToProfile('${fp.storageKey}','${fp.name}')">Visa</button>
+                        <button class="btn bs" style="width:auto;padding:6px 12px;font-size:.72rem" onclick="switchToProfile('${esc(fp.storageKey)}','${esc(fp.name)}')">Visa</button>
                     </div>`;
                 if(childData&&childData.places.length){
                     childData.places.forEach(cp=>{
                         const pt=PT[cp.type]||PT.other;
                         const col=cp.avg>=4?'var(--ok)':cp.avg>=3?'var(--w)':'var(--bad)';
-                        html+=`<div class="fam-place-row"><span>${pt.icon}</span><span style="flex:1">${cp.name}</span><span class="fam-place-score" style="color:${col}">${cp.avg>0?cp.avg:'—'}</span></div>`;
-                        if(cp.lastComment)html+=`<div class="fam-place-comment">"${cp.lastComment}"</div>`;
+                        html+=`<div class="fam-place-row"><span>${pt.icon}</span><span style="flex:1">${esc(cp.name)}</span><span class="fam-place-score" style="color:${col}">${cp.avg>0?cp.avg:'—'}</span></div>`;
+                        if(cp.lastComment)html+=`<div class="fam-place-comment">"${esc(cp.lastComment)}"</div>`;
                     });
                 }else{html+=`<p style="font-size:.78rem;color:var(--t2);padding:8px 0;text-align:center">Inga platser — lägg till nedan</p>`}
                 // Quick-add places for this child
                 html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;padding:8px 0" id="child-quick-${i}">`;
                 const childPlaceTypes=new Set((childData?.places||[]).map(p=>p.type));
-                if(!childPlaceTypes.has('school'))html+=`<button class="btn bs" style="padding:6px 10px;font-size:.72rem" onclick="addPlaceToChild('${fp.storageKey}','school','Skola');renderFamily()">+ 🏫 Skola</button>`;
-                if(!childPlaceTypes.has('sport'))html+=`<button class="btn bs" style="padding:6px 10px;font-size:.72rem" onclick="addPlaceToChild('${fp.storageKey}','sport','Idrott');renderFamily()">+ ⚽ Idrott</button>`;
-                if(!childPlaceTypes.has('home'))html+=`<button class="btn bs" style="padding:6px 10px;font-size:.72rem" onclick="addPlaceToChild('${fp.storageKey}','home','Hem');renderFamily()">+ 🏠 Hem</button>`;
-                if(!childPlaceTypes.has('hobby'))html+=`<button class="btn bs" style="padding:6px 10px;font-size:.72rem" onclick="addPlaceToChild('${fp.storageKey}','hobby','Hobby');renderFamily()">+ 🎨 Hobby</button>`;
+                if(!childPlaceTypes.has('school'))html+=`<button class="btn bs" style="padding:6px 10px;font-size:.72rem" onclick="addPlaceToChild('${esc(fp.storageKey)}','school','Skola');renderFamily()">+ 🏫 Skola</button>`;
+                if(!childPlaceTypes.has('sport'))html+=`<button class="btn bs" style="padding:6px 10px;font-size:.72rem" onclick="addPlaceToChild('${esc(fp.storageKey)}','sport','Idrott');renderFamily()">+ ⚽ Idrott</button>`;
+                if(!childPlaceTypes.has('home'))html+=`<button class="btn bs" style="padding:6px 10px;font-size:.72rem" onclick="addPlaceToChild('${esc(fp.storageKey)}','home','Hem');renderFamily()">+ 🏠 Hem</button>`;
+                if(!childPlaceTypes.has('hobby'))html+=`<button class="btn bs" style="padding:6px 10px;font-size:.72rem" onclick="addPlaceToChild('${esc(fp.storageKey)}','hobby','Hobby');renderFamily()">+ 🎨 Hobby</button>`;
                 html+=`</div>`;
                 html+=`<div style="display:flex;gap:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">
-                    <button class="btn bs" style="padding:6px;font-size:.7rem" onclick="switchToProfile('${fp.storageKey}','${fp.name}')">Öppna profil</button>
-                    <button class="btn bs" style="padding:6px;font-size:.7rem;background:rgba(225,112,85,.1);color:var(--bad)" onclick="if(confirm('Ta bort ${fp.name}?')){removeChild(${i});renderFamily()}">Ta bort</button></div></div>`;
+                    <button class="btn bs" style="padding:6px;font-size:.7rem" onclick="switchToProfile('${esc(fp.storageKey)}','${esc(fp.name)}')">Öppna profil</button>
+                    <button class="btn bs" style="padding:6px;font-size:.7rem;background:rgba(225,112,85,.1);color:var(--bad)" onclick="if(confirm('Ta bort ${esc(fp.name)}?')){removeChild(${i});renderFamily()}">Ta bort</button></div></div>`;
             });
         }
 
@@ -2911,8 +3063,8 @@ function renderFamily(){
 
     // Profile settings
     html+=`<div class="cd"><div class="ct">👤 Profil</div>
-        <div class="sett-row"><span>Ditt namn</span><input class="sett-input" id="sett-username" value="${d.userName||''}"></div>
-        <div class="sett-row"><span>Hemkommun</span><input class="sett-input" id="sett-kommun" list="kommun-list" value="${d.kommun||''}" placeholder="T.ex. Täby" autocomplete="off"></div>
+        <div class="sett-row"><span>Ditt namn</span><input class="sett-input" id="sett-username" value="${esc(d.userName||'')}"></div>
+        <div class="sett-row"><span>Hemkommun</span><input class="sett-input" id="sett-kommun" list="kommun-list" value="${esc(d.kommun||'')}" placeholder="T.ex. Täby" autocomplete="off"></div>
         <div class="sett-row"><span>AI-namn</span><input class="sett-input" id="sett-ainame" value="${d.aiName||'Luna'}"></div>
         <div class="sett-row"><span>Personlighet</span><select id="sett-pers">
             <option value="warm"${d.personality==='warm'?' selected':''}>Varm</option>
@@ -2927,7 +3079,7 @@ function renderFamily(){
         d.places.forEach(p=>{
             const pt=PT[p.type]||PT.other;
             const linked=p.osmId?'<span style="font-size:.55rem;color:var(--ok);margin-left:4px">kopplad</span>':'';
-            html+=`<div class="sett-place"><span style="font-size:1.1rem">${pt.icon}</span><div class="info"><div class="nm">${p.name}${linked}</div><div class="tp">${pt.label}</div></div><button class="alert-dismiss" onclick="if(confirm('Ta bort ${p.name}?')){removePlace('${p.id}');renderFamily()}" title="Ta bort">×</button></div>`;
+            html+=`<div class="sett-place"><span style="font-size:1.1rem">${pt.icon}</span><div class="info"><div class="nm">${esc(p.name)}${linked}</div><div class="tp">${pt.label}</div></div><button class="alert-dismiss" onclick="if(confirm('Ta bort ${esc(p.name)}?')){removePlace('${esc(p.id)}');renderFamily()}" title="Ta bort">×</button></div>`;
         });
     }
     html+=`<button class="btn ba" onclick="openAddPlace()" style="margin-top:10px">+ Lägg till plats</button></div>`;
@@ -2950,15 +3102,19 @@ function renderFamily(){
     }
 
     // Data
-    html+=`<div class="cd"><div class="ct">💾 Data</div>
-        <button class="btn bs" onclick="exportData()" style="margin-bottom:8px">Exportera data</button>
-        <button class="btn bs" onclick="confirmDeleteAll()" style="background:rgba(225,112,85,.1);color:var(--bad)">Radera all data</button></div>`;
+    html+=`<div class="cd"><div class="ct">💾 Data & integritet</div>
+        <button class="btn bs" onclick="exportData()" style="margin-bottom:8px">📥 Exportera all din data</button>
+        <button class="btn bs" onclick="deleteAccount()" style="background:rgba(225,112,85,.1);color:var(--bad)">🗑️ Radera konto och all data</button>
+        <div style="margin-top:12px;display:flex;gap:12px;justify-content:center">
+            <a href="https://moodlyapp.se/privacy" target="_blank" style="font-size:.72rem;color:var(--pl)">Integritetspolicy</a>
+            <a href="https://moodlyapp.se/terms" target="_blank" style="font-size:.72rem;color:var(--pl)">Användarvillkor</a>
+        </div></div>`;
 
     html+=`<div class="cd"><div class="ct">💬 Feedback</div>
         <p style="font-size:.78rem;color:var(--t2);margin-bottom:10px">Hjälp oss göra Moodly bättre — vi läser alla svar!</p>
         <button class="btn ba" onclick="openFeedback()">Ge feedback</button></div>`;
 
-    html+=`<div class="cd"><div class="ct">ℹ️ Om</div><p style="font-size:.76rem;color:var(--t2);line-height:1.5">Moodly v5.0${sbUser?' — Synkad till molnet':' — All data lagras lokalt'}</p></div>`;
+    html+=`<div class="cd"><div class="ct">ℹ️ Om</div><p style="font-size:.76rem;color:var(--t2);line-height:1.5">Moodly v5.1 — Moodis Edition${sbUser?' — Synkad till molnet':' — All data lagras lokalt'}</p></div>`;
 
     document.getElementById('family-content').innerHTML=html;
 
@@ -3077,7 +3233,7 @@ function getChildDetailedData(storageKey){
         (cd.places||[]).forEach(p=>{
             const recent=(cd.placeCheckins||[]).filter(c=>c.placeId===p.id).slice(-3);
             if(recent.length>=3&&recent.every(c=>c.score<=2)){
-                alerts.push({sev:'bad',ico:'📉',title:`Lågt mående: ${p.name} (3+ dagar)`});
+                alerts.push({sev:'bad',ico:'📉',title:`Lågt mående: ${esc(p.name)} (3+ dagar)`});
             }
         });
         const avatar=AVATARS[cd.selectedAvatar||'default']?.emoji||'😊';
@@ -3189,6 +3345,10 @@ let _reactMsgTarget=null;
 
 function sendReaction(targetKey,targetUserId,placeId,date,emoji,message){
     const d=ld();
+    // Rate limit: max 20 reactions per hour
+    const now=Date.now();
+    const recentCount=(d.parentReactions||[]).filter(r=>now-new Date(r.createdAt).getTime()<3600000).length;
+    if(recentCount>=20){toast('Max 20 meddelanden per timme');return}
     const reaction={
         id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
         fromName:d.userName||'Förälder',
@@ -3320,9 +3480,9 @@ function showReactionNotification(reactions){
     }else{
         html+=`<div class="celeb-text" style="top:30%">
             <div style="font-size:3rem;animation:reaction-bounce 1s ease infinite">${emoji}</div>
-            <div style="font-size:1.1rem;margin-top:8px">${fromName} skickade:</div>`;
+            <div style="font-size:1.1rem;margin-top:8px">${esc(fromName)} skickade:</div>`;
         if(r.message){
-            html+=`<div style="font-size:.9rem;color:var(--t2);margin-top:6px;font-style:italic">"${r.message}"</div>`;
+            html+=`<div style="font-size:.9rem;color:var(--t2);margin-top:6px;font-style:italic">"${esc(r.message)}"</div>`;
         }
         html+=`<div style="font-size:.7rem;color:var(--t2);margin-top:12px">Tryck för att stänga</div></div>`;
     }
@@ -4182,247 +4342,11 @@ document.getElementById('install-close')?.addEventListener('click',()=>{
     }
 })();
 
-// ===== SENTIMENT (for chat) =====
-const EMO={glad:{w:['glad','lycklig','nöjd','fantastisk','underbar','toppen','skratta','rolig','kul','bra','härlig','glädje','positiv','tacksam','stolt','energisk','pigg','motiverad','hoppfull','avslappnad','älskar','kärlek','awesome','nice','stark','kraftfull','lättad','superbra','jättebra','perfekt','duktig','grym','levande','taggad','peppad','inspirerad','fokuserad'],v:.85},lugn:{w:['lugn','avslappnad','fridful','harmonisk','balanserad','trygg','bekväm','stabil','okej','neutral','fine','helt ok','chill','tillfreds'],v:.65},ledsen:{w:['ledsen','sorglig','nere','gråter','ensam','tom','hopplös','deprimerad','melankolisk','saknar','besviken','uppgiven','mörkt','tungt','svårt','deppig','trist','knäckt','trasig','värdelös'],v:.25},stressad:{w:['stressad','pressad','överväldigad','kaos','panik','deadline','hinner inte','sliten','utbränd','utmattad','nervös','hektisk','jäktad','överbelastad'],v:.3},orolig:{w:['orolig','ångest','rädd','osäker','ängslig','oro','skrämmande','otrygg','spänd','grubblar','bekymrad'],v:.28},arg:{w:['arg','irriterad','frustrerad','sur','rasande','ilsken','förbannad','less','upprörd','lack'],v:.2},trott:{w:['trött','utmattad','slut','dränerad','sömnig','orkeslös','seg','slutkörd'],v:.35}};
 
-function analyze(txt){
-    if(!txt||!txt.trim())return{emotion:'neutral',score:50,conf:0,cats:['allmänt']};
-    const l=txt.toLowerCase();let sc={},tot=0;
-    for(const[e,d]of Object.entries(EMO)){let h=0;for(const w of d.w)if(l.includes(w))h++;sc[e]=h;tot+=h}
-    let dom='neutral',mx=0;for(const[e,h]of Object.entries(sc))if(h>mx){mx=h;dom=e}
-    const v=tot>0?(EMO[dom]?.v??.5):.5;
-    return{emotion:dom,score:Math.round(v*100),conf:Math.min(tot/3,1),cats:['allmänt']};
-}
-
-// ===== CONVERSATION ENGINE =====
-const MIRROR={
-    warm:{pos:['Härligt att höra!','Det låter riktigt bra!','Så fint!','Vilken fin känsla.','Skönt att höra!'],neg:['Jag hör dig.','Tack för att du delar det.','Det låter tungt.','Det är okej att känna så.','Tack för att du litar på mig.'],neut:['Jag förstår.','Tack för att du berättar.','Jag hör dig.','Berätta gärna mer.','Jag är här.']},
-    direct:{pos:['Bra.','Nice.','Starkt.','Fint.','Låter bra.'],neg:['Tough.','Jag hör dig.','Det låter jobbigt.','Tufft.'],neut:['Okej.','Uppfattat.','Jag hänger med.','Jag lyssnar.']},
-    coach:{pos:['Fantastiskt!','Starkt!','Du är på rätt spår!','Bra energi!'],neg:['Det tar mod att erkänna det.','Tufft — men du hanterar det.','Starka människor ber om hjälp.'],neut:['Bra att du reflekterar.','Intressant.','Jag lyssnar.']}
-};
-const FOLLOWUPS=[
-    {k:'a1',q:'Vad tar mest plats i dina tankar just nu?'},
-    {k:'a2',q:'Hur har energin varit idag?'},
-    {k:'a3',q:'Vad hade gjort dagen bättre?'},
-    {k:'a4',q:'Vad ser du fram emot?'},
-    {k:'a5',q:'Hur skulle du beskriva din känsla med ett ord?'},
-    {k:'a6',q:'Vad har du gjort idag som betydde något?'},
-    {k:'a7',q:'Finns det något som oroar dig?'},
-    {k:'a8',q:'Vad är du tacksam för just nu?'},
-    {k:'a9',q:'Hur mår du jämfört med igår?'},
-    {k:'a10',q:'Vad driver dig egentligen?'}
-];
-const GREETS={
-    warm:['Hej {name}! Hur har din dag varit?','Hej {name}! Berätta, hur mår du?','Välkommen {name}! Hur känns det idag?'],
-    direct:['Hej {name}. Hur har dagen varit?','Okej {name}, hur ligger du till?'],
-    coach:['Hej {name}! Redo att reflektera? Hur mår du?','Hej {name}! Hur har du presterat idag?']
-};
-const CLOSES={
-    warm:['Tack för pratstunden {name}. Ta hand om dig!','Fint att höra om din dag. Vi ses!'],
-    direct:['Bra pratat {name}. Ses.','Keep going {name}.'],
-    coach:['Bra session {name}! Ses imorgon!','Starkt jobbat {name}!']
-};
-
-// Smart patterns
-const PATTERNS=[
-    {r:/känner mig\s+(stark|bra|glad|lycklig|nöjd|fantastisk|energisk|motiverad|pigg|fri|trygg|hoppfull|kraftfull|lättad|duktig|stolt|levande|grym|taggad|peppad|inspirerad|fokuserad)/i,
-     fn:m=>pick([`Härligt att du känner dig ${m[1]}! Vad tror du det beror på?`,`Vilken fin känsla! Har det hänt något speciellt?`,`Så fint! Vad har bidragit till att du känner dig ${m[1]}?`])},
-    {r:/känner mig\s+(ledsen|nere|deppig|dålig|tom|ensam|stressad|orolig|arg|irriterad|trött|utmattad|svag|hopplös|överväldigad|rädd|otrygg|värdelös|trasig)/i,
-     fn:m=>pick([`Tack för att du berättar att du känner dig ${m[1]}. Vad tror du ligger bakom?`,`Att vara ${m[1]} är tufft. Hur länge har du känt så?`,`Det är okej att känna sig ${m[1]}. Vill du berätta mer?`])},
-    {r:/mår\s+(bra|fantastiskt|underbart|toppen|jättebra|superbra|kanon)/i,
-     fn:m=>pick([`Vad härligt att du mår ${m[1]}! Vad har gjort att du mår så bra?`,`Så fint! Berätta mer om din dag!`])},
-    {r:/mår\s*(dåligt|inte bra|skit|kasst|inte så bra)/i,
-     fn:()=>pick(['Jag är ledsen att höra det. Vill du prata om det?','Tack för att du berättar. Vad påverkar dig mest just nu?'])},
-    {r:/(ångest|panik)/i,fn:()=>pick(['Ångest kan vara överväldigande. Kommer det i perioder?','Tack för att du berättar. Vet du vad som brukar trigga det?'])},
-    {r:/(ensam|isolerad|utanför)/i,fn:()=>pick(['Ensamhet kan vara tung. Saknar du någon specifik?','Att känna sig ensam är vanligare än man tror. Hur länge har du känt så?'])},
-    {r:/(bråk|gräl|konflikt)/i,fn:()=>pick(['Konflikter tar energi. Vill du berätta vad det handlade om?','Hur kände du dig efteråt?'])},
-    {r:/(trött|utmattad|slutkörd)/i,fn:()=>pick(['Trötthet är kroppens sätt att säga ifrån. Vad tror du det beror på?','Är det fysisk trötthet eller mental?'])},
-    {r:/(stressad|stress)/i,fn:()=>pick(['Vad stressar dig mest just nu?','Hur visar sig stressen i kroppen?'])},
-    {r:/(glad|lycklig|stolt|tacksam)/i,fn:m=>pick([`Vad härligt! Vad gör dig ${m[1]}?`,`Vilken fin känsla! Berätta mer.`])},
-    {r:/^(bra|okej|fine|helt ok|ja|mm)\s*[.!]?$/i,fn:()=>pick(['Bra att höra! Något speciellt du vill prata om?','Skönt! Vad har tagit mest plats i tankarna?'])},
-    {r:/^(nej|nä|dåligt|meh)\s*[.!]?$/i,fn:()=>pick(['Okej. Vill du berätta vad som känns svårt?','Jag hör dig. Vad ligger bakom?'])},
-    {r:/(vet inte|osäker|ingen aning)/i,fn:()=>pick(['Det är okej att inte veta. Vad tänker du på just nu?','Inga krav — hur har dagen varit?'])},
-];
-
-let convState={active:false,round:0,maxRounds:12,transcript:[],fullText:'',recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),shortCount:0};
-
-function tpl(s){const d=ld();return s.replace(/\{name\}/g,d.userName||'du')}
-
-function composeResponse(text,sentiment){
-    const d=ld(),pers=d.personality||'warm';
-    const bucket=sentiment.score>=65?'pos':sentiment.score<=40?'neg':'neut';
-    let mirror=pick(MIRROR[pers][bucket]);
-    let available=FOLLOWUPS.filter(q=>!convState.askedKeys.has(q.k));
-    if(!available.length){convState.askedKeys.clear();available=FOLLOWUPS}
-    const chosen=pick(available);
-    convState.askedKeys.add(chosen.k);
-    return mirror+' '+chosen.q;
-}
-
-function shouldEnd(){
-    if(convState.round>=12)return true;
-    if(convState.round>=4&&convState.shortCount>=2)return true;
-    const last=convState.transcript.filter(t=>t.role==='user').slice(-1)[0]?.text?.toLowerCase()||'';
-    if(convState.round>=3&&/\b(tack|hejdå|vi ses|det var allt|sluta)\b/.test(last))return true;
-    return false;
-}
-
-// ===== CHAT UI =====
-function addChat(role,text){
-    const area=document.getElementById('chat-area');
-    const t=area.querySelector('.typing');if(t)t.remove();
-    const div=document.createElement('div');
-    div.className='chat-msg '+(role==='ai'?'ai':'user');
-    div.textContent=text;
-    area.appendChild(div);
-    area.scrollTop=area.scrollHeight;
-    convState.transcript.push({role,text});
-    if(role==='user')convState.fullText+=text+' ';
-}
-
-function showTyping(){
-    const area=document.getElementById('chat-area');
-    if(area.querySelector('.typing'))return;
-    const div=document.createElement('div');
-    div.className='chat-msg ai typing';
-    div.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
-    area.appendChild(div);area.scrollTop=area.scrollHeight;
-}
-function removeTyping(){const t=document.getElementById('chat-area')?.querySelector('.typing');if(t)t.remove()}
-
-// TTS
-function trySpeak(text){
-    try{
-        speechSynthesis.cancel();
-        const u=new SpeechSynthesisUtterance(text);u.lang='sv-SE';
-        const voices=speechSynthesis.getVoices();
-        const svV=voices.filter(v=>v.lang.startsWith('sv'));
-        let best=svV.find(v=>/natural|premium|enhanced|neural|online/i.test(v.name))||svV[0];
-        if(best)u.voice=best;
-        u.rate=0.9;u.pitch=1.1;u.volume=0.9;
-        speechSynthesis.speak(u);
-    }catch(e){}
-}
-
-async function startConversation(){
-    const d=ld();
-    convState={active:true,round:0,maxRounds:12,transcript:[],fullText:'',recognition:null,timer:null,elapsed:0,emotions:[],listening:false,askedKeys:new Set(),shortCount:0};
-    document.getElementById('conv-view').classList.add('on');
-    document.getElementById('conv-name').innerHTML='<span class="dot"></span> '+(d.aiName||'Luna');
-    document.getElementById('chat-area').innerHTML='';
-    document.getElementById('conv-timer').textContent='0:00';
-    document.getElementById('conv-text').value='';
-    document.getElementById('listen-ind').textContent='';
-    document.getElementById('mic-btn').className='mic-btn idle';
-    convState.timer=setInterval(()=>{convState.elapsed++;const m=Math.floor(convState.elapsed/60),s=convState.elapsed%60;document.getElementById('conv-timer').textContent=`${m}:${s.toString().padStart(2,'0')}`},1000);
-
-    if(!d.userName){convState.askingName=true;await aiMessage('Hej! Vad heter du?');return}
-    const pers=d.personality||'warm';
-    await aiMessage(tpl(pick(GREETS[pers]||GREETS.warm)));
-}
-
-async function aiMessage(text){
-    showTyping();await new Promise(r=>setTimeout(r,800+Math.random()*600));
-    removeTyping();addChat('ai',text);trySpeak(text);
-    document.getElementById('conv-text').focus();
-}
-
-function userSend(text){
-    if(!text.trim()||!convState.active)return;
-    addChat('user',text.trim());
-    document.getElementById('conv-text').value='';
-    stopListening();
-    processUserResponse(text.trim());
-}
-
-async function processUserResponse(text){
-    if(!convState.active)return;
-    if(convState.askingName){
-        const name=text.replace(/[^a-zA-ZåäöÅÄÖéÉ\s-]/g,'').trim().split(/\s+/)[0];
-        if(name){const d=ld();d.userName=name;sv(d);convState.askingName=false;await aiMessage(tpl(pick(GREETS[d.personality||'warm'])));return}
-    }
-    convState.round++;
-    const sentiment=analyze(text);
-    convState.emotions.push(sentiment.emotion);
-    if(text.trim().length<15)convState.shortCount++;else convState.shortCount=0;
-    if(shouldEnd()){const d=ld();await aiMessage(tpl(pick(CLOSES[d.personality||'warm'])));setTimeout(()=>endConversation(),2000);return}
-
-    let response=null;
-    for(const p of PATTERNS){const m=text.match(p.r);if(m){response=p.fn(m,sentiment);break}}
-    if(!response)response=composeResponse(text,sentiment);
-    await aiMessage(response);
-}
-
-function endConversation(){
-    convState.active=false;stopListening();clearInterval(convState.timer);
-    try{speechSynthesis.cancel()}catch(e){}
-    document.getElementById('conv-view').classList.remove('on');
-    const d=ld();const fullText=convState.fullText.trim();
-    const result=analyze(fullText);
-    const score=result.score;
-    const chatTs=new Date().toISOString();
-    d.checkins.push({ts:chatTs,score,emotion:result.emotion,transcript:fullText.slice(0,500)});
-    d.xp=(d.xp||0)+15;
-    sv(d);
-    if(sbUser)enqueue('chat_sessions','insert',{user_id:sbUser.id,score,emotion:result.emotion,duration_seconds:convState.elapsed,ts:chatTs});
-    syncProfile(d);
-
-    // Show simple result
-    document.getElementById('s-val').textContent=score;
-    const col=score>=65?'var(--ok)':score>=40?'var(--w)':'var(--bad)';
-    document.getElementById('s-val').style.color=col;
-    const circ=364.4;
-    document.getElementById('s-arc').style.stroke=col.replace('var(','').replace(')','');
-    document.getElementById('s-arc').setAttribute('stroke',col.includes('ok')?'#00B894':col.includes('w')?'#FDCB6E':'#E17055');
-    setTimeout(()=>{document.getElementById('s-arc').style.strokeDashoffset=circ-(score/100)*circ},100);
-    const emoMap={glad:'😊 Glad',lugn:'😌 Lugn',neutral:'😐 Neutral',stressad:'😰 Stressad',ledsen:'😢 Ledsen',orolig:'😟 Orolig',arg:'😤 Arg',trott:'😴 Trött'};
-    document.getElementById('r-emo').textContent=emoMap[result.emotion]||'😐 Neutral';
-    document.getElementById('r-ref-title').textContent=(d.aiName||'Luna')+'s reflektion';
-    document.getElementById('r-ref-text').textContent=score>=65?'Du verkar ha det bra — fortsätt göra det som fungerar!':score>=40?'En stabil dag. Varje reflektion gör skillnad.':'Det verkar vara en tuff period. Att du pratar om det är ett steg framåt.';
-    go('result');
-}
-
-// ===== STT =====
-function toggleListening(){if(convState.listening)stopListening();else startListening()}
-
-function startListening(){
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){document.getElementById('listen-ind').textContent='Röststöd saknas';return}
-    convState.listening=true;
-    document.getElementById('mic-btn').className='mic-btn rec';
-    document.getElementById('listen-ind').textContent='🎤 Prata nu...';
-    document.getElementById('conv-text').value='';
-    const rec=new SR();convState.recognition=rec;
-    rec.lang='sv-SE';rec.continuous=false;rec.interimResults=true;rec.maxAlternatives=1;
-    let sent=false;
-    function sendOnce(text){if(sent)return;sent=true;stopListening();if(text.trim())userSend(text.trim())}
-    rec.onresult=(e)=>{if(sent)return;const r=e.results[0];document.getElementById('conv-text').value=r[0].transcript;if(r.isFinal){document.getElementById('listen-ind').textContent='✓ Skickar...';sendOnce(r[0].transcript)}};
-    rec.onend=()=>{if(sent)return;const v=document.getElementById('conv-text').value;if(v.trim())sendOnce(v);else{stopListening();document.getElementById('listen-ind').textContent='Inget uppfattat';setTimeout(()=>{document.getElementById('listen-ind').textContent=''},2000)}};
-    rec.onerror=()=>{if(sent)return;stopListening();document.getElementById('listen-ind').textContent='Kunde inte lyssna';setTimeout(()=>{document.getElementById('listen-ind').textContent=''},3000)};
-    try{rec.start()}catch(e){stopListening()}
-    setTimeout(()=>{if(!sent&&convState.listening){const v=document.getElementById('conv-text').value;if(v.trim())sendOnce(v);else stopListening()}},15000);
-}
-
-function stopListening(){
-    convState.listening=false;
-    document.getElementById('mic-btn').className='mic-btn idle';
-    document.getElementById('listen-ind').textContent='';
-    if(convState.recognition)try{convState.recognition.stop()}catch(e){}
-    convState.recognition=null;
-}
-
-// ===== EVENT LISTENERS =====
-document.getElementById('start-conv-btn').addEventListener('click',startConversation);
-document.getElementById('end-conv-btn').addEventListener('click',endConversation);
-document.getElementById('mic-btn').addEventListener('click',toggleListening);
-document.getElementById('send-btn').addEventListener('click',()=>{const v=document.getElementById('conv-text').value;if(v.trim())userSend(v)});
-document.getElementById('conv-text').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const v=e.target.value;if(v.trim())userSend(v)}});
-document.getElementById('conv-text').addEventListener('focus',()=>{setTimeout(()=>{const a=document.getElementById('chat-area');if(a)a.scrollTop=a.scrollHeight},350)});
 
 // ===== INIT =====
 buildKommunDatalist();
 detectChildJoin();
-try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
 
 // ===== SMART SUMMARY =====
 function generateSmartSummary(cd,childName){
@@ -4640,7 +4564,7 @@ async function tryRestoreFromRemote(){
             processJoinCode();
             return;
         }
-    }catch(e){console.log('tryRestoreFromRemote error:',e)}
+    }catch(e){}
     // No remote data — show onboarding for new user
     document.getElementById('ob').classList.remove('h');
     obNext(1);
