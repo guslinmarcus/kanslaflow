@@ -3402,6 +3402,35 @@ function removeChildConfirm(idx,name){
     document.body.appendChild(overlay);
 }
 
+function removeChildPlace(storageKey,placeId){
+    const cd=getFullChildData(storageKey);
+    if(!cd)return;
+    const place=cd.places.find(p=>p.id===placeId);
+    const name=place?place.name:'platsen';
+    const old=document.getElementById('confirm-overlay');if(old)old.remove();
+    const overlay=document.createElement('div');
+    overlay.id='confirm-overlay';
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML=`<div style="background:var(--c2);border-radius:16px;padding:24px;text-align:center;max-width:300px">
+        <div style="font-size:1rem;margin-bottom:16px">Ta bort <strong>${esc(name)}</strong>?</div>
+        <div style="font-size:.8rem;color:var(--t2);margin-bottom:16px">Check-in-data för platsen raderas också.</div>
+        <div style="display:flex;gap:10px;justify-content:center">
+            <button class="btn bs" style="padding:10px 20px" onclick="document.getElementById('confirm-overlay').remove()">Avbryt</button>
+            <button class="btn bs" style="padding:10px 20px;background:rgba(225,112,85,.2);color:var(--bad)" onclick="document.getElementById('confirm-overlay').remove();doRemoveChildPlace('${esc(storageKey)}','${esc(placeId)}')">Ta bort</button>
+        </div>
+    </div>`;
+    document.body.appendChild(overlay);
+}
+function doRemoveChildPlace(storageKey,placeId){
+    const cd=getFullChildData(storageKey);
+    if(!cd)return;
+    cd.places=cd.places.filter(p=>p.id!==placeId);
+    cd.placeCheckins=(cd.placeCheckins||[]).filter(c=>c.placeId!==placeId);
+    if(sok)localStorage.setItem(storageKey,JSON.stringify(cd));
+    toast('Plats borttagen');
+    renderFamily();
+}
+
 function addPlaceToChild(storageKey,type,customName){
     const cd=getFullChildData(storageKey);
     if(!cd)return;
@@ -3523,11 +3552,10 @@ function renderFamily(){
                         <button class="btn bs" style="width:auto;padding:6px 12px;font-size:.72rem" onclick="switchToProfile('${esc(fp.storageKey)}','${esc(fp.name)}')">Visa</button>
                     </div>`;
                 if(childData&&childData.places.length){
-                    childData.places.forEach(cp=>{
+                    childData.places.forEach((cp,pi)=>{
                         const pt=PT[cp.type]||PT.other;
                         const col=cp.avg>=4?'var(--ok)':cp.avg>=3?'var(--w)':'var(--bad)';
-                        html+=`<div class="fam-place-row"><span>${pt.icon}</span><span style="flex:1">${esc(cp.name)}</span><span class="fam-place-score" style="color:${col}">${cp.avg>0?cp.avg:'—'}</span></div>`;
-                        if(cp.lastComment)html+=`<div class="fam-place-comment">"${esc(cp.lastComment)}"</div>`;
+                        html+=`<div class="fam-place-row"><span>${pt.icon}</span><span style="flex:1">${esc(cp.name)}</span><span class="fam-place-score" style="color:${col}">${cp.avg>0?cp.avg:'—'}</span><button style="background:none;border:none;color:var(--t2);font-size:.9rem;cursor:pointer;padding:2px 6px;opacity:.5" onclick="removeChildPlace('${esc(fp.storageKey)}','${esc(cp.id)}')">×</button></div>`;
                     });
                 }else{html+=`<p style="font-size:.78rem;color:var(--t2);padding:8px 0;text-align:center">Inga platser — lägg till nedan</p>`}
                 // Add place button with naming
