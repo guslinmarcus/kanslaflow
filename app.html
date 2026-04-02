@@ -2439,7 +2439,7 @@ function renderObChildren(){
     document.getElementById('ob3-next').disabled=false;
     el.innerHTML=obChildren.map((c,i)=>
         `<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--c2);border-radius:8px;margin-bottom:6px">
-            <span>👧</span><div style="flex:1"><div style="font-size:.84rem;font-weight:600">${c.name} <span style="font-size:.68rem;color:var(--t2)">${c.ageGroup}</span></div></div>
+            <span>${c.gender==='pojke'?'👦':c.gender==='flicka'?'👧':'🧒'}</span><div style="flex:1"><div style="font-size:.84rem;font-weight:600">${esc(c.name)} <span style="font-size:.68rem;color:var(--t2)">${esc(c.ageGroup)}</span></div></div>
             <button style="background:none;border:none;color:var(--bad);font-size:1rem;cursor:pointer" onclick="obRemoveChild(${i})">×</button></div>`
     ).join('');
 }
@@ -3915,6 +3915,8 @@ function switchToParent(){
     go('moodis');
 }
 
+function childEmoji(fp){return fp?.gender==='pojke'?'👦':fp?.gender==='flicka'?'👧':'🧒'}
+
 function getChildSafeData(storageKey){
     if(!sok)return null;
     try{
@@ -3942,12 +3944,12 @@ function showFamilyDashboard(){
         d.familyProfiles.forEach(fp=>{
             const safe=getChildSafeData(fp.storageKey);
             if(!safe){
-                html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${esc(fp.name)}</div><div class="fam-stat">${esc(fp.ageGroup)} — Ingen data</div></div></div>`;
+                html+=`<div class="fam-member"><div class="fam-avatar">${childEmoji(fp)}</div><div class="fam-info"><div class="fam-name">${esc(fp.name)}</div><div class="fam-stat">${esc(fp.ageGroup)} — Ingen data</div></div></div>`;
                 return;
             }
             const col=safe.avg>=4?'var(--ok)':safe.avg>=3?'var(--w)':'var(--bad)';
             const tCol=safe.trend==='↑'?'color:var(--ok)':safe.trend==='↓'?'color:var(--bad)':'color:var(--t2)';
-            html+=`<div class="fam-member"><div class="fam-avatar">👧</div><div class="fam-info"><div class="fam-name">${esc(fp.name)}</div><div class="fam-stat">${esc(fp.ageGroup)} — ${safe.count} checkins</div></div><div class="fam-score"><div class="v" style="color:${col}">${safe.avg||'—'}</div><div class="trend" style="${tCol}">${safe.trend}</div></div></div>`;
+            html+=`<div class="fam-member"><div class="fam-avatar">${childEmoji(fp)}</div><div class="fam-info"><div class="fam-name">${esc(fp.name)}</div><div class="fam-stat">${esc(fp.ageGroup)} — ${safe.count} checkins</div></div><div class="fam-score"><div class="v" style="color:${col}">${safe.avg||'—'}</div><div class="trend" style="${tCol}">${safe.trend}</div></div></div>`;
         });
     }
     document.getElementById('fam-overlay-content').innerHTML=html;
