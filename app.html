@@ -4087,8 +4087,10 @@ async function signOut(){
     if(!sb)return;
     await sb.auth.signOut();
     sbUser=null;
-    toast('Utloggad');
-    renderFamily();
+    localStorage.removeItem(APK);
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth-screen').style.display='';
+    document.getElementById('auth-screen').classList.remove('h');
 }
 
 function getChildDetailedData(storageKey){
