@@ -5549,28 +5549,33 @@ function renderMoodisNetwork(){
         <div style="font-size:.78rem;color:var(--t2);margin-top:4px">Du hjälper ${esc(childName)} genom att förstå hen bättre</div>
     </div>`;
 
-    // Role selector if not set
-    if(!d.familyRole){
-        html+=`<div class="cd" style="text-align:center;margin-bottom:16px">
-            <div style="font-size:.88rem;font-weight:600;margin-bottom:10px">Vem är du för ${esc(childName)}?</div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
-                <button class="btn bs" style="padding:8px 14px" onclick="setNetworkRole('mormor')">👵 Mormor</button>
-                <button class="btn bs" style="padding:8px 14px" onclick="setNetworkRole('morfar')">👴 Morfar</button>
-                <button class="btn bs" style="padding:8px 14px" onclick="setNetworkRole('farmor')">👵 Farmor</button>
-                <button class="btn bs" style="padding:8px 14px" onclick="setNetworkRole('farfar')">👴 Farfar</button>
-                <button class="btn bs" style="padding:8px 14px" onclick="setNetworkRole('mamma')">👩 Mamma</button>
-                <button class="btn bs" style="padding:8px 14px" onclick="setNetworkRole('pappa')">👨 Pappa</button>
-                <button class="btn bs" style="padding:8px 14px" onclick="setNetworkRole('annan')">👤 Annan</button>
+    // Step 1: Name + role MUST be set before anything else
+    if(!d.userName||!d.familyRole){
+        html+=`<div class="cd" style="text-align:center;padding:20px">
+            <div style="font-size:1rem;font-weight:600;margin-bottom:16px">Berätta om dig</div>
+            <input type="text" id="network-name-input" placeholder="Ditt namn" maxlength="30" value="${esc(d.userName||'')}" style="width:100%;max-width:280px;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);color:var(--t);font-size:.95rem;text-align:center;outline:none;margin-bottom:14px">
+            <div style="font-size:.85rem;color:var(--t2);margin-bottom:10px">Vem är du för ${esc(childName)}?</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px" id="network-role-btns">
+                <button class="btn bs" style="padding:8px 14px" onclick="selectNetworkRoleBtn('mormor',this)">👵 Mormor</button>
+                <button class="btn bs" style="padding:8px 14px" onclick="selectNetworkRoleBtn('morfar',this)">👴 Morfar</button>
+                <button class="btn bs" style="padding:8px 14px" onclick="selectNetworkRoleBtn('farmor',this)">👵 Farmor</button>
+                <button class="btn bs" style="padding:8px 14px" onclick="selectNetworkRoleBtn('farfar',this)">👴 Farfar</button>
+                <button class="btn bs" style="padding:8px 14px" onclick="selectNetworkRoleBtn('mamma',this)">👩 Mamma</button>
+                <button class="btn bs" style="padding:8px 14px" onclick="selectNetworkRoleBtn('pappa',this)">👨 Pappa</button>
+                <button class="btn bs" style="padding:8px 14px" onclick="selectNetworkRoleBtn('annan',this)">👤 Annan</button>
             </div>
+            <button class="btn bp" onclick="saveNetworkProfile()" style="max-width:280px">Spara och fortsätt</button>
         </div>`;
+        html+='</div>';
+        el.innerHTML=html;
+        return;
     }
 
-    // Check if we have child data (via Supabase family membership)
-    // For now, show quiz prompt if we have stored insights
+    // Find quiz result — check all possible key formats
     const quizDone=d._quizDone||{};
     const today=new Date().toDateString();
-    const doneKey=(d.networkChildId||'')+'_'+today;
-    const quizResult=quizDone[doneKey];
+    const tempKey='_network_child_'+d.networkChildId;
+    const quizResult=quizDone[tempKey+'_'+today]||quizDone[d.networkChildId+'_'+today]||quizDone['moodly_child_'+d.networkChildId+'_'+today];
 
     if(quizResult){
         const pctCol=quizResult.pct>=70?'var(--ok)':quizResult.pct>=40?'var(--w)':'var(--bad)';
@@ -5580,13 +5585,37 @@ function renderMoodisNetwork(){
             <div style="font-size:.78rem;color:var(--t2);margin:4px 0">${quizResult.correct}/${quizResult.total} rätt</div>
         </div>`;
 
-        // Tips
         if(quizResult.pct<70){
             html+=`<div style="background:rgba(108,92,231,.08);border-radius:12px;padding:14px;margin-bottom:16px;font-size:.82rem;color:var(--t2);line-height:1.5">
                 💡 Prata med ${esc(childName)} om svaren du missade — det stärker er relation! Kom tillbaka imorgon för ett nytt quiz.</div>`;
         }else{
             html+=`<div style="background:rgba(0,184,148,.08);border-radius:12px;padding:14px;margin-bottom:16px;font-size:.82rem;color:var(--ok);line-height:1.5">
                 🌟 Bra koll! Du har stark förståelse för ${esc(childName)}. Fortsätt göra quiz för att hålla dig uppdaterad!</div>`;
+        }
+
+        // Show place insights for network member
+        const tempCd=getFullChildData(tempKey);
+        if(tempCd&&tempCd.places){
+            html+=`<div style="font-size:.72rem;color:var(--a);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 10px;font-weight:600">💡 Så känner ${esc(childName)} för sina platser</div>`;
+            (tempCd.places||[]).forEach(place=>{
+                const pt=PT[place.type]||PT.other;
+                const checkins=(tempCd.placeCheckins||[]).filter(c=>c.placeId===place.id);
+                const last7=checkins.filter(c=>Date.now()-new Date(c.ts).getTime()<7*864e5);
+                if(!last7.length)return;
+                const avg=Math.round(last7.reduce((a,c)=>a+c.score,0)/last7.length*10)/10;
+                const isLow=avg<=2.5;const isHigh=avg>=3.8;
+                const bg=isLow?'rgba(225,112,85,.06)':isHigh?'rgba(0,184,148,.06)':'rgba(255,255,255,.04)';
+                const border=isLow?'border-left:3px solid var(--bad)':isHigh?'border-left:3px solid var(--ok)':'border-left:3px solid var(--t2)';
+                const moodEmoji=avg>=4?'😄':avg>=3?'🙂':avg>=2?'😕':'😢';
+                const feeling=isHigh?'trivs bra':isLow?'verkar ha det tufft':'tycker det är okej';
+                html+=`<div style="background:${bg};${border};border-radius:0 12px 12px 0;padding:12px;margin-bottom:6px">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span>${pt.icon}</span><span style="flex:1;font-weight:600;font-size:.85rem">${esc(place.name)}</span>
+                        <span>${moodEmoji}</span><span style="font-size:.8rem;font-weight:700;color:${isHigh?'var(--ok)':isLow?'var(--bad)':'var(--t2)'}">${avg}/5</span>
+                    </div>
+                    <div style="font-size:.78rem;color:var(--t2);margin-top:4px">${esc(childName)} ${feeling} här</div>
+                </div>`;
+            });
         }
     }else{
         html+=`<div style="background:linear-gradient(135deg,rgba(108,92,231,.12),rgba(162,155,254,.08));border:1px solid rgba(108,92,231,.25);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px">
@@ -5598,7 +5627,8 @@ function renderMoodisNetwork(){
     }
 
     // Quiz history
-    const history=(d._quizHistory||[]).filter(h=>h.childKey===d.networkChildId);
+    const allKeys=Object.keys(quizDone);
+    const history=(d._quizHistory||[]).filter(h=>h.childKey&&(h.childKey.includes(d.networkChildId)||h.childKey===tempKey));
     if(history.length>1){
         html+=`<div class="cd"><div class="ct">📈 Din utveckling</div>`;
         history.slice(-5).reverse().forEach(h=>{
@@ -5617,6 +5647,26 @@ function renderMoodisNetwork(){
 
 function setNetworkRole(role){
     const d=ld();d.familyRole=role;sv(d);
+    renderMoodis();
+}
+
+let _networkRoleSelected='';
+function selectNetworkRoleBtn(role,btn){
+    _networkRoleSelected=role;
+    document.querySelectorAll('#network-role-btns .btn').forEach(b=>{b.style.background='';b.style.color=''});
+    if(btn){btn.style.background='var(--p)';btn.style.color='#fff'}
+}
+
+function saveNetworkProfile(){
+    const nameInput=document.getElementById('network-name-input');
+    const name=(nameInput?.value||'').trim();
+    if(!name){toast('Ange ditt namn');nameInput?.focus();return}
+    if(!_networkRoleSelected){toast('Välj din relation till barnet');return}
+    const d=ld();
+    d.userName=name;
+    d.familyRole=_networkRoleSelected;
+    sv(d);
+    toast('Sparat!');
     renderMoodis();
 }
 
