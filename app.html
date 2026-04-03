@@ -3446,6 +3446,17 @@ function showQuizResults(){
     }
 
     html+=`<button class="btn ba" style="margin-top:16px;padding:12px 24px" onclick="_quiz.active=false;renderMoodis()">Se insikter →</button>`;
+
+    // Sharing prompts after quiz
+    html+=`<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.06)">
+        <div style="font-size:.82rem;font-weight:600;text-align:center;margin-bottom:12px">Vill du stärka ${esc(_quiz.childName)}s trygghet?</div>
+        <div style="display:flex;gap:8px;flex-direction:column;align-items:center">
+            <button class="btn bs" style="width:100%;max-width:280px;padding:12px;font-size:.82rem" onclick="_quiz.active=false;shareNetworkInvite('${esc(_quiz.childKey.replace('moodly_child_',''))}','${esc(_quiz.childName)}')">💜 Bjud in familj till trygghetsnätverket</button>
+            <button class="btn bs" style="width:100%;max-width:280px;padding:12px;font-size:.82rem" onclick="shareWithParents()">👨‍👩‍👧 Dela Moodly med andra föräldrar</button>
+        </div>
+        <div style="font-size:.72rem;color:var(--t2);text-align:center;margin-top:8px;line-height:1.4">Fler familjer = bättre insikter för alla barn i er kommun</div>
+    </div>`;
+
     html+=`</div>`;
     el.innerHTML=html;
 }
@@ -4146,6 +4157,13 @@ function renderFamily(){
         html+=`</div>`;
     }
 
+    // Share with other parents
+    html+=`<div class="cd" style="text-align:center">
+        <div class="ct">🌱 Dela Moodly</div>
+        <p style="font-size:.78rem;color:var(--t2);margin-bottom:12px;line-height:1.5">Fler familjer i din kommun = bättre insikter för alla barn. Dela med andra föräldrar!</p>
+        <button class="btn ba" onclick="shareWithParents()" style="width:100%;font-size:.85rem;padding:12px">Dela med andra föräldrar</button>
+    </div>`;
+
     // Settings section (always shown)
     html+=`<div class="section-sep"></div>
     <div class="ct">⚙️ Inställningar</div>`;
@@ -4333,9 +4351,23 @@ function getChildDetailedData(storageKey){
 async function shareInvite(){
     const d=ld();
     const url=window.location.origin+window.location.pathname.replace(/index\.html$/,'');
-    const msg=`Jag använder Moodly för att följa hur mitt barn mår i skolan, på idrotten och hemma. Ju fler familjer som är med, desto bättre insikter. Prova du också — det är gratis!`;
+    const msg=`Jag använder Moodly för att förstå hur mitt barn mår i skolan, på idrotten och hemma. Barnet pratar med Moodis — jag får insikterna och kan testa min förståelse i ett quiz. Prova du också — det är gratis!`;
     if(navigator.share){
         navigator.share({title:'Prova Moodly',text:msg,url}).catch(()=>{});
+    }else{
+        navigator.clipboard.writeText(msg+' '+url).then(()=>toast('Länk kopierad!')).catch(()=>toast('Kunde inte kopiera'));
+    }
+}
+
+function shareWithParents(){
+    const d=ld();
+    const kommun=d.kommun||'';
+    const url=window.location.origin+window.location.pathname.replace(/app\.html$/,'');
+    const msg=kommun?
+        `Hej! Jag har börjat använda Moodly för att förstå hur mitt barn mår i olika miljöer. Ju fler familjer i ${kommun} som är med, desto bättre insikter får vi alla. Testa — det är gratis och tar 2 minuter att komma igång!`:
+        `Hej! Jag har börjat använda Moodly för att förstå hur mitt barn mår i skolan, på idrotten och hemma. Mitt barn älskar Moodis — och jag får insikter jag aldrig haft förut. Testa du också — det är gratis!`;
+    if(navigator.share){
+        navigator.share({title:'Testa Moodly — förstå ditt barn bättre',text:msg,url}).catch(()=>{});
     }else{
         navigator.clipboard.writeText(msg+' '+url).then(()=>toast('Länk kopierad!')).catch(()=>toast('Kunde inte kopiera'));
     }
@@ -4945,6 +4977,15 @@ function renderInsikter(){
     </div>`;
 
     html+=`</div>`;
+
+    // === RECRUITMENT CTA ===
+    html+=`<div style="background:linear-gradient(135deg,rgba(108,92,231,.1),rgba(0,206,201,.06));border:1px solid rgba(108,92,231,.15);border-radius:16px;padding:24px;text-align:center;margin-top:16px">
+        <div style="font-size:1.2rem;margin-bottom:8px">🌱</div>
+        <div style="font-size:.92rem;font-weight:700;margin-bottom:6px">Hjälp oss bygga riktig data</div>
+        <div style="font-size:.8rem;color:var(--t2);line-height:1.5;margin-bottom:14px">Den aggregerade datan ovan är simulerad. Ju fler familjer i ${esc(kommun)} som använder Moodly, desto snabbare får vi verkliga insikter som hjälper alla barn.</div>
+        <button class="btn ba" style="padding:12px 24px;font-size:.88rem;width:auto;margin-bottom:8px" onclick="shareWithParents()">Dela Moodly med andra föräldrar</button>
+        <div style="font-size:.7rem;color:var(--t2);margin-top:4px">Varje ny familj gör datan bättre för alla</div>
+    </div>`;
 
     el.innerHTML=html;
 
