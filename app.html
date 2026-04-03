@@ -4360,12 +4360,8 @@ async function shareInvite(){
 }
 
 function shareWithParents(){
-    const d=ld();
-    const kommun=d.kommun||'';
     const url=window.location.origin+window.location.pathname.replace(/app\.html$/,'');
-    const msg=kommun?
-        `Hej! Jag har börjat använda Moodly för att förstå hur mitt barn mår i olika miljöer. Ju fler familjer i ${kommun} som är med, desto bättre insikter får vi alla. Testa — det är gratis och tar 2 minuter att komma igång!`:
-        `Hej! Jag har börjat använda Moodly för att förstå hur mitt barn mår i skolan, på idrotten och hemma. Mitt barn älskar Moodis — och jag får insikter jag aldrig haft förut. Testa du också — det är gratis!`;
+    const msg=`Hej! Jag har börjat använda Moodly för att förstå hur mitt barn mår i skolan, på idrotten och hemma. Barnet pratar med en kompis i appen och jag får insikter jag aldrig haft förut. Testa du också — det är gratis och tar 2 minuter!`;
     if(navigator.share){
         navigator.share({title:'Testa Moodly — förstå ditt barn bättre',text:msg,url}).catch(()=>{});
     }else{
