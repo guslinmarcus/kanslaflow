@@ -368,7 +368,7 @@
                 <div style="font-size:1.1rem;margin-bottom:6px">🔬</div>
                 <div style="font-size:.9rem;font-weight:700;margin-bottom:6px">Vi söker forskningspartner</div>
                 <div style="font-size:.8rem;color:var(--t2);line-height:1.6;margin-bottom:14px">Vi vill utvärdera Moodlys effekt vetenskapligt. Är du forskare inom barnhälsa, psykologi eller pedagogik? Vi vill gärna höra från dig.</div>
-                <a href="mailto:hej@moodlyapp.se?subject=Forskningssamarbete%20Moodly" style="display:inline-flex;padding:10px 22px;background:var(--p);color:#fff;border-radius:20px;font-size:.82rem;font-weight:700;text-decoration:none">Kontakta oss</a>
+                <a href="#kontakt" style="display:inline-flex;padding:10px 22px;background:var(--p);color:#fff;border-radius:20px;font-size:.82rem;font-weight:700;text-decoration:none">Kontakta oss</a>
             </div>
         </div>
     </div>
@@ -509,7 +509,7 @@
             <div class="reveal" style="text-align:center;background:linear-gradient(135deg,rgba(108,92,231,.1),rgba(162,155,254,.06));border:1px solid rgba(108,92,231,.15);border-radius:16px;padding:28px">
                 <div style="font-size:.9rem;font-weight:700;margin-bottom:8px">Vill ni se hur barnen mår i er kommun?</div>
                 <div style="font-size:.8rem;color:var(--t2);margin-bottom:16px;line-height:1.5">Vi visar er data ni inte visste att ni hade. Boka en kostnadsfri demo.</div>
-                <a href="mailto:hej@moodlyapp.se?subject=Demo%20Moodly%20för%20kommun" style="display:inline-flex;padding:12px 28px;background:var(--p);color:#fff;border-radius:24px;font-size:.88rem;font-weight:700;text-decoration:none;transition:transform .2s">Boka demo &rarr;</a>
+                <a href="#kontakt" style="display:inline-flex;padding:12px 28px;background:var(--p);color:#fff;border-radius:24px;font-size:.88rem;font-weight:700;text-decoration:none;transition:transform .2s">Boka demo &rarr;</a>
             </div>
         </div>
     </div>
@@ -561,10 +561,64 @@
     </div>
 </section>
 
+<!-- CONTACT FORM -->
+<section id="kontakt">
+    <div class="container" style="max-width:500px">
+        <h2 class="section-title reveal">Kontakta oss</h2>
+        <p class="section-sub reveal reveal-d1">Frågor om Moodly, intresse för samarbete eller demo? Hör av dig!</p>
+        <form id="contact-form" style="margin-top:28px" onsubmit="return submitContact(event)">
+            <input type="text" id="cf-name" placeholder="Ditt namn" required style="width:100%;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:.9rem;outline:none;margin-bottom:10px">
+            <input type="email" id="cf-email" placeholder="E-post" required style="width:100%;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:.9rem;outline:none;margin-bottom:10px">
+            <select id="cf-subject" style="width:100%;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:.9rem;outline:none;margin-bottom:10px">
+                <option value="Allmän fråga">Allmän fråga</option>
+                <option value="Demo för kommun/skola">Demo för kommun/skola</option>
+                <option value="Forskningssamarbete">Forskningssamarbete</option>
+                <option value="Feedback">Feedback</option>
+                <option value="Övrigt">Övrigt</option>
+            </select>
+            <textarea id="cf-message" placeholder="Ditt meddelande" rows="4" required style="width:100%;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:.9rem;outline:none;margin-bottom:14px;resize:vertical;font-family:inherit"></textarea>
+            <button type="submit" id="cf-submit" style="width:100%;padding:14px;background:linear-gradient(135deg,#6C5CE7,#5A4BD1);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;transition:transform .2s">Skicka meddelande</button>
+            <div id="cf-status" style="text-align:center;margin-top:12px;font-size:.82rem;min-height:24px"></div>
+        </form>
+    </div>
+</section>
+
+<script>
+async function submitContact(e){
+    e.preventDefault();
+    const btn=document.getElementById('cf-submit');
+    const status=document.getElementById('cf-status');
+    btn.disabled=true;btn.textContent='Skickar...';
+    try{
+        const sb_url='https://xuvvpmmfkedrhgofguqk.supabase.co';
+        const sb_key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1dnZwbW1ma2Vkcmhnb2ZndXFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTg2MDcsImV4cCI6MjA5MDQ3NDYwN30.WfntUYTxmDxQWSZq85Q9Sdy-sKIGx9uFXex03QvA8iM';
+        const res=await fetch(sb_url+'/rest/v1/contact_messages',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','apikey':sb_key,'Authorization':'Bearer '+sb_key},
+            body:JSON.stringify({
+                name:document.getElementById('cf-name').value.trim(),
+                email:document.getElementById('cf-email').value.trim(),
+                subject:document.getElementById('cf-subject').value,
+                message:document.getElementById('cf-message').value.trim()
+            })
+        });
+        if(res.ok){
+            status.style.color='#00B894';
+            status.textContent='Tack! Vi återkommer så snart vi kan.';
+            document.getElementById('contact-form').reset();
+        }else{throw new Error()}
+    }catch(err){
+        status.style.color='#E17055';
+        status.textContent='Något gick fel — försök igen.';
+    }
+    btn.disabled=false;btn.textContent='Skicka meddelande';
+}
+</script>
+
 <footer>
     <div class="container">
         <p>Moodly Sverige — Ideell förening med säte i Vaxholms kommun</p>
-        <p style="margin-top:8px"><a href="privacy.html">Integritetspolicy</a> &middot; <a href="terms.html">Användarvillkor</a> &middot; <a href="mailto:hej@moodlyapp.se">Kontakt</a></p>
+        <p style="margin-top:8px"><a href="privacy.html">Integritetspolicy</a> &middot; <a href="terms.html">Användarvillkor</a> &middot; <a href="#kontakt">Kontakt</a></p>
     </div>
 </footer>
 
