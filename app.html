@@ -804,7 +804,9 @@ function normalizeKommun(val){
 function switchAuthTab(mode){
     authMode=mode;
     document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('on',i===(mode==='login'?0:1)));
-    document.getElementById('auth-submit').textContent=mode==='login'?'Logga in':'Skapa konto';
+    const btn=document.getElementById('auth-submit');
+    btn.textContent=mode==='login'?'Logga in':'Skapa konto';
+    btn.disabled=false;
     const errEl=document.getElementById('auth-err');errEl.textContent='';errEl.style.color='';
 }
 
