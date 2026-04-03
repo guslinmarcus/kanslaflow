@@ -837,7 +837,10 @@ async function authSubmit(){
             res=await sb.auth.signInWithPassword({email,password:pass});
             if(res.error)throw res.error;
         }
-        // Success — session is set, onAuthStateChange handles the rest
+        // Success — explicitly call onAuthReady in case onAuthStateChange doesn't fire
+        if(res.data?.session){
+            onAuthReady(res.data.session);
+        }
     }catch(e){
         errEl.textContent=e.message==='Invalid login credentials'?'Fel e-post eller lösenord':e.message||'Något gick fel';
         document.getElementById('auth-submit').disabled=false;
