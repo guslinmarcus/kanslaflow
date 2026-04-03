@@ -326,6 +326,71 @@
 
             <!-- What they get -->
             <div class="reveal reveal-d2" style="margin-bottom:24px">
+                <!-- Demo charts -->
+                <div style="font-size:.85rem;font-weight:700;color:var(--t);margin-bottom:12px">Exempel: Välmående per platstyp</div>
+                <div style="margin-bottom:16px" id="b2b-bars"></div>
+                <script>
+                (function(){
+                    const data=[{icon:'🏫',name:'Skola',avg:3.4,col:'#FDCB6E'},{icon:'⚽',name:'Idrott',avg:3.9,col:'#00B894'},{icon:'🏠',name:'Hem',avg:4.1,col:'#00B894'},{icon:'🏫',name:'Fritids',avg:3.6,col:'#FDCB6E'},{icon:'🎨',name:'Hobby',avg:4.3,col:'#00B894'}];
+                    let h='';
+                    data.forEach(p=>{
+                        const pct=Math.round((p.avg/5)*100);
+                        h+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:22px;text-align:center">${p.icon}</span><span style="width:45px;font-size:.75rem;color:#A7A9BE">${p.name}</span><div style="flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${p.col};border-radius:4px"></div></div><span style="font-size:.8rem;font-weight:700;color:${p.col};width:28px;text-align:right">${p.avg}</span></div>`;
+                    });
+                    setTimeout(()=>{const el=document.getElementById('b2b-bars');if(el)el.innerHTML=h},100);
+                })();
+                </script>
+
+                <div style="font-size:.85rem;font-weight:700;color:var(--t);margin:20px 0 12px">Exempel: Välmående över tid</div>
+                <svg viewBox="0 0 320 130" style="width:100%;max-width:380px;display:block;margin:0 auto 8px">
+                    <line x1="28" y1="10" x2="312" y2="10" stroke="rgba(255,255,255,.05)" stroke-width="1"/><text x="24" y="13" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="end">4.5</text>
+                    <line x1="28" y1="35" x2="312" y2="35" stroke="rgba(255,255,255,.05)" stroke-width="1"/><text x="24" y="38" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="end">4.0</text>
+                    <line x1="28" y1="60" x2="312" y2="60" stroke="rgba(255,255,255,.05)" stroke-width="1"/><text x="24" y="63" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="end">3.5</text>
+                    <line x1="28" y1="85" x2="312" y2="85" stroke="rgba(255,255,255,.05)" stroke-width="1"/><text x="24" y="88" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="end">3.0</text>
+                    <line x1="28" y1="110" x2="312" y2="110" stroke="rgba(255,255,255,.05)" stroke-width="1"/><text x="24" y="113" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="end">2.5</text>
+                    <text x="69" y="126" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="middle">v.8</text>
+                    <text x="110" y="126" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="middle">v.9</text>
+                    <text x="150" y="126" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="middle">v.10</text>
+                    <text x="191" y="126" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="middle">v.11</text>
+                    <text x="231" y="126" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="middle">v.12</text>
+                    <text x="272" y="126" font-size="7" fill="rgba(255,255,255,.25)" text-anchor="middle">v.13</text>
+                    <!-- Hem -->
+                    <polyline points="28,30 69,25 110,30 150,20 191,25 231,30 272,25 312,25" fill="none" stroke="#FDCB6E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="312" cy="25" r="3" fill="#FDCB6E"/>
+                    <!-- Idrott -->
+                    <polyline points="28,48 69,43 110,38 150,43 191,33 231,38 272,38 312,38" fill="none" stroke="#00CEC9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="312" cy="38" r="3" fill="#00CEC9"/>
+                    <!-- Fritids -->
+                    <polyline points="28,43 69,48 110,53 150,58 191,63 231,58 272,53 312,53" fill="none" stroke="#FD79A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="312" cy="53" r="3" fill="#FD79A8"/>
+                    <!-- Skola -->
+                    <polyline points="28,53 69,58 110,63 150,68 191,73 231,63 272,60 312,60" fill="none" stroke="#6C5CE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="312" cy="60" r="3" fill="#6C5CE7"/>
+                </svg>
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+                    <span style="display:flex;align-items:center;gap:4px;font-size:.68rem;color:#A7A9BE"><span style="width:10px;height:3px;background:#6C5CE7;border-radius:2px;display:inline-block"></span>Skola</span>
+                    <span style="display:flex;align-items:center;gap:4px;font-size:.68rem;color:#A7A9BE"><span style="width:10px;height:3px;background:#00CEC9;border-radius:2px;display:inline-block"></span>Idrott</span>
+                    <span style="display:flex;align-items:center;gap:4px;font-size:.68rem;color:#A7A9BE"><span style="width:10px;height:3px;background:#FDCB6E;border-radius:2px;display:inline-block"></span>Hem</span>
+                    <span style="display:flex;align-items:center;gap:4px;font-size:.68rem;color:#A7A9BE"><span style="width:10px;height:3px;background:#FD79A8;border-radius:2px;display:inline-block"></span>Fritids</span>
+                </div>
+
+                <div style="font-size:.85rem;font-weight:700;color:var(--t);margin:20px 0 12px">Exempel: Per kön och ålder</div>
+                <div style="display:flex;gap:12px;margin-bottom:8px">
+                    <div style="flex:1;background:rgba(255,255,255,.03);border-radius:10px;padding:12px;text-align:center">
+                        <div style="font-size:.9rem">👧</div><div style="font-size:.68rem;color:#A7A9BE;margin:2px 0">Flickor</div><div style="font-size:1.1rem;font-weight:800;color:#FDCB6E">3.2</div>
+                    </div>
+                    <div style="flex:1;background:rgba(255,255,255,.03);border-radius:10px;padding:12px;text-align:center">
+                        <div style="font-size:.9rem">👦</div><div style="font-size:.68rem;color:#A7A9BE;margin:2px 0">Pojkar</div><div style="font-size:1.1rem;font-weight:800;color:#00B894">3.7</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="width:55px;font-size:.72rem;color:#A7A9BE">6-9 år</span><div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:80%;background:#00B894;border-radius:3px"></div></div><span style="font-size:.72rem;font-weight:700;color:#00B894;width:24px;text-align:right">4.0</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="width:55px;font-size:.72rem;color:#A7A9BE">10-13</span><div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:68%;background:#FDCB6E;border-radius:3px"></div></div><span style="font-size:.72rem;font-weight:700;color:#FDCB6E;width:24px;text-align:right">3.4</span></div>
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:55px;font-size:.72rem;color:#A7A9BE">14-17</span><div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:62%;background:#E17055;border-radius:3px"></div></div><span style="font-size:.72rem;font-weight:700;color:#E17055;width:24px;text-align:right">3.1</span></div>
+                </div>
+
+                <div style="text-align:center;font-size:.7rem;color:#A7A9BE;font-style:italic;margin-bottom:20px">Demo — baserat på simulerad data från 47 familjer</div>
+
                 <div style="font-size:.85rem;font-weight:700;color:var(--t);margin-bottom:12px">Vad ni får tillgång till</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                     <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:14px;text-align:center">
